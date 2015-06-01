@@ -1,0 +1,191 @@
+#ifndef TOK
+#define TOK(X)
+#endif
+
+#ifndef LITERAL
+#define LITERAL(X) TOK(X)
+#endif
+
+#ifndef PUNCT
+#define PUNCT(X,Y) TOK(X)
+#endif
+
+#ifndef KEYWORD
+#define KEYWORD(X) TOK(kw_ ## X)
+#endif
+
+//basic type
+#ifndef BTYPE
+#define BTYPE(X,SZ,SIGN) KEYWORD(X)
+#endif
+
+//floating point
+#ifndef FTYPE
+#define FTYPE(X,SZ) KEYWORD(X)
+#endif
+
+//vector types
+#ifndef VTYPE
+#define VTYPE(X,LEN,TYPE) KEYWORD(X)
+#endif
+
+#ifndef RESERVE
+#define RESERVE(X) TOK(resv_ ## X)
+#endif
+
+//matrix types?
+
+TOK(none)
+TOK(eof)
+TOK(unknown)
+TOK(comment)
+TOK(identifier)
+LITERAL(floatlit)
+LITERAL(intlit)
+LITERAL(stringlit)
+LITERAL(charlit)
+
+BTYPE(void,1,false)
+BTYPE(bool,1,false)
+
+BTYPE(int8,1,true)
+BTYPE(char,1,true)
+BTYPE(uint8,1,false)
+BTYPE(uchar,1,false)
+
+BTYPE(int16,2,true)
+BTYPE(short,2,true)
+BTYPE(uint16,2,false)
+BTYPE(ushort,2,false)
+
+BTYPE(int32,4,true)
+BTYPE(int,4,true)
+BTYPE(uint32,4,false)
+BTYPE(uint,4,false)
+
+BTYPE(int64,8,true)
+BTYPE(long,8,true)
+BTYPE(uint64,8,false)
+BTYPE(ulong,8,false)
+
+FTYPE(float,4)
+FTYPE(double,8)
+FTYPE(float32,4)
+FTYPE(float64,8)
+
+//VTYPE(vec4,4,float)
+
+RESERVE(enum)
+
+KEYWORD(extern)
+KEYWORD(for)
+KEYWORD(goto)
+KEYWORD(if)
+KEYWORD(else)
+KEYWORD(return)
+KEYWORD(struct)
+KEYWORD(static)
+KEYWORD(union)
+KEYWORD(true)
+KEYWORD(false)
+KEYWORD(null)
+KEYWORD(and)
+KEYWORD(or)
+KEYWORD(not)
+KEYWORD(while)
+KEYWORD(switch)
+KEYWORD(case)
+KEYWORD(import)
+KEYWORD(pack)
+KEYWORD(include)
+KEYWORD(label)
+KEYWORD(package) /* declare package like Java, (package com.mysite.mypackage) */
+KEYWORD(function) /* for function pointers */
+KEYWORD(break)
+KEYWORD(continue)
+KEYWORD(use) /* use extensions */
+KEYWORD(const)
+
+// OWL
+KEYWORD(class)
+KEYWORD(interface)
+KEYWORD(var) /* statically checked automatic type variable var myvar = new MyStruct() */
+KEYWORD(new)
+KEYWORD(renew)
+KEYWORD(delete)
+KEYWORD(retain)
+KEYWORD(release)
+KEYWORD(undecorated) /* change to undecorated */
+KEYWORD(implicit) /* for implicit conversions, default constructors, apply to function */
+KEYWORD(this)
+KEYWORD(weak) /* weak reference type specifier */
+
+RESERVE(decorated)
+RESERVE(explicit)
+
+// reserved words. hopefully will get around to implementing these
+RESERVE(defer) /* for deferring code until function exit. defer <STATEMENT>*/
+RESERVE(foreach)
+RESERVE(asm) /* inline asm */
+RESERVE(once) /* declare that statement only happens once, ever. when first encountered  */
+RESERVE(number) /* for variable precission numbers */
+RESERVE(let) /* like D alias, and for constants (let a = 7) */
+RESERVE(super)
+RESERVE(go)
+
+PUNCT(plus, "+")
+PUNCT(plusplus, "++")
+PUNCT(minus, "-")
+PUNCT(minusminus, "--")
+PUNCT(star, "*")
+PUNCT(starstar, "**")
+PUNCT(slash, "/")
+PUNCT(amp, "&")
+PUNCT(ampamp, "&&")
+PUNCT(bar, "|")
+PUNCT(barbar, "||")
+PUNCT(caret, "^")
+PUNCT(percent, "%")
+PUNCT(plusequal, "+=")
+PUNCT(minusequal, "-=")
+PUNCT(starequal, "*=")
+PUNCT(slashequal, "/=")
+PUNCT(ampequal, "&=")
+PUNCT(barequal, "|=")
+PUNCT(caretequal, "^=")
+PUNCT(percentequal, "%=")
+PUNCT(bang, "!")
+PUNCT(tilde, "~")
+PUNCT(slashslash, "//")
+PUNCT(equal, "=")
+PUNCT(equalequal, "==")
+PUNCT(bangequal, "!=")
+PUNCT(less, "<")
+PUNCT(lessless, "<<")
+PUNCT(lessequal, "<=")
+PUNCT(greater, ">")
+PUNCT(greaterequal, ">=")
+PUNCT(greatergreater, ">>")
+PUNCT(lparen, "(")
+PUNCT(rparen, ")")
+PUNCT(lbrace, "{")
+PUNCT(rbrace, "}")
+PUNCT(lbracket, "[")
+PUNCT(rbracket, "]")
+PUNCT(comma, ",")
+PUNCT(semicolon, ";")
+PUNCT(colon, ":")
+PUNCT(colonequal, ":=")
+PUNCT(dot, ".")
+PUNCT(dotdot, "..")
+PUNCT(dotdotdot, "...")
+
+
+#undef TOK
+#undef LITERAL
+#undef PUNCT
+#undef KEYWORD
+#undef RESERVE
+#undef BTYPE
+#undef VTYPE
+#undef FTYPE
