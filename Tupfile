@@ -1,0 +1,35 @@
+# source files (minus main function)
+SRC=\
+src/common/string.cpp \
+src/exception/exception.cpp\
+src/io/file.cpp \
+src/lex/lexer.cpp \
+src/lex/token.cpp \
+src/parse/parser.cpp
+
+# main function
+MAIN=src/driver/main.cpp
+
+# test files
+TST=test/string_test.cpp
+
+CXXFLAGS=-Isrc -g -O0
+LDFLAGS=-lmingw32
+EXE=wlc.exe
+TESTEXE=test/test.exe
+TEST_LDFLAGS=-lgtest -lgtest_main -lmingw32
+
+# compile source files into .o files
+: foreach $(SRC) |> g++ -c $(CXXFLAGS) %f -o %o |> build/%B.o {OBJS}
+
+# compile cpp file with main function into .o
+: $(MAIN) |> g++ -c $(CXXFLAGS) %f -o %o |> build/%B.o {MAIN}
+
+# compile test files into .o files
+: foreach $(TST) |> g++ -c $(CXXFLAGS) %f -o %o |> build/test/%B.o {TESTOBJS}
+
+# compile objects into executable
+: {OBJS} {MAIN} |> g++ %f -o $(EXE) $(LDFLAGS) |> $(EXE)
+
+# compile objects (minus main function) into test executable
+: {OBJS} {TESTOBJS} |> g++ %f -o $(TESTEXE) $(TEST_LDFLAGS) |> $(TESTEXE)

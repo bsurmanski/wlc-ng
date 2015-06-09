@@ -1,1 +1,5 @@
-wlc
+.tup
+build
+*.exe
+*.o
+*.swp
