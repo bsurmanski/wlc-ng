@@ -3,15 +3,16 @@
 
 class Input {
     public:
-    long getSize();
-    int seek(long sval);
-    int set(long sval);
-    int rset(long sval);
-    long tell();
-    int get();
-    int peek();
-    long read(void *buf, long sz, long nmemb);
-    bool eof();
+	virtual ~Input() {}
+    virtual long getSize() = 0;
+    virtual int seek(long sval) = 0;
+    virtual int set(long sval) = 0;
+    virtual int rset(long sval) = 0;
+    virtual long tell() = 0;
+    virtual int get() = 0;
+    virtual int peek() = 0;
+    virtual long read(void *buf, long sz, long nmemb) = 0;
+    virtual bool eof() = 0;
 };
 
 #endif

@@ -1,17 +1,17 @@
 #ifndef _FILE_HPP
 #define _FILE_HPP
 
-#include <string>
-
+#include "common/string.hpp"
 #include "input.hpp"
 
 class File : Input {
-    std::string name;
+    String name;
     long size;
 
     public:
-    File(std::string path);
-    std::string getName();
+    File(String path);
+	~File();
+    String getName();
 
     long getSize();
     int seek(long sval);

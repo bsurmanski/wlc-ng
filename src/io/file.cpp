@@ -1,9 +1,12 @@
 #include "file.hpp"
 
-File::File(std::string path) {
+File::File(String path) {
 }
 
-std::string File::getName() {
+File::~File() {
+}
+
+String File::getName() {
     return name;
 }
 

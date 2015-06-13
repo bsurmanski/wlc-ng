@@ -3,3 +3,4 @@ build
 *.exe
 *.o
 *.swp
+test_detail.xml
