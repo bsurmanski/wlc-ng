@@ -3,11 +3,24 @@
 
 #include <string.h>
 #include <stdlib.h>
-#include <stdio.h>
 #include <assert.h>
 
 #define MAX(A, B) ((A) > (B) ? (A) : (B))
 #define MIN(A, B) ((A) > (B) ? (B) : (A))
+
+_StringData *_StringData::retain() {
+	refcount++;
+	return this;
+}
+
+bool _StringData::release() {
+	refcount--;
+	if(refcount <= 0) {
+		free(this);
+		return true;
+	}
+	return false;
+}
 
 String::String() {
 	len = 0;
@@ -19,16 +32,28 @@ String::String(const char *str) {
 	len = strl;
 	capacity = MAX(len, STRING_LONG);
 	if(len > STRING_LONG) {
-		dptr = (char*) malloc(capacity);
-		memcpy(dptr, str, len);
+		refdata = (_StringData*) malloc(capacity + sizeof(_StringData));
+		refdata->refcount = 1;
+		memcpy(refdata->data, str, len);
 	} else {
 		memcpy(data, str, len);
 	}
 }
 
+
+String::String(const String& o) {
+	len = o.len;
+	capacity = o.capacity;
+	if(o.isLong()) {
+		refdata = o.refdata->retain();
+	} else {
+		memcpy(data, o.data, o.len);
+	}
+}
+
 String::~String() {
 	if(isLong()) {
-		free(dptr);
+		refdata->release();
 	}
 }
 
@@ -38,17 +63,18 @@ bool String::isLong() const {
 
 void String::resize(int cap) {
 	if(cap > capacity && cap > STRING_LONG) {
-		char *ndata = (char*) malloc(cap);
+		_StringData *ndata = (_StringData*) malloc(cap + sizeof(_StringData));
 		assert(ndata);
+		ndata->refcount = 1;
 		if(isLong()) {
-			memcpy(ndata, this->dptr, len);
-			free(dptr);
+			memcpy(ndata->data, refdata->data, len);
+			refdata->release();
 		} else {
-			memcpy(ndata, &this->data[0], len);
+			memcpy(ndata->data, &this->data[0], len);
 		}
 		capacity = cap;
-		dptr = ndata;
-	} else if(cap < capacity && capacity < STRING_LONG) {
+		refdata = ndata;
+	} else if(capacity <= STRING_LONG) {
 	} else {
 		throw new Exception("Cannot shrink string");
 	}
@@ -58,7 +84,23 @@ size_t String::length() const {
 	return len;
 }
 
-char & String::operator[](int i) {
+String &String::operator=(const String &o) {
+	if(isLong()) {
+		refdata->release();
+	}
+	
+	len = o.len;
+	capacity = o.capacity;
+	if(o.isLong()) {
+		refdata = o.refdata->retain();
+	} else {
+		memcpy(data, o.data, o.len);
+	}
+	
+	return *this;
+}
+
+char &String::operator[](int i) {
 	return charAt(i);
 }
 
@@ -109,7 +151,7 @@ const char &String::charAt(int i) const {
 	}
 	
 	if(isLong()) {
-		return dptr[i];
+		return refdata->data[i];
 	} else {
 		return data[i];
 	}
@@ -121,7 +163,7 @@ char &String::charAt(int i) {
 	}
 	
 	if(isLong()) {
-		return dptr[i];
+		return refdata->data[i];
 	} else {
 		return data[i];
 	}
@@ -144,7 +186,7 @@ int String::compare(const String &o) const {
 
 void String::append(char c) {
 	if(len == capacity) {
-		resize(capacity+1);
+		resize(capacity+STRING_APPEND_PAD);
 	}
 	charAt(len) = c;
 	len++;
@@ -152,7 +194,7 @@ void String::append(char c) {
 
 void String::append(const String &o) {
 	if(length() + o.length() > capacity) {
-		resize(length() + o.length());
+		resize(length() + o.length()+STRING_APPEND_PAD);
 	}
 	
 	for(int i = 0; i < o.length(); i++) {
@@ -164,7 +206,7 @@ void String::append(const String &o) {
 
 char *String::c_str() {
 	if(len + 1 >= capacity) {
-		resize(len+1);
+		resize(len+STRING_APPEND_PAD);
 	}
 	charAt(len) = '\0';
 	return dataPtr();
@@ -172,7 +214,7 @@ char *String::c_str() {
 
 char *String::dataPtr() {
 	if(isLong()) {
-		return dptr;
+		return refdata->data;
 	} else {
 		return data;
 	}
@@ -180,7 +222,7 @@ char *String::dataPtr() {
 
 const char *String::dataPtr() const {
 	if(isLong()) {
-		return dptr;
+		return refdata->data;
 	} else {
 		return data;
 	}
@@ -188,7 +230,7 @@ const char *String::dataPtr() const {
 
 void String::copy(char *dst, size_t len, size_t pos) const {
 	if(isLong()) {
-		memcpy(dst, &dptr[pos], len);
+		memcpy(dst, &refdata->data[pos], len);
 	} else {
 		memcpy(dst, &data[pos], len);
 	}
@@ -196,4 +238,12 @@ void String::copy(char *dst, size_t len, size_t pos) const {
 
 bool String::empty() const {
 	return len <= 0;
+}
+
+String String::dup() const {
+	String o;
+	o.resize(capacity);
+	copy(o.dataPtr(), length(), 0);
+	o.len = length();
+	return o;
 }

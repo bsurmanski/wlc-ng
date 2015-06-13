@@ -74,3 +74,21 @@ TEST(String, Copy) {
 	str1.copy(cstr1, 2, 2);
 	EXPECT_STREQ(cstr1, "llllo");
 }
+
+TEST(String, Dup) {
+	String st1("test");
+	String st2 = st1;
+	String st3 = st1.dup();
+
+	EXPECT_EQ(st1, st2);
+	EXPECT_EQ(st1, st3);
+	st1[0] = 'b';
+	EXPECT_NE(st1, st3);
+	
+	String st4("1234567890123456789012345678901234567890");
+	String st5 = st4;
+	String st6 = st4.dup();
+	st4[0] = '0';
+	EXPECT_EQ(st4, st5);
+	EXPECT_NE(st4, st6);
+}

@@ -4,21 +4,26 @@
 #include <stdlib.h>
 
 #define STRING_LONG 28
+#define STRING_APPEND_PAD 16
+
+struct _StringData {
+	int refcount;
+	char data[];
+	
+	_StringData *retain();
+	bool release();
+};
 
 class String {
 	int capacity;
 	int len;
 
-    // if Token data is > LONG bytes, then data is redirected through ptr
-    // what the data contains depends on what type of token this is:
-    // char literal: value in data[0]
-    // string literal: value in data if *short*, else in *dptr
-    // numeric literal: value in data
-    // identifier: name in data if *short*, else in *dptr
-    // keyword: null
+    // if string data is less than STRING_LONG, than the entire string contents
+	// are stored in 'data'. This makes creation and deletion of simple strings
+	// faster by avoiding memory allocation.
     union {
         char data[STRING_LONG];
-        char *dptr;
+		_StringData *refdata;
     };
 	
 	bool isLong() const;
@@ -27,9 +32,11 @@ class String {
 	public:
 	String();
 	String(const char *str);
+	String(const String& o);
 	~String();
 	
 	size_t length() const;
+	String &operator=(const String &o);
 	char &operator[](int i);
 	const char &operator[](int i) const;
 	bool operator==(const String &o) const;
@@ -51,6 +58,7 @@ class String {
 	const char *dataPtr() const;
 	void copy(char *dst, size_t len, size_t pos = 0) const;
 	bool empty() const;
+	String dup() const;
 };
 
 #endif
