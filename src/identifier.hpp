@@ -1,12 +1,12 @@
 #ifndef _IDENTIFIER_HPP
 #define _IDENTIFIER_HPP
 
-#include <string>
+#include "common/string.hpp"
 
 class Identifier {
-    std::string name;
+    String name;
 
-    Identifier(std::string _name);
+    Identifier(String _name);
 };
 
 #endif

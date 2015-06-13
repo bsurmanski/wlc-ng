@@ -4,7 +4,8 @@
 #include "ast.hpp"
 
 class Module {
-    Module();
+    public:
+	Module(){}
 
     void addDecl(Decl *decl);
     void addImport(Module *m);

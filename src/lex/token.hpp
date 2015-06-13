@@ -1,15 +1,16 @@
 #ifndef _TOKEN_HPP
 #define _TOKEN_HPP
 
-#include "../io/file.hpp"
+#include "io/file.hpp"
+#include "common/string.hpp"
 
 struct SourceLocation {
-    File *file;
+    Input *input;
     int offset; // character offset into file
                 // if column/char info is needed, it can be computed
 
     SourceLocation();
-    SourceLocation(File *_file, int _offset);
+    SourceLocation(Input *_input, int _offset);
 
     bool isValid();
 };
@@ -35,19 +36,7 @@ struct Token {
     SourceLocation loc;
     tok::TokenKind kind;
 
-    bool isLong;
-
-    // if Token data is > 32 bytes, then data is redirected through ptr
-    // what the data contains depends on what type of token this is:
-    // char literal: value in data[0]
-    // string literal: value in data if *short*, else in *dptr
-    // numeric literal: value in data
-    // identifier: name in data if *short*, else in *dptr
-    // keyword: null
-    union {
-        char data[32];
-        void *dptr;
-    };
+    String data;
 
     public:
     Token();
@@ -62,18 +51,18 @@ struct Token {
 
     void setCharData(char c);
     void setIntData(long c);
-    void setStringData(std::string str);
-    void setIdentifierName(std::string str);
+    void setStringData(String str);
+    void setIdentifierName(String str);
 
     char getCharData();
     long getIntData();
-    std::string getStringData();
-    std::string getIdentifierName();
+    String &getStringData();
+    String &getIdentifierName();
 
     tok::TokenKind getKind();
-    std::string getKeyword();
-    std::string getLiteral();
-    std::string getIdentifier();
+    String getKeyword();
+    String getLiteral();
+    String &getIdentifier();
     SourceLocation getSourceLocation();
 };
 

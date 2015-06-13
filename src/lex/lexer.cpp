@@ -1,8 +1,7 @@
 #include "lexer.hpp"
+#include "exception/exception.hpp"
 
 #include <assert.h>
-
-//TODO: use a 'string buffer' class
 
 static char lowercase(char c) {
     if(c >= 'A' && c <= 'Z') {
@@ -62,62 +61,61 @@ Token Lexer::lex() {
         return lexCharLiteral();
     }
 
-    //XXX ERROR
+	throw new Exception("invalid input character found");
 }
 
-
-SourceLocation getLocation() {
-    return SourceLocation(NULL, 0); //TODO
+SourceLocation Lexer::getLocation() {
+    return SourceLocation(input, input->tell());
 }
 
-std::string Lexer::consumeWord() {
-    std::string str;
+String Lexer::consumeWord() {
+    String str;
 
     if(!isNonDigit(input->peek())) return "";
 
     do {
         str += (char) input->get();
-    } while (isIdChar(input->peek()));
+    } while (isIdChar(input->peek()) && !input->eof());
     return str;
 }
 
 Token Lexer::lexWord() {
     SourceLocation loc = getLocation();
-    std::string word = consumeWord();
+    String word = consumeWord();
 
-#define KEYWORD(X) if(#X == word) return Token(tok::kw_##X, loc);
+#define KEYWORD(X) if(word == #X) return Token(tok::kw_##X, loc);
 #include "tokenkinds.def"
 #undef KEYWORD
 
     return Token(tok::identifier, loc);
 }
 
-std::string Lexer::consumeDecSeq() {
-    std::string str;
+String Lexer::consumeDecSeq() {
+    String str;
     while(isDigit(input->peek())) {
         str += (char) input->get();
     }
     return str;
 }
 
-std::string Lexer::consumeHexSeq() {
-    std::string str;
+String Lexer::consumeHexSeq() {
+    String str;
     while(isHexDigit(input->peek())) {
         str += (char) input->get();
     }
     return str;
 }
 
-std::string Lexer::consumeOctSeq() {
-    std::string str;
+String Lexer::consumeOctSeq() {
+    String str;
     while(isOctDigit(input->peek())) {
         str += (char) input->get();
     }
     return str;
 }
 
-std::string Lexer::consumeBinSeq() {
-    std::string str;
+String Lexer::consumeBinSeq() {
+    String str;
     while(isBinDigit(input->peek())) {
         str += (char) input->get();
     }
@@ -125,6 +123,7 @@ std::string Lexer::consumeBinSeq() {
 }
 
 Token Lexer::lexNumericLiteral() {
+	SourceLocation loc = getLocation();
     bool negative = false;
 
     if(isSign(input->peek())) {
@@ -132,7 +131,7 @@ Token Lexer::lexNumericLiteral() {
         if(s == '-') negative = true;
     }
 
-    std::string num;
+    String num;
     num += (char) input->get();
 
     if(num[0] == '0') {
@@ -148,9 +147,13 @@ Token Lexer::lexNumericLiteral() {
             consumeBinSeq();
         }
     }
+	
+	return Token(tok::intlit, loc);
 }
 
 Token Lexer::lexStringLiteral() {
+	SourceLocation loc = getLocation();
+	return Token(tok::stringlit, loc);
 }
 
 

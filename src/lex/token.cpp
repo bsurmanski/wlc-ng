@@ -3,28 +3,26 @@
 #include <assert.h>
 
 SourceLocation::SourceLocation() {
-    file = NULL;
+    input = NULL;
     offset = 0;
 }
 
-SourceLocation::SourceLocation(File *_file, int _offset) {
-    file = _file;
+SourceLocation::SourceLocation(Input *_input, int _offset) {
+    input = _input;
     offset = _offset;
 }
 
 bool SourceLocation::isValid() {
-    return file != NULL; //TODO: figure this out later
+    return input != NULL; //TODO: figure this out later
 }
 
 Token::Token() {
     kind = tok::none;
-    isLong = false;
 }
 
 Token::Token(tok::TokenKind _kind, SourceLocation _loc) {
     kind = _kind;
     loc = _loc;
-    isLong = false;
 }
 
 
@@ -54,12 +52,16 @@ void Token::setCharData(char c) {
 }
 
 void Token::setIntData(long c) {
+	//TODO:
+	assert(false);
 }
 
-void Token::setStringData(std::string str) {
+void Token::setStringData(String str) {
+	data = str;
 }
 
-void Token::setIdentifierName(std::string str) {
+void Token::setIdentifierName(String str) {
+	data = str;
 }
 
 char Token::getCharData() {
@@ -68,27 +70,32 @@ char Token::getCharData() {
 }
 
 long Token::getIntData() {
+	long ival;
+	data.copy((char*) &ival, sizeof(long));
+	return ival;
 }
 
-std::string Token::getStringData() {
+String &Token::getStringData() {
+	return data;
 }
 
-std::string Token::getIdentifierName() {
+String &Token::getIdentifierName() {
 }
 
 tok::TokenKind Token::getKind() {
     return kind;
 }
 
-std::string Token::getKeyword() {
+String Token::getKeyword() {
 }
 
-std::string Token::getLiteral() {
+String Token::getLiteral() {
 }
 
-std::string Token::getIdentifier() {
+String &Token::getIdentifier() {
 }
 
 SourceLocation Token::getSourceLocation() {
+	return loc;
 }
 

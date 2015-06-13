@@ -6,7 +6,7 @@ Parser::Parser(Program *_program, Lexer *_lex) {
 }
 
 Module *Parser::parse() {
-    Module module = new Module;
+    Module *module = new Module;
 
     return module;
 }
