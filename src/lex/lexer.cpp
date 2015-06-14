@@ -106,7 +106,7 @@ Token Lexer::lexWord() {
 #include "tokenkinds.def"
 #undef KEYWORD
 
-    return Token(tok::identifier, loc);
+    return Token::createIdentifierToken(word, loc);
 }
 
 String Lexer::consumeDecSeq() {

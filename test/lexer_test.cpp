@@ -80,6 +80,22 @@ TEST(Lexer, Chars) {
 }
 
 TEST(Lexer, Identifiers) {
+	Lexer *lex;
+	Token tok;
+	
+	#define TEST_ID(ID) lex = new Lexer(new StringInput(#ID));\
+					tok = lex->lex();\
+					ASSERT_EQ(tok::identifier, tok.getKind());\
+					ASSERT_EQ(tok.getStringData(), #ID);\
+					delete lex;
+					
+	TEST_ID(hello);
+	TEST_ID(something);
+	TEST_ID(i);
+	TEST_ID(int_);
+	TEST_ID(_int);
+	
+	#undef TEST_ID
 }
 
 TEST(Lexer, Punctuation) {
