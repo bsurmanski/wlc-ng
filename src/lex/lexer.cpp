@@ -202,12 +202,24 @@ Token Lexer::lexStringLiteral() {
 Token Lexer::lexCharLiteral() {
     SourceLocation loc = getLocation();
     assert(input->peek() == '\'');
-    input->get();
+	
+	// ignore opening '
+	if(input->get() != '\'') {
+		throw new Exception("lexer: expected \' beginning char constant");
+	}
 
+	char c;
     if(input->peek() == '\\') {
-        //TODO: handle escape char
-    }
-
-    char c = input->get();
-    return Token(tok::charlit, loc); //TODO: set value
+		input->get();
+		c = decodeEscapeCharacter(input->get());
+    } else {
+		c = input->get();
+	}
+	
+	// ignore closing '
+	if(input->get() != '\'') {
+		throw new Exception("lexer: expected \' following char constant");
+	}
+	
+    return Token::createCharToken(c, loc);
 }

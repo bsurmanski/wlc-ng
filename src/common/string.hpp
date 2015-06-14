@@ -33,6 +33,7 @@ class String {
 	String();
 	String(const char *str);
 	String(const String& o);
+	String(char c);
 	~String();
 	
 	void clear();

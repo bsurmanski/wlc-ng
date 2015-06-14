@@ -61,6 +61,9 @@ Token &Token::operator=(const Token& o) {
 }
 
 Token Token::createCharToken(char c, SourceLocation _loc) {
+	Token tok(tok::charlit, _loc);
+	tok.uintdata = c;
+	return tok;
 }
 
 Token Token::createStringToken(String str, SourceLocation _loc) {
@@ -108,6 +111,10 @@ bool Token::isNot(tok::TokenKind k) {
 
 long long Token::getIntData() {
 	return intdata;
+}
+
+unsigned long long Token::getUIntData() {
+	return uintdata;
 }
 
 String &Token::getStringData() {

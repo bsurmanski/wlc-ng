@@ -62,6 +62,21 @@ TEST(Lexer, Floats) {
 }
 
 TEST(Lexer, Chars) {
+	Lexer *lex;
+	Token tok;
+	
+	#define TEST_CHAR(C) lex = new Lexer(new StringInput(#C));\
+					tok = lex->lex();\
+					ASSERT_EQ(tok::charlit, tok.getKind());\
+					ASSERT_EQ(C, tok.getUIntData());\
+					delete lex;
+					
+	TEST_CHAR('a');
+	TEST_CHAR('0');
+	TEST_CHAR('\n');
+	TEST_CHAR('\a');
+	
+	#undef TEST_STR
 }
 
 TEST(Lexer, Identifiers) {

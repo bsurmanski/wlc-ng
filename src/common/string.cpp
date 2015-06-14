@@ -51,6 +51,12 @@ String::String(const String& o) {
 	}
 }
 
+String::String(char c) {
+	len = 0;
+	capacity = STRING_LONG;
+	append(c);
+}
+
 String::~String() {
 	if(isLong()) {
 		refdata->release();
