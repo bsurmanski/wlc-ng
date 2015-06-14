@@ -1,6 +1,8 @@
 #include "token.hpp"
 
 #include <assert.h>
+#include <string.h>
+#include <new>
 
 SourceLocation::SourceLocation() {
     input = NULL;
@@ -16,13 +18,70 @@ bool SourceLocation::isValid() {
     return input != NULL; //TODO: figure this out later
 }
 
+bool Token::hasStringData() const {
+	return kind == tok::identifier || kind == tok::stringlit;
+}
+
 Token::Token() {
     kind = tok::none;
+}
+
+Token::Token(const Token &t) {
+	loc = t.loc;
+	kind = t.kind;
+	if(t.hasStringData()) {
+		new(strdata) String(*reinterpret_cast<const String *>(t.strdata));
+	} else {
+		memcpy(strdata, t.strdata, sizeof(strdata)); // just copy bytes
+	}
 }
 
 Token::Token(tok::TokenKind _kind, SourceLocation _loc) {
     kind = _kind;
     loc = _loc;
+}
+
+Token::~Token() {
+	if(hasStringData()) {
+		String *str = reinterpret_cast<String*>(strdata);
+		str->~String(); // destruct string if we are using it
+	}
+}
+
+Token &Token::operator=(const Token& o) {
+	this->~Token();
+	loc = o.loc;
+	kind = o.kind;
+	if(o.hasStringData()) {
+		new(strdata) String(*reinterpret_cast<const String *>(o.strdata));
+	} else {
+		memcpy(strdata, o.strdata, sizeof(strdata)); // just copy bytes
+	}
+	return *this;
+}
+
+Token Token::createCharToken(char c, SourceLocation _loc) {
+}
+
+Token Token::createStringToken(String str, SourceLocation _loc) {
+	Token tok(tok::stringlit, _loc);
+	new(tok.strdata) String(str); // copy string into strdata buffer
+	return tok;
+}
+
+Token Token::createIdentifierToken(String str, SourceLocation _loc) {
+	Token tok(tok::identifier, _loc);
+	new(tok.strdata) String(str); // copy string into strdata buffer
+	return tok;
+}
+
+Token Token::createIntToken(long long val, SourceLocation _loc) {
+}
+
+Token Token::createUIntToken(unsigned long long val, SourceLocation _loc) {
+}
+
+Token Token::createFloatToken(double val, SourceLocation _loc) {
 }
 
 
@@ -47,39 +106,16 @@ bool Token::isNot(tok::TokenKind k) {
     return kind != k;
 }
 
-void Token::setCharData(char c) {
-    data[0] = c;
-}
-
-void Token::setIntData(long c) {
-	//TODO:
-	assert(false);
-}
-
-void Token::setStringData(String str) {
-	data = str;
-}
-
-void Token::setIdentifierName(String str) {
-	data = str;
-}
-
-char Token::getCharData() {
-    assert(kind == tok::charlit);
-    return data[0];
-}
-
-long Token::getIntData() {
-	long ival;
-	data.copy((char*) &ival, sizeof(long));
-	return ival;
+long long Token::getIntData() {
+	return intdata;
 }
 
 String &Token::getStringData() {
-	return data;
+	return *reinterpret_cast<String*>(strdata);
 }
 
 String &Token::getIdentifierName() {
+	return *reinterpret_cast<String*>(strdata);
 }
 
 tok::TokenKind Token::getKind() {

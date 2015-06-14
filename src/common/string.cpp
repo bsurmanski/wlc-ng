@@ -74,10 +74,15 @@ void String::resize(int cap) {
 		}
 		capacity = cap;
 		refdata = ndata;
-	} else if(capacity <= STRING_LONG) {
-	} else {
-		throw new Exception("Cannot shrink string");
+	} else if(capacity > STRING_LONG && cap < STRING_LONG) { // we are shrinking across 'LONG' boundary
+		_StringData *old = refdata;
+		memcpy(data, refdata->data, len);
+		old->release();
 	}
+}
+
+void String::clear() {
+	resize(0);
 }
 
 size_t String::length() const {

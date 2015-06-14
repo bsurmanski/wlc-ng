@@ -37,10 +37,25 @@ TEST(Lexer, Integers) {
 	TEST_INT(123);
 	TEST_INT(55555);
 	TEST_INT(128);
-	TEST_INT(-1);
+	
+	#undef TEST_INT
 }
 
 TEST(Lexer, Strings) {
+	Lexer *lex;
+	Token tok;
+	
+	#define TEST_STR(STR) lex = new Lexer(new StringInput(#STR));\
+					tok = lex->lex();\
+					ASSERT_EQ(tok::stringlit, tok.getKind());\
+					ASSERT_EQ(tok.getStringData(), STR);\
+					delete lex;
+					
+	TEST_STR("Hello");
+	TEST_STR("Hi\"");
+	TEST_STR("Long String with \' escape \' characters \t \n \a \b");
+	
+	#undef TEST_STR
 }
 
 TEST(Lexer, Floats) {

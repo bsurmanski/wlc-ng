@@ -63,6 +63,7 @@
     null
 
 # simple\_escape\_seq
+	\0
     \'
     \"
     \\

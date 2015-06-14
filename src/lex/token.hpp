@@ -33,14 +33,32 @@ namespace tok {
 
 struct Token {
     private:
+	union {
+		char strdata[sizeof(String)];
+		double floatdata;
+		long long intdata;
+		unsigned long long uintdata;
+	};
+	
     SourceLocation loc;
     tok::TokenKind kind;
-
-    String data;
+	
+	bool hasStringData() const;
 
     public:
     Token();
+	Token(const Token &t);
     Token(tok::TokenKind _kind, SourceLocation _loc);
+	~Token();
+	
+	Token &operator=(const Token& o);
+	
+	static Token createCharToken(char c, SourceLocation _loc);
+	static Token createStringToken(String str, SourceLocation _loc);
+	static Token createIdentifierToken(String str, SourceLocation _loc);
+	static Token createIntToken(long long val, SourceLocation _loc);
+	static Token createUIntToken(unsigned long long val, SourceLocation _loc);
+	static Token createFloatToken(double val, SourceLocation _loc);
 
     bool isKeyword();
     bool isLiteral();
@@ -49,13 +67,8 @@ struct Token {
     bool is(tok::TokenKind k);
     bool isNot(tok::TokenKind k);
 
-    void setCharData(char c);
-    void setIntData(long c);
-    void setStringData(String str);
-    void setIdentifierName(String str);
-
-    char getCharData();
-    long getIntData();
+    long long getIntData();
+	unsigned long long getUIntData();
     String &getStringData();
     String &getIdentifierName();
 

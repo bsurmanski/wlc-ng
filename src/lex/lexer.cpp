@@ -39,6 +39,25 @@ static bool isHexDigit(char c) {
     return (c >= '0' && c <= '9') || (low >= 'a' && low <= 'f');
 }
 
+static char decodeEscapeCharacter(char c) {
+	switch(c) {
+		case '\'': return '\'';
+		case '"': return '"';
+		case '\\': return '\\';
+		case '?': return '\?';
+		case '0': return '\0';
+		case 'a': return '\a';
+		case 'b': return '\b';
+		case 'f': return '\f';
+		case 'n': return '\n';
+		case 'r': return '\r';
+		case 't': return '\t';
+		case 'v': return '\v';
+	}
+	
+	return '\0'; //error?
+}
+
 Lexer::Lexer(Input *_input) {
     input = _input;
 }
@@ -71,7 +90,7 @@ SourceLocation Lexer::getLocation() {
 String Lexer::consumeWord() {
     String str;
 
-    if(!isNonDigit(input->peek())) return "";
+    if(!isNonDigit(input->peek())) throw new Exception("Lex Exception: invalid start character in word");
 
     do {
         str += (char) input->get();
@@ -153,7 +172,30 @@ Token Lexer::lexNumericLiteral() {
 
 Token Lexer::lexStringLiteral() {
 	SourceLocation loc = getLocation();
-	return Token(tok::stringlit, loc);
+	String str;
+	
+	if(input->get() != '\"') { // ignore "
+		throw new Exception("lexer: expected \"");
+	}
+	
+	while(input->peek() != '\"') {
+		if(input->eof()) {
+			throw new Exception("expected closing \", found EOF");
+		}
+	
+		if(input->peek() == '\\') {
+			input->get();
+			str += decodeEscapeCharacter(input->get());
+		} else {
+			str += input->get();
+		}
+	}
+	
+	if(input->get() != '\"') { // ignore "
+		throw new Exception("lexer: expected terminating \" in string");
+	}
+	
+	return Token::createStringToken(str, loc);
 }
 
 

@@ -35,6 +35,7 @@ class String {
 	String(const String& o);
 	~String();
 	
+	void clear();
 	size_t length() const;
 	String &operator=(const String &o);
 	char &operator[](int i);
