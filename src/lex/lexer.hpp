@@ -10,6 +10,8 @@ class Lexer {
     public:
     Lexer(Input *_input);
     Token lex();
+	Token lexRaw(); // does not throw away whitespace, comment tokens
+	bool eof();
 
     protected:
     SourceLocation getLocation();
@@ -22,6 +24,7 @@ class Lexer {
     Token lexNumericLiteral();
     Token lexStringLiteral();
     Token lexCharLiteral();
+	Token lexPunctuator();
 };
 
 #endif

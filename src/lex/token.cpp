@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <string.h>
 #include <new>
+#include "exception/exception.hpp"
 
 SourceLocation::SourceLocation() {
     input = NULL;
@@ -19,16 +20,18 @@ bool SourceLocation::isValid() {
 }
 
 bool Token::hasStringData() const {
-	return kind == tok::identifier || kind == tok::stringlit;
+	return tag == STRING;
 }
 
 Token::Token() {
     kind = tok::none;
+	tag = NONE;
 }
 
 Token::Token(const Token &t) {
 	loc = t.loc;
 	kind = t.kind;
+	tag = t.tag;
 	if(t.hasStringData()) {
 		new(strdata) String(*reinterpret_cast<const String *>(t.strdata));
 	} else {
@@ -39,6 +42,14 @@ Token::Token(const Token &t) {
 Token::Token(tok::TokenKind _kind, SourceLocation _loc) {
     kind = _kind;
     loc = _loc;
+	tag = NONE;
+}
+
+Token::Token(tok::TokenKind _kind, String _data, SourceLocation _loc) {
+	kind = _kind;
+	tag = STRING;
+	new(strdata) String(_data); // copy string into strdata buffer
+	loc = _loc;
 }
 
 Token::~Token() {
@@ -52,6 +63,7 @@ Token &Token::operator=(const Token& o) {
 	this->~Token();
 	loc = o.loc;
 	kind = o.kind;
+	tag = o.tag;
 	if(o.hasStringData()) {
 		new(strdata) String(*reinterpret_cast<const String *>(o.strdata));
 	} else {
@@ -63,19 +75,16 @@ Token &Token::operator=(const Token& o) {
 Token Token::createCharToken(char c, SourceLocation _loc) {
 	Token tok(tok::charlit, _loc);
 	tok.uintdata = c;
+	tok.tag = UINT;
 	return tok;
 }
 
 Token Token::createStringToken(String str, SourceLocation _loc) {
-	Token tok(tok::stringlit, _loc);
-	new(tok.strdata) String(str); // copy string into strdata buffer
-	return tok;
+	return Token(tok::stringlit, str, _loc);
 }
 
 Token Token::createIdentifierToken(String str, SourceLocation _loc) {
-	Token tok(tok::identifier, _loc);
-	new(tok.strdata) String(str); // copy string into strdata buffer
-	return tok;
+	return Token(tok::identifier, str, _loc);
 }
 
 Token Token::createIntToken(long long val, SourceLocation _loc) {
@@ -118,6 +127,7 @@ unsigned long long Token::getUIntData() {
 }
 
 String &Token::getStringData() {
+	if(tag != STRING) throw new Exception("Token does not contain string data");
 	return *reinterpret_cast<String*>(strdata);
 }
 

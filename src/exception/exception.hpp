@@ -7,8 +7,9 @@ class Exception {
 	String message;
 	
 	public:
-	Exception(String message);
+	Exception(String _message);
 	virtual ~Exception();
+	String &getMessage();
 };
 
 #endif

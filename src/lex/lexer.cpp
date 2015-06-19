@@ -39,6 +39,45 @@ static bool isHexDigit(char c) {
     return (c >= '0' && c <= '9') || (low >= 'a' && low <= 'f');
 }
 
+static bool isWhitespace(char c) {
+	return c == ' ' || c == '\t' || c == '\v' || c == '\f';
+}
+
+static bool isEndOfLine(char c) {
+	return c == '\n' || c == '\r';
+}
+
+static bool isPunctuatorChar(char c) {
+	switch(c) {
+		case '~':
+		case '!':
+		case '%':
+		case '^':
+		case '&':
+		case '*':
+		case '(':
+		case ')':
+		case '-':
+		case '+':
+		case '=':
+		case '[':
+		case ']':
+		case '{':
+		case '}':
+		case '|':
+		case '/':
+		case '<':
+		case '>':
+		case ';':
+		case ':':
+		case '.':
+		case ',':
+			return true;
+		default:
+			return false;
+	}
+}
+
 static char decodeEscapeCharacter(char c) {
 	switch(c) {
 		case '\'': return '\'';
@@ -63,25 +102,47 @@ Lexer::Lexer(Input *_input) {
 }
 
 Token Lexer::lex() {
-    char p = input->peek();
-    if(isDigit(p)) {
+	Token tok;
+	do {
+		if(eof()) {
+			return Token(tok::eof, getLocation());
+		}
+		
+		tok = lexRaw();
+	} while (tok.is(tok::whitespace));
+	return tok;
+}
+
+Token Lexer::lexRaw() {
+    char c = input->peek();
+    if(isDigit(c)) {
         return lexNumericLiteral();
     }
 
-    if(isNonDigit(p)) {
+    if(isNonDigit(c)) {
         return lexWord();
     }
+	
+	if(isPunctuatorChar(c)) {
+		return lexPunctuator();
+	}
 
-    if(p == '"') {
+    if(c == '"') {
         return lexStringLiteral();
     }
 
-    if(p == '\'') {
+    if(c == '\'') {
         return lexCharLiteral();
     }
 
 	throw new Exception("invalid input character found");
 }
+
+
+bool Lexer::eof() {
+	return input->eof();
+}
+
 
 SourceLocation Lexer::getLocation() {
     return SourceLocation(input, input->tell());
@@ -222,4 +283,96 @@ Token Lexer::lexCharLiteral() {
 	}
 	
     return Token::createCharToken(c, loc);
+}
+
+
+Token Lexer::lexPunctuator() {
+	SourceLocation loc = getLocation();
+	String str;
+	str += input->get();
+	
+	#define OPT_CONSUME(C, DO) {if(input->peek() == C) { str += input->get(); DO; }}
+	
+	switch(str[0]) {
+		case '~':
+			return Token(tok::tilde, str, loc);
+		case '!':
+			OPT_CONSUME('=', return Token(tok::bangequal, str, loc));
+			return Token(tok::bang, str, loc);
+		case '%':
+			OPT_CONSUME('=', return Token(tok::percentequal, str, loc));
+			return Token(tok::percent, str, loc);
+		case '^':
+			OPT_CONSUME('=', return Token(tok::caretequal, str, loc));
+			return Token(tok::caret, str, loc);
+		case '&':
+			OPT_CONSUME('=', return Token(tok::ampequal, str, loc));
+			OPT_CONSUME('&', return Token(tok::ampamp, str, loc));
+			return Token(tok::amp, str, loc);
+		case '*':
+			OPT_CONSUME('=', return Token(tok::starequal, str, loc));
+			OPT_CONSUME('*', return Token(tok::starstar, str, loc));
+			OPT_CONSUME('/', return Token(tok::starslash, str, loc));
+			return Token(tok::star, str, loc);
+		case '(':
+			return Token(tok::lparen, str, loc);
+		case ')':
+			return Token(tok::rparen, str, loc);
+		case '-':
+			OPT_CONSUME('=', return Token(tok::minusequal, str, loc));
+			OPT_CONSUME('-', return Token(tok::minusminus, str, loc));
+			return Token(tok::minus, str, loc);
+		case '+':
+			OPT_CONSUME('=', return Token(tok::plusequal, str, loc));
+			OPT_CONSUME('+', return Token(tok::plusplus, str, loc));
+			return Token(tok::plus, str, loc);
+		case '=':
+			OPT_CONSUME('=', return Token(tok::equalequal, str, loc));
+			return Token(tok::equal, str, loc);
+		case '[':
+			return Token(tok::lbracket, str, loc);
+		case ']':
+			return Token(tok::rbracket, str, loc);
+		case '{':
+			return Token(tok::lbrace, str, loc);
+		case '}':
+			return Token(tok::rbrace, str, loc);
+		case '|':
+			OPT_CONSUME('=', return Token(tok::barequal, str, loc));
+			OPT_CONSUME('|', return Token(tok::barbar, str, loc));
+			return Token(tok::bar, str, loc);
+		case '/':
+			OPT_CONSUME('/', return Token(tok::slashslash, str, loc));
+			OPT_CONSUME('*', return Token(tok::slashstar, str, loc));
+			OPT_CONSUME('=', return Token(tok::slashequal, str, loc));
+			return Token(tok::slash, str, loc);
+			
+		case '<':
+			OPT_CONSUME('=', return Token(tok::lessequal, str, loc));
+			OPT_CONSUME('<', return Token(tok::lessless, str, loc));
+			return Token(tok::less, str, loc);
+			
+		case '>':
+			OPT_CONSUME('=', return Token(tok::greaterequal, str, loc));
+			OPT_CONSUME('>', return Token(tok::greatergreater, str, loc));
+			return Token(tok::greater, str, loc);
+		case ':':
+			OPT_CONSUME('=', return Token(tok::colonequal, str, loc));
+			return Token(tok::colon, str, loc);
+			
+		case ';':
+			return Token(tok::semicolon, str, loc);
+			
+		case '.':
+			OPT_CONSUME('.', OPT_CONSUME('.', return Token(tok::dotdotdot, str, loc)); return Token(tok::dotdot, str, loc));
+			return Token(tok::dot, str, loc);
+			
+		case ',':
+			return Token(tok::comma, str, loc);
+				
+		default:
+			String err = String("lexer: unknown punctuator character in input: ");
+			err += str[0];
+			throw new Exception(err);
+	}
 }

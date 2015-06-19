@@ -1,9 +1,13 @@
 #include "exception.hpp"
 
 
-Exception::Exception(String message) {
-	this->message = message;
+Exception::Exception(String _message) {
+	message = _message;
 }
 
 Exception::~Exception() {
+}
+
+String &Exception::getMessage() {
+	return message;
 }

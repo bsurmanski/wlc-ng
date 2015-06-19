@@ -40,6 +40,16 @@ struct Token {
 		unsigned long long uintdata;
 	};
 	
+	enum DataTag {
+		NONE,
+		STRING,
+		FLOAT,
+		INT,
+		UINT,
+	};
+	
+	DataTag tag;
+	
     SourceLocation loc;
     tok::TokenKind kind;
 	
@@ -49,6 +59,7 @@ struct Token {
     Token();
 	Token(const Token &t);
     Token(tok::TokenKind _kind, SourceLocation _loc);
+	Token(tok::TokenKind _kind, String _data, SourceLocation _loc);
 	~Token();
 	
 	Token &operator=(const Token& o);

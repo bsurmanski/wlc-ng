@@ -3,24 +3,18 @@
 #include "io/stringInput.hpp"
 #include "lex/token.hpp"
 #include "lex/lexer.hpp"
+#include "exception/exception.hpp"
 
 TEST(Lexer, Keywords) {
 	Lexer *lex;
 #define TEST_KW(KW) lex = new Lexer(new StringInput(#KW));\
 					ASSERT_EQ(tok::kw_##KW, lex->lex().getKind());\
+					ASSERT_EQ(lex->eof(), true); \
 					delete lex;
-
-	TEST_KW(struct);
-	TEST_KW(class);
-	TEST_KW(int);
-	TEST_KW(uint);
-	TEST_KW(long);
-	TEST_KW(if);
-	TEST_KW(for);
-	TEST_KW(var);
-	TEST_KW(include);
-	TEST_KW(void);
-
+					
+#define KEYWORD(X) TEST_KW(X);
+#include "lex/tokenkinds.def"
+#undef KEYWORD
 #undef TEST_KW
 }
 
@@ -59,6 +53,12 @@ TEST(Lexer, Strings) {
 }
 
 TEST(Lexer, Floats) {
+	Lexer *lex;
+	Token tok;
+	#define TEST_FLOAT(FLOAT) lex = new Lexer(new StringInput(#FLOAT));\
+						tok = lex->lex();\
+						ASSERT_EQ(
+	#undef TEST_FLOAT
 }
 
 TEST(Lexer, Chars) {
@@ -75,6 +75,9 @@ TEST(Lexer, Chars) {
 	TEST_CHAR('0');
 	TEST_CHAR('\n');
 	TEST_CHAR('\a');
+	TEST_CHAR('@');
+	TEST_CHAR('!');
+	TEST_CHAR('/');
 	
 	#undef TEST_STR
 }
@@ -94,9 +97,35 @@ TEST(Lexer, Identifiers) {
 	TEST_ID(i);
 	TEST_ID(int_);
 	TEST_ID(_int);
+	TEST_ID(thing5);
+	TEST_ID(word_123);
+	
+	#undef TEST_ID
+	#define TEST_ID(ID, EXPECT) lex = new Lexer(new StringInput(#ID));\
+					tok = lex->lex();\
+					ASSERT_EQ(tok::identifier, tok.getKind());\
+					ASSERT_EQ(tok.getStringData(), #EXPECT);\
+					delete lex;
+	
+	TEST_ID(int_+1, int_);
+	TEST_ID(id!@#, id);
 	
 	#undef TEST_ID
 }
 
 TEST(Lexer, Punctuation) {
+	Lexer *lex;
+	Token tok;
+	
+#define TEST_PUNCT(TOK,P) lex = new Lexer(new StringInput(P));\
+					tok = lex->lex();\
+					printf("%s : %s\n", P, tok.getStringData().c_str());\
+					ASSERT_EQ(tok::TOK, tok.getKind());\
+					ASSERT_EQ(lex->eof(), true); \
+					delete lex;
+					
+#define PUNCT(X,Y) TEST_PUNCT(X, Y);
+#include "lex/tokenkinds.def"
+#undef PUNCT
+#undef TEST_PUNCT
 }
