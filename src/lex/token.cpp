@@ -75,7 +75,7 @@ Token &Token::operator=(const Token& o) {
 Token Token::createCharToken(char c, SourceLocation _loc) {
 	Token tok(tok::charlit, _loc);
 	tok.uintdata = c;
-	tok.tag = UINT;
+	tok.tag = INT;
 	return tok;
 }
 
@@ -87,20 +87,41 @@ Token Token::createIdentifierToken(String str, SourceLocation _loc) {
 	return Token(tok::identifier, str, _loc);
 }
 
-Token Token::createIntToken(long long val, SourceLocation _loc) {
-}
-
-Token Token::createUIntToken(unsigned long long val, SourceLocation _loc) {
+Token Token::createIntToken(unsigned long long val, SourceLocation _loc) {
+	Token tok(tok::intlit, _loc);
+	tok.tag = INT;
+	tok.intdata = val;
+	return tok;
 }
 
 Token Token::createFloatToken(double val, SourceLocation _loc) {
+	Token tok(tok::floatlit, _loc);
+	tok.floatdata = val;
+	tok.tag = FLOAT;
+	return tok;
 }
 
 
 bool Token::isKeyword() {
+	switch(kind) {
+#define KEYWORD(NM) case tok::kw_##NM :
+#include "tokenkinds.def"
+#undef KEYWORD
+		return true;
+	default:
+		return false;
+	}
 }
 
 bool Token::isLiteral() {
+	switch(kind) {
+#define LITERAL(NM) case ##NM :
+#include "tokenkinds.def"
+#undef LITERAL
+		return true;
+	default:
+		return false;
+	}
 }
 
 bool Token::isIdentifier() {
@@ -108,6 +129,14 @@ bool Token::isIdentifier() {
 }
 
 bool Token::isPunct() {
+	switch(kind) {
+#define PUNCT(NM, STR) case ##NM :
+#include "tokenkinds.def"
+#undef PUNCT
+			return true;
+		default:
+			return false;
+	}
 }
 
 bool Token::is(tok::TokenKind k) {
@@ -119,11 +148,18 @@ bool Token::isNot(tok::TokenKind k) {
 }
 
 long long Token::getIntData() {
+	assert(tag == INT);
 	return intdata;
 }
 
 unsigned long long Token::getUIntData() {
+	assert(tag == INT);
 	return uintdata;
+}
+
+double Token::getFloatData() {
+	assert(tag == FLOAT);
+	return floatdata;
 }
 
 String &Token::getStringData() {
@@ -132,20 +168,16 @@ String &Token::getStringData() {
 }
 
 String &Token::getIdentifierName() {
-	return *reinterpret_cast<String*>(strdata);
+	if(isNot(tok::identifier)) throw new Exception("attempt to get name of non-identifier token");
+	return getStringData();
 }
 
 tok::TokenKind Token::getKind() {
     return kind;
 }
 
-String Token::getKeyword() {
-}
-
-String Token::getLiteral() {
-}
-
-String &Token::getIdentifier() {
+String &Token::getKeyword() {
+	throw new Exception("unimplemented");
 }
 
 SourceLocation Token::getSourceLocation() {

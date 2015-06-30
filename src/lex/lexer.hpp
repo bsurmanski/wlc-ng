@@ -16,10 +16,10 @@ class Lexer {
     protected:
     SourceLocation getLocation();
     String consumeWord();
-    String consumeDecSeq();
-    String consumeHexSeq();
-    String consumeOctSeq();
-    String consumeBinSeq();
+    unsigned long long consumeDecSeq();
+    unsigned long long consumeHexSeq();
+    unsigned long long consumeOctSeq();
+    unsigned long long consumeBinSeq();
     Token lexWord();
     Token lexNumericLiteral();
     Token lexStringLiteral();

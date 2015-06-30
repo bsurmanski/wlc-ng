@@ -12,6 +12,7 @@ TEST(Lexer, Keywords) {
 					ASSERT_EQ(lex->eof(), true); \
 					delete lex;
 					
+// run 'TEST_KW' on all defined keywords
 #define KEYWORD(X) TEST_KW(X);
 #include "lex/tokenkinds.def"
 #undef KEYWORD
@@ -21,17 +22,19 @@ TEST(Lexer, Keywords) {
 TEST(Lexer, Integers) {
 	Lexer *lex;
 	Token tok;
-	#define TEST_INT(NUM) lex = new Lexer(new StringInput(#NUM));\
+	#define TEST_INT(EXP, NUM) lex = new Lexer(new StringInput(#NUM));\
 					tok = lex->lex(); \
 					ASSERT_EQ(tok::intlit, tok.getKind());\
-					\
-					delete lex; // TODO: assert integer value_comp
+					ASSERT_EQ(EXP, tok.getUIntData());\
+					delete lex;
 					
-	TEST_INT(0);
-	TEST_INT(123);
-	TEST_INT(55555);
-	TEST_INT(128);
-	
+	TEST_INT(0, 0);
+	TEST_INT(123, 123);
+	TEST_INT(55555, 55555);
+	TEST_INT(128, 128);
+	TEST_INT(145, 1_4_5);
+	TEST_INT(1234, 0_1_2___3___4);
+
 	#undef TEST_INT
 }
 
@@ -55,9 +58,16 @@ TEST(Lexer, Strings) {
 TEST(Lexer, Floats) {
 	Lexer *lex;
 	Token tok;
-	#define TEST_FLOAT(FLOAT) lex = new Lexer(new StringInput(#FLOAT));\
-						tok = lex->lex();\
-						ASSERT_EQ(
+
+	#define TEST_FLOAT(EXP, NUM) lex = new Lexer(new StringInput(#NUM));\
+				tok = lex->lex(); \
+				ASSERT_EQ(tok::floatlit, tok.getKind());\
+				ASSERT_EQ(EXP, tok.getFloatData());\
+				delete lex;
+	
+	TEST_FLOAT(1.0, 1.0);
+	TEST_FLOAT(2.5, 2.5);
+	
 	#undef TEST_FLOAT
 }
 
@@ -79,7 +89,7 @@ TEST(Lexer, Chars) {
 	TEST_CHAR('!');
 	TEST_CHAR('/');
 	
-	#undef TEST_STR
+	#undef TEST_CHAR
 }
 
 TEST(Lexer, Identifiers) {
@@ -101,14 +111,15 @@ TEST(Lexer, Identifiers) {
 	TEST_ID(word_123);
 	
 	#undef TEST_ID
-	#define TEST_ID(ID, EXPECT) lex = new Lexer(new StringInput(#ID));\
+	
+	#define TEST_ID(EXP, ID) lex = new Lexer(new StringInput(#ID));\
 					tok = lex->lex();\
 					ASSERT_EQ(tok::identifier, tok.getKind());\
-					ASSERT_EQ(tok.getStringData(), #EXPECT);\
+					ASSERT_EQ(tok.getStringData(), #EXP);\
 					delete lex;
 	
-	TEST_ID(int_+1, int_);
-	TEST_ID(id!@#, id);
+	TEST_ID(int_, int_+1);
+	TEST_ID(id, id!@#);
 	
 	#undef TEST_ID
 }
@@ -119,11 +130,11 @@ TEST(Lexer, Punctuation) {
 	
 #define TEST_PUNCT(TOK,P) lex = new Lexer(new StringInput(P));\
 					tok = lex->lex();\
-					printf("%s : %s\n", P, tok.getStringData().c_str());\
 					ASSERT_EQ(tok::TOK, tok.getKind());\
 					ASSERT_EQ(lex->eof(), true); \
 					delete lex;
 					
+// run 'TEST_PUNCT' on all defined punctuation
 #define PUNCT(X,Y) TEST_PUNCT(X, Y);
 #include "lex/tokenkinds.def"
 #undef PUNCT

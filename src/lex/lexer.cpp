@@ -3,6 +3,13 @@
 
 #include <assert.h>
 
+enum NumericFormat {
+	NUM_BIN,
+	NUM_OCT,
+	NUM_DEC,
+	NUM_HEX,
+};
+
 static char lowercase(char c) {
     if(c >= 'A' && c <= 'Z') {
         return c - 'A' + 'a';
@@ -39,12 +46,43 @@ static bool isHexDigit(char c) {
     return (c >= '0' && c <= '9') || (low >= 'a' && low <= 'f');
 }
 
+static bool isDecDigit(char c) {
+	return c >= '0' && c <= '9';
+}
+
+static int hextoi(char c) {
+	assert(isHexDigit(c) && "invalid hex digit");
+	if(c >= '0' && c <= '9') return c - '0';
+	if(c >= 'a' && c <= 'f') return c - 'a' + 10;
+	if(c >= 'A' && c <= 'F') return c - 'A' + 10;
+	assert(false);
+}
+
+static int octtoi(char c) {
+	assert(isOctDigit(c) && "invalid oct digit");
+	return c - '0';
+}
+
+static int dectoi(char c) {
+	assert(isDecDigit(c) && "invalid dec digit");
+	return c - '0';
+}
+
+static int bintoi(char c) {
+	assert(isBinDigit(c) && "invalid binary digit");
+	return c - '0';
+}
+
 static bool isWhitespace(char c) {
 	return c == ' ' || c == '\t' || c == '\v' || c == '\f';
 }
 
 static bool isEndOfLine(char c) {
 	return c == '\n' || c == '\r';
+}
+
+static bool isExponentChar(char c) {
+	return c == 'e' || c == 'E' || c == 'p' || c == 'P';
 }
 
 static bool isPunctuatorChar(char c) {
@@ -170,65 +208,126 @@ Token Lexer::lexWord() {
     return Token::createIdentifierToken(word, loc);
 }
 
-String Lexer::consumeDecSeq() {
-    String str;
-    while(isDigit(input->peek())) {
-        str += (char) input->get();
+unsigned long long Lexer::consumeDecSeq() {
+    unsigned long long ret = 0;
+    while(isDigit(input->peek()) || input->peek() == '_') {
+		if(input->peek() == '_') {
+			input->get();
+		} else {
+			ret *= 10;
+			ret += dectoi(input->get());
+		}
     }
-    return str;
+	return ret;
 }
 
-String Lexer::consumeHexSeq() {
-    String str;
-    while(isHexDigit(input->peek())) {
-        str += (char) input->get();
+unsigned long long Lexer::consumeHexSeq() {
+	unsigned long long ret = 0;
+    while(isHexDigit(input->peek()) || input->peek() == '_') {
+		if(input->peek() == '_') {
+			input->get();
+		} else {
+			ret << 4; // each hex digit is 4 bits
+			ret += hextoi(input->get());
+		}
     }
-    return str;
+	return ret;
 }
 
-String Lexer::consumeOctSeq() {
-    String str;
-    while(isOctDigit(input->peek())) {
-        str += (char) input->get();
+unsigned long long Lexer::consumeOctSeq() {
+	unsigned long long ret = 0;
+    while(isOctDigit(input->peek()) || input->peek() == '_') {
+		if(input->peek() == '_') {
+			input->get();
+		} else {
+			ret << 3; // each oct digit is 3 bits
+			ret += octtoi(input->get());
+		}
     }
-    return str;
+	return ret;
 }
 
-String Lexer::consumeBinSeq() {
-    String str;
-    while(isBinDigit(input->peek())) {
-        str += (char) input->get();
+unsigned long long Lexer::consumeBinSeq() {
+	unsigned long long ret = 0;
+    while(isBinDigit(input->peek()) || input->peek() == '_') {
+		if(input->peek() == '_') {
+			input->get();
+		} else {
+			ret << 1; // each bin digit is 1 bit
+			ret += bintoi(input->get());
+		}
     }
-    return str;
+	return ret;
 }
 
 Token Lexer::lexNumericLiteral() {
 	SourceLocation loc = getLocation();
-    bool negative = false;
-
-    if(isSign(input->peek())) {
-        char s = input->get();
-        if(s == '-') negative = true;
-    }
-
+    
+	NumericFormat format = NUM_DEC;
+	bool floating = false;
+	bool negative = false;
+	unsigned long long integral = 0;
+	unsigned long long fraction = 0;
+	unsigned long long exponent = 0;
+	
     String num;
-    num += (char) input->get();
 
-    if(num[0] == '0') {
+    if(input->peek() == '0') {
+		input->get(); // ignore first leading zero
         char c = input->peek();
         if(c == 'x') {
+			format = NUM_HEX;
             input->get();
-            consumeHexSeq();
+            integral = consumeHexSeq();
         } else if(c == 'o') {
+			format = NUM_OCT;
             input->get();
-            consumeOctSeq();
+            integral = consumeOctSeq();
         } else if(c == 'b') {
+			format = NUM_BIN;
             input->get();
-            consumeBinSeq();
-        }
-    }
+            integral = consumeBinSeq();
+        } else {
+			integral = consumeDecSeq();
+		}
+    } else {
+		integral = consumeDecSeq();
+	}
 	
-	return Token(tok::intlit, loc);
+	if(input->peek() == '.') {
+		input->get(); // ignore .
+		floating = true;
+		if(format == NUM_HEX) {
+			fraction = consumeHexSeq();
+		} else if(format == NUM_OCT) {
+			fraction = consumeOctSeq();
+		} else if(format == NUM_BIN) {
+			fraction = consumeBinSeq();
+		} else {
+			fraction = consumeDecSeq();
+		}
+	}
+	
+	// exponent part
+	if(isExponentChar(input->peek())) {
+		input->get();
+		floating = true;
+		if(isSign(input->peek())) {
+			if(input->get() == '-') {
+				//TODO: negative exponent
+			} 
+		}
+	}
+	
+	if(!isWhitespace(input->peek()) && !input->eof()) {
+		throw new Exception("invalid trailing characters on numeric constant: " + input->get());
+	}
+	
+	if(floating) {
+		return Token::createFloatToken(integral, loc);
+	} else {
+		return Token::createIntToken(integral, loc);
+	}
 }
 
 Token Lexer::lexStringLiteral() {

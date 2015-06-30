@@ -69,10 +69,10 @@ TEST(String, Copy) {
 	char cstr1[32];
 	String str1("Hello");
 	str1.copy(cstr1, 5);
-	cstr1[6] = '\0';
-	EXPECT_STREQ(cstr1, "Hello");
+	cstr1[5] = '\0';
+	EXPECT_STREQ("Hello", cstr1);
 	str1.copy(cstr1, 2, 2);
-	EXPECT_STREQ(cstr1, "llllo");
+	EXPECT_STREQ("llllo", cstr1);
 }
 
 TEST(String, Dup) {

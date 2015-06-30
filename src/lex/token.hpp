@@ -26,13 +26,14 @@ namespace tok {
     enum TokenKind {
 #define TOK(X) X,
 #include "tokenkinds.def"
-        NUM_TOKENS
 #undef TOK
+		NUM_TOKENS
     };
 };
 
 struct Token {
-    private:
+	private:
+	
 	union {
 		char strdata[sizeof(String)];
 		double floatdata;
@@ -45,7 +46,6 @@ struct Token {
 		STRING,
 		FLOAT,
 		INT,
-		UINT,
 	};
 	
 	DataTag tag;
@@ -67,8 +67,7 @@ struct Token {
 	static Token createCharToken(char c, SourceLocation _loc);
 	static Token createStringToken(String str, SourceLocation _loc);
 	static Token createIdentifierToken(String str, SourceLocation _loc);
-	static Token createIntToken(long long val, SourceLocation _loc);
-	static Token createUIntToken(unsigned long long val, SourceLocation _loc);
+	static Token createIntToken(unsigned long long val, SourceLocation _loc); // constant integers cannot be negative (`-123` is parsed as a negative unary op with uint constant)
 	static Token createFloatToken(double val, SourceLocation _loc);
 
     bool isKeyword();
@@ -80,13 +79,13 @@ struct Token {
 
     long long getIntData();
 	unsigned long long getUIntData();
+	double getFloatData();
     String &getStringData();
     String &getIdentifierName();
+	String &getStringRepr();
 
     tok::TokenKind getKind();
-    String getKeyword();
-    String getLiteral();
-    String &getIdentifier();
+    String &getKeyword();
     SourceLocation getSourceLocation();
 };
 

@@ -48,12 +48,18 @@
 
 # dec\_literal
     dec\_seq
+	
+# floating_\exponent\_part
+	 E [sign] dec\_seq
+	 e [sign] dec\_seq
+	 P [sign] dec\_seq
+	 p [sign] dec\_seq
 
 # numeric\_literal
-    [sign] dec\_literal [. dec\_seq [E [sign] dec\_seq]]
-    [sign] hex\_literal [. hex\_seq [E [sign] hex\_seq]]
-    [sign] oct\_literal [. oct\_seq [E [sign] oct\_seq]]
-    [sign] bin\_literal [. bin\_seq [E [sign] bin\_seq]]
+    dec\_literal [. dec\_seq] [floating\_exponent\_part]
+    hex\_literal [. hex\_seq] [floating\_exponent\_part]
+    oct\_literal [. oct\_seq] [floating\_exponent\_part]
+    bin\_literal [. bin\_seq] [floating\_exponent\_part]
 
 # bool\_literal
     true
@@ -62,6 +68,18 @@
 # pointer\_literal
     null
 
+# hex\_escape\_seq
+	\x { hex\_digit }
+	
+# oct\_escape\_seq
+	\o { oct\_digit }
+	
+# bin\_escape\_seq
+	\b { bin\_digit }
+	
+# unicode\_escape\_seq
+	\u { hex\_digit }
+	
 # simple\_escape\_seq
 	\0
     \'
@@ -86,9 +104,19 @@
 # schar
     ?any character not "?
     *escape_seq*
+	
+# rchar
+	?any character not `?
 
-# string\_literal
+# regular\_string\_literal
     " {schar} "
+	
+# raw\_string\_literal
+	` {rchar} `
+	
+# string\_literal
+	regular\_string\_literal
+	raw\_string\_literal
 
 # literal
     char\_literal
