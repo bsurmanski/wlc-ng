@@ -2,6 +2,8 @@
 #include "exception/exception.hpp"
 
 #include <assert.h>
+#include <math.h>
+#include <stdio.h>
 
 enum NumericFormat {
 	NUM_BIN,
@@ -135,6 +137,10 @@ static char decodeEscapeCharacter(char c) {
 	return '\0'; //error?
 }
 
+static double makeFloat(long long integral, double fraction, long long exponent) {
+	return (integral + fraction) * pow(10, exponent);
+}
+
 Lexer::Lexer(Input *_input) {
     input = _input;
 }
@@ -208,7 +214,8 @@ Token Lexer::lexWord() {
     return Token::createIdentifierToken(word, loc);
 }
 
-unsigned long long Lexer::consumeDecSeq() {
+unsigned long long Lexer::consumeDecSeq(int *len_out) {
+	int len = 0;
     unsigned long long ret = 0;
     while(isDigit(input->peek()) || input->peek() == '_') {
 		if(input->peek() == '_') {
@@ -216,47 +223,68 @@ unsigned long long Lexer::consumeDecSeq() {
 		} else {
 			ret *= 10;
 			ret += dectoi(input->get());
+			len++;
 		}
     }
+	
+	if(len_out) *len_out = len;
+	
 	return ret;
 }
 
-unsigned long long Lexer::consumeHexSeq() {
+unsigned long long Lexer::consumeHexSeq(int *len_out) {
+	int len = 0;
 	unsigned long long ret = 0;
+	
     while(isHexDigit(input->peek()) || input->peek() == '_') {
 		if(input->peek() == '_') {
 			input->get();
 		} else {
-			ret << 4; // each hex digit is 4 bits
-			ret += hextoi(input->get());
+			char c = input->get();
+			ret <<= 4; // each hex digit is 4 bits
+			ret += hextoi(c);
+			len++;
 		}
     }
+
+	if(len_out) *len_out = len;
+	
 	return ret;
 }
 
-unsigned long long Lexer::consumeOctSeq() {
+unsigned long long Lexer::consumeOctSeq(int *len_out) {
+	int len = 0;
 	unsigned long long ret = 0;
     while(isOctDigit(input->peek()) || input->peek() == '_') {
 		if(input->peek() == '_') {
 			input->get();
 		} else {
-			ret << 3; // each oct digit is 3 bits
+			ret <<= 3; // each oct digit is 3 bits
 			ret += octtoi(input->get());
+			len++;
 		}
     }
+	
+	if(len_out) *len_out = len;
+	
 	return ret;
 }
 
-unsigned long long Lexer::consumeBinSeq() {
+unsigned long long Lexer::consumeBinSeq(int *len_out) {
+	int len = 0;
 	unsigned long long ret = 0;
     while(isBinDigit(input->peek()) || input->peek() == '_') {
 		if(input->peek() == '_') {
 			input->get();
 		} else {
-			ret << 1; // each bin digit is 1 bit
+			ret <<= 1; // each bin digit is 1 bit
 			ret += bintoi(input->get());
+			len++;
 		}
     }
+	
+	if(len_out) *len_out = len;
+	
 	return ret;
 }
 
@@ -266,9 +294,11 @@ Token Lexer::lexNumericLiteral() {
 	NumericFormat format = NUM_DEC;
 	bool floating = false;
 	bool negative = false;
-	unsigned long long integral = 0;
-	unsigned long long fraction = 0;
-	unsigned long long exponent = 0;
+	long long integral = 0;
+	int fraclen = 0;
+	double fraction = 0.0;
+	long long fracdigs = 0;
+	long long exponent = 0;
 	
     String num;
 
@@ -298,13 +328,17 @@ Token Lexer::lexNumericLiteral() {
 		input->get(); // ignore .
 		floating = true;
 		if(format == NUM_HEX) {
-			fraction = consumeHexSeq();
+			fracdigs = consumeHexSeq(&fraclen);
+			if(fraclen) fraction = fracdigs / pow(16, fraclen);
 		} else if(format == NUM_OCT) {
-			fraction = consumeOctSeq();
+			fracdigs = consumeOctSeq(&fraclen);
+			if(fraclen) fraction = fracdigs / pow(8, fraclen);
 		} else if(format == NUM_BIN) {
-			fraction = consumeBinSeq();
+			fracdigs = consumeBinSeq(&fraclen);
+			if(fraclen) fraction = fracdigs / pow(2, fraclen);
 		} else {
-			fraction = consumeDecSeq();
+			fracdigs = consumeDecSeq(&fraclen);
+			if(fraclen) fraction = fracdigs / pow(10, fraclen);
 		}
 	}
 	
@@ -324,7 +358,7 @@ Token Lexer::lexNumericLiteral() {
 	}
 	
 	if(floating) {
-		return Token::createFloatToken(integral, loc);
+		return Token::createFloatToken(makeFloat(integral, fraction, exponent), loc);
 	} else {
 		return Token::createIntToken(integral, loc);
 	}

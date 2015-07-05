@@ -34,6 +34,11 @@ TEST(Lexer, Integers) {
 	TEST_INT(128, 128);
 	TEST_INT(145, 1_4_5);
 	TEST_INT(1234, 0_1_2___3___4);
+	TEST_INT(0xB, 0xB);
+	TEST_INT(0x10, 0x10);
+	TEST_INT(0xF0, 0b11110000);
+	TEST_INT(060, 0o60);
+	TEST_INT(0xFFFFFFFF, 0xFFFFFFFF);
 
 	#undef TEST_INT
 }
@@ -67,6 +72,13 @@ TEST(Lexer, Floats) {
 	
 	TEST_FLOAT(1.0, 1.0);
 	TEST_FLOAT(2.5, 2.5);
+	TEST_FLOAT(1655.123456, 1_655.123_456);
+	TEST_FLOAT(0.0, 0_.000);
+	TEST_FLOAT(0x1.1p0, 0x1.1);
+	TEST_FLOAT(0x1.11p0, 0x1.11);
+	TEST_FLOAT(0.75 ,0b0.11);
+	
+	//TODO: test float epsilon and float limits
 	
 	#undef TEST_FLOAT
 }
