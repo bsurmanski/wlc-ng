@@ -37,9 +37,9 @@ int StringInput::get() {
 	return str[offset++];
 }
 
-int StringInput::peek() {
-	if(offset >= str.length()) return -1;
-	return str[offset];
+int StringInput::peek(int ahead) {
+	if((offset + ahead) >= str.length()) return -1;
+	return str[offset + ahead];
 }
 
 long StringInput::read(void *buf, long sz, long nmemb) {

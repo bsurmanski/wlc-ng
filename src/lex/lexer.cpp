@@ -157,7 +157,7 @@ Token Lexer::lex() {
 		}
 		
 		tok = lexRaw();
-	} while (tok.is(tok::whitespace));
+	} while (tok.is(tok::whitespace) || tok.is(tok::comment));
 	return tok;
 }
 
@@ -171,17 +171,32 @@ Token Lexer::lexRaw() {
         return lexWord();
     }
 	
-	if(isPunctuatorChar(c)) {
-		return lexPunctuator();
-	}
-
-    if(c == '"') {
+	if(c == '"') {
         return lexStringLiteral();
     }
+	
+	if(c == '`') {
+		return lexRawStringLiteral();
+	}
 
     if(c == '\'') {
         return lexCharLiteral();
     }
+	
+	if(c == '/') {
+		char c1 = input->peek(1);
+		if(c1 == '*') {
+			return lexBlockComment();
+		}
+		
+		if(c1 == '/') {
+			return lexLineComment();
+		}
+	}
+	
+	if(isPunctuatorChar(c)) {
+		return lexPunctuator();
+	}
 
 	throw new Exception("invalid input character found");
 }
@@ -402,6 +417,30 @@ Token Lexer::lexStringLiteral() {
 }
 
 
+Token Lexer::lexRawStringLiteral() {
+	SourceLocation loc = getLocation();
+	String str;
+	
+	if(input->get() != '`') { // ignore `
+		throw new Exception("lexer: expected `");
+	}
+	
+	while(input->peek() != '`') {
+		if(input->eof()) {
+			throw new Exception("expected closing `, found EOF");
+		}
+		
+		str += input->get();
+	}
+	
+	if(input->get() != '`') { // ignore `
+		throw new Exception("lexer: expected terminating ` in raw string");
+	}
+	
+	return Token::createStringToken(str, loc);
+}
+
+
 Token Lexer::lexCharLiteral() {
     SourceLocation loc = getLocation();
     assert(input->peek() == '\'');
@@ -454,7 +493,6 @@ Token Lexer::lexPunctuator() {
 		case '*':
 			OPT_CONSUME('=', return Token(tok::starequal, str, loc));
 			OPT_CONSUME('*', return Token(tok::starstar, str, loc));
-			OPT_CONSUME('/', return Token(tok::starslash, str, loc));
 			return Token(tok::star, str, loc);
 		case '(':
 			return Token(tok::lparen, str, loc);
@@ -484,8 +522,6 @@ Token Lexer::lexPunctuator() {
 			OPT_CONSUME('|', return Token(tok::barbar, str, loc));
 			return Token(tok::bar, str, loc);
 		case '/':
-			OPT_CONSUME('/', return Token(tok::slashslash, str, loc));
-			OPT_CONSUME('*', return Token(tok::slashstar, str, loc));
 			OPT_CONSUME('=', return Token(tok::slashequal, str, loc));
 			return Token(tok::slash, str, loc);
 			
@@ -517,4 +553,55 @@ Token Lexer::lexPunctuator() {
 			err += str[0];
 			throw new Exception(err);
 	}
+}
+
+
+Token Lexer::lexBlockComment() {
+	SourceLocation loc = getLocation();
+	String str;
+	
+	input->get();
+	input->get(); // ignore /*
+	
+	int level = 1;
+	char c;
+	do {
+		c = input->get();
+		if(c == '/' && input->peek() == '*') {
+			level++;
+			str += c;
+			str += input->get();
+			continue;
+		}
+		
+		if(c == '*' && input->peek() == '/') {
+			level--;
+			if(level <= 0) break;
+			
+			str += c;
+			str += input->get();
+			continue;
+		}
+		
+		str += c;
+		
+		if(input->eof() && level > 0) throw new Exception("expected closing '*/' for block comment");
+		
+	} while(true);
+	
+	return Token::createCommentToken(str, loc);
+}
+
+Token Lexer::lexLineComment() {
+	SourceLocation loc = getLocation();
+	String str;
+	
+	input->get();
+	input->get(); // ignore //
+	
+	do {
+		str += input->get();
+	} while(input->peek() != '\n' && !input->eof());
+	
+	return Token::createCommentToken(str, loc);
 }

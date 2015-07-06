@@ -23,8 +23,11 @@ class Lexer {
     Token lexWord();
     Token lexNumericLiteral();
     Token lexStringLiteral();
+	Token lexRawStringLiteral();
     Token lexCharLiteral();
 	Token lexPunctuator();
+	Token lexBlockComment();
+	Token lexLineComment();
 };
 
 #endif

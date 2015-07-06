@@ -16,7 +16,7 @@ class StringInput : public Input {
     virtual int rset(long sval);
     virtual long tell();
     virtual int get();
-    virtual int peek();
+    virtual int peek(int ahead = 0);
     virtual long read(void *buf, long sz, long nmemb);
     virtual bool eof();
 };

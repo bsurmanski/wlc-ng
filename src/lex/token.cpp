@@ -101,6 +101,10 @@ Token Token::createFloatToken(double val, SourceLocation _loc) {
 	return tok;
 }
 
+Token Token::createCommentToken(String str, SourceLocation _loc) {
+	return Token(tok::comment, str, _loc);
+}
+
 
 bool Token::isKeyword() {
 	switch(kind) {

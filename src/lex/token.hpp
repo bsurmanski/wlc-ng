@@ -69,6 +69,7 @@ struct Token {
 	static Token createIdentifierToken(String str, SourceLocation _loc);
 	static Token createIntToken(unsigned long long val, SourceLocation _loc); // constant integers cannot be negative (`-123` is parsed as a negative unary op with uint constant)
 	static Token createFloatToken(double val, SourceLocation _loc);
+	static Token createCommentToken(String str, SourceLocation _loc);
 
     bool isKeyword();
     bool isLiteral();

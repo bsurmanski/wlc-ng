@@ -141,9 +141,6 @@ PUNCT(minusminus, "--")
 PUNCT(star, "*")
 PUNCT(starstar, "**")
 PUNCT(slash, "/")
-PUNCT(slashslash, "//")
-PUNCT(slashstar, "/*")
-PUNCT(starslash, "*/")
 PUNCT(amp, "&")
 PUNCT(ampamp, "&&")
 PUNCT(bar, "|")
@@ -182,7 +179,6 @@ PUNCT(colonequal, ":=")
 PUNCT(dot, ".")
 PUNCT(dotdot, "..")
 PUNCT(dotdotdot, "...")
-
 
 #undef TOK
 #undef LITERAL

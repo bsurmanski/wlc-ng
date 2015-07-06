@@ -58,6 +58,15 @@ TEST(Lexer, Strings) {
 	TEST_STR("Long String with \' escape \' characters \t \n \a \b");
 	
 	#undef TEST_STR
+	#define TEST_STR(EXP, STR) lex = new Lexer(new StringInput(STR));\
+					tok = lex->lex();\
+					ASSERT_EQ(tok::stringlit, tok.getKind());\
+					ASSERT_EQ(tok.getStringData(), EXP);\
+					delete lex;
+					
+	TEST_STR("raw string \\ :)", "`raw string \\ :)`");
+	
+	#undef TEST_STR
 }
 
 TEST(Lexer, Floats) {
@@ -72,6 +81,7 @@ TEST(Lexer, Floats) {
 	
 	TEST_FLOAT(1.0, 1.0);
 	TEST_FLOAT(2.5, 2.5);
+	TEST_FLOAT(3.141592654, 3.141592654);
 	TEST_FLOAT(1655.123456, 1_655.123_456);
 	TEST_FLOAT(0.0, 0_.000);
 	TEST_FLOAT(0x1.1p0, 0x1.1);
@@ -157,4 +167,22 @@ TEST(Lexer, Punctuation) {
 #include "lex/tokenkinds.def"
 #undef PUNCT
 #undef TEST_PUNCT
+}
+
+TEST(Lexer, Comments) {
+	Lexer *lex;
+	Token tok;
+	#define TEST_COMMENT(EXP, STR) lex = new Lexer(new StringInput(STR));\
+					tok = lex->lexRaw();\
+					ASSERT_EQ(tok::comment, tok.getKind());\
+					ASSERT_EQ(tok.getStringData(), EXP);\
+					delete lex;
+	
+	TEST_COMMENT("hello comment", "/*hello comment*/");
+	TEST_COMMENT("nested /*comment*/ ", "/*nested /*comment*/ */");
+	//TEST_COMMENT("nested /*comment 2*/", "/*nested /*comment 2*/*/");
+	TEST_COMMENT("line comment", "//line comment");
+	TEST_COMMENT("newline comment", "//newline comment\n //with extra tokens");
+	
+	#undef TEST_COMMENT
 }
