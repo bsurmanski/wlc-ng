@@ -76,7 +76,13 @@ TEST(Lexer, Floats) {
 	TEST_FLOAT(0.0, 0_.000);
 	TEST_FLOAT(0x1.1p0, 0x1.1);
 	TEST_FLOAT(0x1.11p0, 0x1.11);
-	TEST_FLOAT(0.75 ,0b0.11);
+	TEST_FLOAT(0.75, 0b0.11);
+	TEST_FLOAT(0.75, 0b0_.1_1);
+	TEST_FLOAT(1.0E10, 1.0E10);
+	TEST_FLOAT(0x1.0p10, 1p10);
+	TEST_FLOAT(0.1, 0.1);
+	TEST_FLOAT(10E-10, 10e-10);
+	TEST_FLOAT(0x1p-10, 1P-10);
 	
 	//TODO: test float epsilon and float limits
 	

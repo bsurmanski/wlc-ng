@@ -87,6 +87,10 @@ static bool isExponentChar(char c) {
 	return c == 'e' || c == 'E' || c == 'p' || c == 'P';
 }
 
+static bool isBinExponentChar(char c) {
+	return c == 'p' || c == 'P';
+}
+
 static bool isPunctuatorChar(char c) {
 	switch(c) {
 		case '~':
@@ -137,8 +141,8 @@ static char decodeEscapeCharacter(char c) {
 	return '\0'; //error?
 }
 
-static double makeFloat(long long integral, double fraction, long long exponent) {
-	return (integral + fraction) * pow(10, exponent);
+static double makeFloat(long long integral, double fraction, double exponent) {
+	return (integral + fraction) * exponent;
 }
 
 Lexer::Lexer(Input *_input) {
@@ -293,12 +297,11 @@ Token Lexer::lexNumericLiteral() {
     
 	NumericFormat format = NUM_DEC;
 	bool floating = false;
-	bool negative = false;
 	long long integral = 0;
 	int fraclen = 0;
 	double fraction = 0.0;
 	long long fracdigs = 0;
-	long long exponent = 0;
+	double exponent = 1;
 	
     String num;
 
@@ -344,13 +347,19 @@ Token Lexer::lexNumericLiteral() {
 	
 	// exponent part
 	if(isExponentChar(input->peek())) {
-		input->get();
+		char expChar = input->get();
+		bool negativeExp = false;
+		
 		floating = true;
 		if(isSign(input->peek())) {
 			if(input->get() == '-') {
-				//TODO: negative exponent
+				negativeExp = true;
 			} 
 		}
+		
+		long long expSeq = consumeDecSeq();
+		if(negativeExp) expSeq *= -1;
+		exponent = (isBinExponentChar(expChar) ? pow(2, expSeq) : pow(10, expSeq));
 	}
 	
 	if(!isWhitespace(input->peek()) && !input->eof()) {
