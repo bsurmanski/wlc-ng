@@ -40,7 +40,6 @@ String::String(const char *str) {
 	}
 }
 
-
 String::String(const String& o) {
 	len = o.len;
 	capacity = o.capacity;
@@ -99,7 +98,7 @@ String &String::operator=(const String &o) {
 	if(isLong()) {
 		refdata->release();
 	}
-	
+
 	len = o.len;
 	capacity = o.capacity;
 	if(o.isLong()) {
@@ -107,7 +106,7 @@ String &String::operator=(const String &o) {
 	} else {
 		memcpy(data, o.data, o.len);
 	}
-	
+
 	return *this;
 }
 
@@ -160,7 +159,7 @@ const char &String::charAt(int i) const {
 	if(i >= capacity) {
 		throw new Exception("index out of bounds");
 	}
-	
+
 	if(isLong()) {
 		return refdata->data[i];
 	} else {
@@ -172,7 +171,7 @@ char &String::charAt(int i) {
 	if(i >= capacity) {
 		throw new Exception("index out of bounds");
 	}
-	
+
 	if(isLong()) {
 		return refdata->data[i];
 	} else {
@@ -184,16 +183,15 @@ int String::compare(const String &o) const {
 	size_t l1 = length();
 	size_t l2 = o.length();
 	int cmp = memcmp(dataPtr(), o.dataPtr(), MIN(l1, l2));
-	
+
 	if(!cmp && length() < o.length()) {
 		return -1;
 	} else if(!cmp && length() > o.length()) {
 		return 1;
 	}
-	
+
 	return cmp;
 }
-
 
 void String::append(char c) {
 	if(len == capacity) {
@@ -207,11 +205,11 @@ void String::append(const String &o) {
 	if(length() + o.length() > capacity) {
 		resize(length() + o.length()+STRING_APPEND_PAD);
 	}
-	
+
 	for(int i = 0; i < o.length(); i++) {
 		charAt(len + i) = o.charAt(i);
 	}
-	
+
 	len += o.length();
 }
 
@@ -245,6 +243,24 @@ void String::copy(char *dst, size_t len, size_t pos) const {
 	} else {
 		memcpy(dst, &data[pos], len);
 	}
+}
+
+String String::substring(int start, int len) const {
+    String ret;
+
+    for(int i = start; (len < 0 || i < (start + len)) && i < length(); i++) {
+        ret += charAt(i);
+    }
+
+    return ret;
+}
+
+int String::indexOf(int c, int startAt) const {
+    for(int i = startAt; i < length(); i++) {
+        if(charAt(i) == c) return i;
+    }
+
+    return -1;
 }
 
 bool String::empty() const {

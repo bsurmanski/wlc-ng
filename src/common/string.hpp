@@ -9,7 +9,7 @@
 struct _StringData {
 	int refcount;
 	char data[];
-	
+
 	_StringData *retain();
 	bool release();
 };
@@ -25,17 +25,17 @@ class String {
         char data[STRING_LONG];
 		_StringData *refdata;
     };
-	
+
 	bool isLong() const;
 	void resize(int cap);
-	
+
 	public:
 	String();
 	String(const char *str);
 	String(const String& o);
 	String(char c);
 	~String();
-	
+
 	void clear();
 	size_t length() const;
 	String &operator=(const String &o);
@@ -59,6 +59,8 @@ class String {
 	char *dataPtr();
 	const char *dataPtr() const;
 	void copy(char *dst, size_t len, size_t pos = 0) const;
+    String substring(int start, int len = -1) const;
+    int indexOf(int c, int startAt = 0) const;
 	bool empty() const;
 	String dup() const;
 };

@@ -12,7 +12,7 @@ TEST(String, Compare) {
 	String str1("SomeString");
 	String str2("SomeString");
 	String str3("somestring");
-	
+
 	String lstr1("123456789012345678901234567890123456789");
 	String lstr2("123456789012345678901234567890123456789");
 	String lstr3("123456789012345678901234567890123456781");
@@ -20,13 +20,17 @@ TEST(String, Compare) {
 	EXPECT_NE(str1, str3);
 	EXPECT_EQ(lstr1, lstr2);
 	EXPECT_NE(lstr1, lstr3);
-	
+
 	String str4("aaab");
 	String str5("aaac");
 	String str6("aaaca");
 	EXPECT_LT(str4, str5);
 	EXPECT_GT(str5, str4);
 	EXPECT_LT(str5, str6);
+
+    String str7("My Long String");
+    String str8("My");
+    EXPECT_NE(str7, str8);
 }
 
 TEST(String, Length) {
@@ -45,7 +49,7 @@ TEST(String, Append) {
 	str1.append('a');
 	EXPECT_EQ(str1, "a");
 	str1.append("lways");
-	EXPECT_EQ(str1, "always"); 
+	EXPECT_EQ(str1, "always");
 	str1.append(" bet on black. always and forever");
 	EXPECT_EQ(str1, "always bet on black. always and forever");
 }
@@ -84,11 +88,26 @@ TEST(String, Dup) {
 	EXPECT_EQ(st1, st3);
 	st1[0] = 'b';
 	EXPECT_NE(st1, st3);
-	
+
 	String st4("1234567890123456789012345678901234567890");
 	String st5 = st4;
 	String st6 = st4.dup();
 	st4[0] = '0';
 	EXPECT_EQ(st4, st5);
 	EXPECT_NE(st4, st6);
+}
+
+TEST(String, Substring) {
+    String st("My Long String");
+    String sub = st.substring(0, 2);
+    EXPECT_EQ(String("My"), sub);
+    sub = st.substring(3, 4);
+    EXPECT_EQ(String("Long"), sub);
+}
+
+TEST(String, IndexOf) {
+    String st("3.141592654");
+    EXPECT_EQ(3, st.indexOf('4'));
+    EXPECT_EQ(10, st.indexOf('4', 4));
+    EXPECT_EQ(-1, st.indexOf('7'));
 }
