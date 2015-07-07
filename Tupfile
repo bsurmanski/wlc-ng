@@ -1,4 +1,5 @@
 # source files (minus main function)
+
 SRC=\
 src/common/string.cpp \
 src/exception/exception.cpp\
@@ -15,10 +16,18 @@ MAIN=src/driver/main.cpp
 TST=test/string_test.cpp test/stringInput_test.cpp test/lexer_test.cpp
 
 CXXFLAGS=-Isrc -g -O0
-LDFLAGS=-lmingw32
+LDFLAGS=
+EXE=wlc
+TESTEXE=test/test
+TEST_LDFLAGS=-lgtest -lgtest_main
+
+ifeq (@(TUP_PLATFORM),win32)
+LDFLAGS+=-lmingw32
 EXE=wlc.exe
 TESTEXE=test/test.exe
-TEST_LDFLAGS=-lgtest -lgtest_main -lmingw32
+TEST_LDFLAGS+=-lmingw32
+endif
+
 
 # compile source files into .o files
 : foreach $(SRC) |> g++ -c $(CXXFLAGS) %f -o %o |> build/%B.o {OBJS}
