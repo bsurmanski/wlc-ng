@@ -86,20 +86,18 @@
     \"
     \\
     \?
-    \a
-    \b
     \f
     \n
     \r
     \t
-    \v
-
-# hex\_escape\_seq
-    \x *hex\_digit*+
+    \  # followed by a space; no character is parsed
 
 # escape\_seq
     simple_escape_seq
     hex_escape_seq
+    oct_escape_seq
+    bin_escape_seq
+    unicode_escape_seq
 
 # schar
     ?any character not "?

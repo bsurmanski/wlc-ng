@@ -20,6 +20,8 @@ class Lexer {
     unsigned long long consumeHexSeq(int *len = NULL);
     unsigned long long consumeOctSeq(int *len = NULL);
     unsigned long long consumeBinSeq(int *len = NULL);
+    String lexUTF8Char();
+    String lexEscapeSequence();
     Token lexWord();
     Token lexNumericLiteral();
     Token lexStringLiteral();

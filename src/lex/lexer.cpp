@@ -122,25 +122,6 @@ static bool isPunctuatorChar(char c) {
 	}
 }
 
-static char decodeEscapeCharacter(char c) {
-	switch(c) {
-		case '\'': return '\'';
-		case '"': return '"';
-		case '\\': return '\\';
-		case '?': return '\?';
-		case '0': return '\0';
-		case 'a': return '\a';
-		case 'b': return '\b';
-		case 'f': return '\f';
-		case 'n': return '\n';
-		case 'r': return '\r';
-		case 't': return '\t';
-		case 'v': return '\v';
-	}
-	
-	return '\0'; //error?
-}
-
 static double makeFloat(long long integral, double fraction, double exponent) {
 	return (integral + fraction) * exponent;
 }
@@ -155,7 +136,7 @@ Token Lexer::lex() {
 		if(eof()) {
 			return Token(tok::eof, getLocation());
 		}
-		
+
 		tok = lexRaw();
 	} while (tok.is(tok::whitespace) || tok.is(tok::comment));
 	return tok;
@@ -170,11 +151,11 @@ Token Lexer::lexRaw() {
     if(isNonDigit(c)) {
         return lexWord();
     }
-	
+
 	if(c == '"') {
         return lexStringLiteral();
     }
-	
+
 	if(c == '`') {
 		return lexRawStringLiteral();
 	}
@@ -182,18 +163,18 @@ Token Lexer::lexRaw() {
     if(c == '\'') {
         return lexCharLiteral();
     }
-	
+
 	if(c == '/') {
 		char c1 = input->peek(1);
 		if(c1 == '*') {
 			return lexBlockComment();
 		}
-		
+
 		if(c1 == '/') {
 			return lexLineComment();
 		}
 	}
-	
+
 	if(isPunctuatorChar(c)) {
 		return lexPunctuator();
 	}
@@ -209,6 +190,145 @@ bool Lexer::eof() {
 
 SourceLocation Lexer::getLocation() {
     return SourceLocation(input, input->tell());
+}
+
+String Lexer::lexUTF8Char() {
+    String str;
+    long long val = consumeHexSeq();
+
+    char c;
+    if(val < 0x80) {
+        str.append((char) val);
+    } else if(val < 0x800) {
+        str.append((char) (0xC0 | ((val >> 6) & 0x3F)));
+        str.append((char) (0x80 | (val & 0x3F)));
+    } else if(val < 0x10000) {
+        str.append((char) (0xE0 | ((val >> 12) & 0x3F)));
+        str.append((char) (0x80 | ((val >> 6) & 0x3F)));
+        str.append((char) (0x80 | ((val & 0x3F))));
+    } else if(val <= 0x10FFFF) {
+        str.append((char) (0xF0 | ((val >> 18) & 0x3F)));
+        str.append((char) (0x80 | ((val >> 12) & 0x3F)));
+        str.append((char) (0x80 | ((val >> 6) & 0x3F)));
+        str.append((char) (0x80 | ((val & 0x3F))));
+    } else {
+        throw new Exception("UTF8 constant must be <= 0x10FFFF");
+    }
+
+    return str;
+}
+
+String Lexer::lexEscapeSequence() {
+    assert(input->get() == '\\' && "expected '\\' beginning escape sequence");
+
+    char c = input->get();
+
+    // hex escape sequence
+    if(c == 'x') {
+        String str;
+        char c = 0;
+        int count = 0;
+        while(isHexDigit(input->peek())) {
+            c <<= 4;
+            c += hextoi(input->get());
+
+            if(count == 1) {
+                str.append((char) c);
+                c = 0;
+            }
+
+            count = (count + 1) % 2;
+        }
+
+        // there is left over bits at the end that we have buffered
+        // left justify them in the byte and append to string
+        if(count) {
+            c <<= 4;
+            str.append((char) c);
+        }
+
+        return str;
+    }
+
+    // oct escape sequence
+    if(c == 'o') {
+        String str;
+        int c = 0;
+        int count = 0;
+        while(isOctDigit(input->peek())) {
+            c <<= 3;
+            c += octtoi(input->get());
+
+            count += 3;
+
+            if(count > 8) {
+                str.append((char) (c & 0xff));
+                c >>= 8;
+                count -= 8;
+            }
+        }
+
+        // there is left over bits at the end that we have buffered
+        // left justify them in the byte and append to string
+        if(count) {
+            c <<= (8 - count);
+            str.append((char) c);
+        }
+
+        return str;
+    }
+
+    // decimal escape sequence
+    if(c == 'd') {
+        //TODO
+        throw new Exception("lexer: decimal escape sequence not supported");
+    }
+
+    // binary escape sequence
+    if(c == 'b') {
+        String str;
+        char c = 0;
+        int count = 0;
+        while(isBinDigit(input->peek())) {
+            c <<= 1;
+            c += bintoi(input->get());
+
+            if(count == 7) {
+                str.append((char) c);
+                c = 0;
+            }
+
+            count = (count + 1) % 8;
+        }
+
+        // there is left over bits at the end that we have buffered
+        // left justify them in the byte and append to string
+        if(count) {
+            c <<= (8 - count);
+            str.append((char) c);
+        }
+        return str;
+    }
+
+    // unicode escape sequence
+    if(c == 'u') {
+        return lexUTF8Char();
+    }
+
+	switch(c) {
+		case '\'': return String("'");
+		case '"': return String("\"");
+		case '\\': return String("\\");
+		case '?': return String("\?");
+		case '0': return String("\0");
+		case 'f': return String("\f");
+		case 'n': return String("\n");
+		case 'r': return String("\r");
+		case 't': return String("\t");
+        case ' ': return String();
+	}
+
+	return String();
 }
 
 String Lexer::consumeWord() {
@@ -245,16 +365,16 @@ unsigned long long Lexer::consumeDecSeq(int *len_out) {
 			len++;
 		}
     }
-	
+
 	if(len_out) *len_out = len;
-	
+
 	return ret;
 }
 
 unsigned long long Lexer::consumeHexSeq(int *len_out) {
 	int len = 0;
 	unsigned long long ret = 0;
-	
+
     while(isHexDigit(input->peek()) || input->peek() == '_') {
 		if(input->peek() == '_') {
 			input->get();
@@ -267,7 +387,7 @@ unsigned long long Lexer::consumeHexSeq(int *len_out) {
     }
 
 	if(len_out) *len_out = len;
-	
+
 	return ret;
 }
 
@@ -283,9 +403,9 @@ unsigned long long Lexer::consumeOctSeq(int *len_out) {
 			len++;
 		}
     }
-	
+
 	if(len_out) *len_out = len;
-	
+
 	return ret;
 }
 
@@ -301,15 +421,15 @@ unsigned long long Lexer::consumeBinSeq(int *len_out) {
 			len++;
 		}
     }
-	
+
 	if(len_out) *len_out = len;
-	
+
 	return ret;
 }
 
 Token Lexer::lexNumericLiteral() {
 	SourceLocation loc = getLocation();
-    
+
 	NumericFormat format = NUM_DEC;
 	bool floating = false;
 	long long integral = 0;
@@ -317,7 +437,7 @@ Token Lexer::lexNumericLiteral() {
 	double fraction = 0.0;
 	long long fracdigs = 0;
 	double exponent = 1;
-	
+
     String num;
 
     if(input->peek() == '0') {
@@ -341,7 +461,7 @@ Token Lexer::lexNumericLiteral() {
     } else {
 		integral = consumeDecSeq();
 	}
-	
+
 	if(input->peek() == '.') {
 		input->get(); // ignore .
 		floating = true;
@@ -359,28 +479,28 @@ Token Lexer::lexNumericLiteral() {
 			if(fraclen) fraction = fracdigs / pow(10, fraclen);
 		}
 	}
-	
+
 	// exponent part
 	if(isExponentChar(input->peek())) {
 		char expChar = input->get();
 		bool negativeExp = false;
-		
+
 		floating = true;
 		if(isSign(input->peek())) {
 			if(input->get() == '-') {
 				negativeExp = true;
-			} 
+			}
 		}
-		
+
 		long long expSeq = consumeDecSeq();
 		if(negativeExp) expSeq *= -1;
 		exponent = (isBinExponentChar(expChar) ? pow(2, expSeq) : pow(10, expSeq));
 	}
-	
+
 	if(!isWhitespace(input->peek()) && !input->eof()) {
 		throw new Exception("invalid trailing characters on numeric constant: " + input->get());
 	}
-	
+
 	if(floating) {
 		return Token::createFloatToken(makeFloat(integral, fraction, exponent), loc);
 	} else {
@@ -391,28 +511,28 @@ Token Lexer::lexNumericLiteral() {
 Token Lexer::lexStringLiteral() {
 	SourceLocation loc = getLocation();
 	String str;
-	
+
 	if(input->get() != '\"') { // ignore "
 		throw new Exception("lexer: expected \"");
 	}
-	
+
 	while(input->peek() != '\"') {
 		if(input->eof()) {
 			throw new Exception("expected closing \", found EOF");
 		}
-	
+
 		if(input->peek() == '\\') {
-			input->get();
-			str += decodeEscapeCharacter(input->get());
+            String escape = lexEscapeSequence();
+            str.append(escape);
 		} else {
 			str += input->get();
 		}
 	}
-	
+
 	if(input->get() != '\"') { // ignore "
 		throw new Exception("lexer: expected terminating \" in string");
 	}
-	
+
 	return Token::createStringToken(str, loc);
 }
 
@@ -420,23 +540,23 @@ Token Lexer::lexStringLiteral() {
 Token Lexer::lexRawStringLiteral() {
 	SourceLocation loc = getLocation();
 	String str;
-	
+
 	if(input->get() != '`') { // ignore `
 		throw new Exception("lexer: expected `");
 	}
-	
+
 	while(input->peek() != '`') {
 		if(input->eof()) {
 			throw new Exception("expected closing `, found EOF");
 		}
-		
+
 		str += input->get();
 	}
-	
+
 	if(input->get() != '`') { // ignore `
 		throw new Exception("lexer: expected terminating ` in raw string");
 	}
-	
+
 	return Token::createStringToken(str, loc);
 }
 
@@ -444,7 +564,7 @@ Token Lexer::lexRawStringLiteral() {
 Token Lexer::lexCharLiteral() {
     SourceLocation loc = getLocation();
     assert(input->peek() == '\'');
-	
+
 	// ignore opening '
 	if(input->get() != '\'') {
 		throw new Exception("lexer: expected \' beginning char constant");
@@ -452,17 +572,23 @@ Token Lexer::lexCharLiteral() {
 
 	char c;
     if(input->peek() == '\\') {
-		input->get();
-		c = decodeEscapeCharacter(input->get());
+        String escape = lexEscapeSequence();
+        if(escape.length() < 1) throw new Exception("lexer: invalid empty character literal");
+        if(escape.length() > 1) throw new Exception("lexer: escape sequence is greater than one byte long");
+        c = escape.charAt(0);
     } else {
 		c = input->get();
 	}
-	
+
 	// ignore closing '
 	if(input->get() != '\'') {
 		throw new Exception("lexer: expected \' following char constant");
 	}
-	
+
+    if(!c) {
+		throw new Exception("lexer: invalid empty character literal");
+    }
+
     return Token::createCharToken(c, loc);
 }
 
@@ -471,9 +597,9 @@ Token Lexer::lexPunctuator() {
 	SourceLocation loc = getLocation();
 	String str;
 	str += input->get();
-	
+
 	#define OPT_CONSUME(C, DO) {if(input->peek() == C) { str += input->get(); DO; }}
-	
+
 	switch(str[0]) {
 		case '~':
 			return Token(tok::tilde, str, loc);
@@ -524,12 +650,12 @@ Token Lexer::lexPunctuator() {
 		case '/':
 			OPT_CONSUME('=', return Token(tok::slashequal, str, loc));
 			return Token(tok::slash, str, loc);
-			
+
 		case '<':
 			OPT_CONSUME('=', return Token(tok::lessequal, str, loc));
 			OPT_CONSUME('<', return Token(tok::lessless, str, loc));
 			return Token(tok::less, str, loc);
-			
+
 		case '>':
 			OPT_CONSUME('=', return Token(tok::greaterequal, str, loc));
 			OPT_CONSUME('>', return Token(tok::greatergreater, str, loc));
@@ -537,17 +663,17 @@ Token Lexer::lexPunctuator() {
 		case ':':
 			OPT_CONSUME('=', return Token(tok::colonequal, str, loc));
 			return Token(tok::colon, str, loc);
-			
+
 		case ';':
 			return Token(tok::semicolon, str, loc);
-			
+
 		case '.':
 			OPT_CONSUME('.', OPT_CONSUME('.', return Token(tok::dotdotdot, str, loc)); return Token(tok::dotdot, str, loc));
 			return Token(tok::dot, str, loc);
-			
+
 		case ',':
 			return Token(tok::comma, str, loc);
-				
+
 		default:
 			String err = String("lexer: unknown punctuator character in input: ");
 			err += str[0];
@@ -559,10 +685,10 @@ Token Lexer::lexPunctuator() {
 Token Lexer::lexBlockComment() {
 	SourceLocation loc = getLocation();
 	String str;
-	
+
 	input->get();
 	input->get(); // ignore /*
-	
+
 	int level = 1;
 	char c;
 	do {
@@ -573,35 +699,35 @@ Token Lexer::lexBlockComment() {
 			str += input->get();
 			continue;
 		}
-		
+
 		if(c == '*' && input->peek() == '/') {
 			level--;
 			if(level <= 0) break;
-			
+
 			str += c;
 			str += input->get();
 			continue;
 		}
-		
+
 		str += c;
-		
+
 		if(input->eof() && level > 0) throw new Exception("expected closing '*/' for block comment");
-		
+
 	} while(true);
-	
+
 	return Token::createCommentToken(str, loc);
 }
 
 Token Lexer::lexLineComment() {
 	SourceLocation loc = getLocation();
 	String str;
-	
+
 	input->get();
 	input->get(); // ignore //
-	
+
 	do {
 		str += input->get();
 	} while(input->peek() != '\n' && !input->eof());
-	
+
 	return Token::createCommentToken(str, loc);
 }
