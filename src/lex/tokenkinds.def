@@ -37,6 +37,7 @@
 
 TOK(none)
 TOK(eof)
+TOK(newline)
 TOK(whitespace)
 TOK(unknown)
 TOK(comment)

@@ -179,6 +179,20 @@ Token Lexer::lexRaw() {
 		return lexPunctuator();
 	}
 
+    if(isWhitespace(c)) {
+        SourceLocation loc = getLocation();
+        do {
+            input->get();
+        } while(isWhitespace(input->peek()));
+        return Token(tok::whitespace, loc);
+    }
+
+    if(isEndOfLine(c)) {
+        SourceLocation loc = getLocation();
+        input->get();
+        return Token(tok::newline, loc);
+    }
+
 	throw new Exception("invalid input character found");
 }
 
@@ -497,7 +511,7 @@ Token Lexer::lexNumericLiteral() {
 		exponent = (isBinExponentChar(expChar) ? pow(2, expSeq) : pow(10, expSeq));
 	}
 
-	if(!isWhitespace(input->peek()) && !input->eof()) {
+	if(!isWhitespace(input->peek()) && !isEndOfLine(input->peek()) && !input->eof()) {
 		throw new Exception("invalid trailing characters on numeric constant: " + input->get());
 	}
 

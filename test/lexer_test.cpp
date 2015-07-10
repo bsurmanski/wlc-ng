@@ -224,3 +224,21 @@ TEST(Lexer, Comments) {
 
 	#undef TEST_COMMENT
 }
+
+TEST(Lexer, MultiTokens) {
+    String test("int i = 5\nint j = 6");
+
+    Lexer *lex = new Lexer(new StringInput(test));
+    ASSERT_EQ(tok::kw_int, lex->lex().getKind());
+    ASSERT_EQ(tok::identifier, lex->lex().getKind());
+    ASSERT_EQ(tok::equal, lex->lex().getKind());
+    ASSERT_EQ(tok::intlit, lex->lex().getKind());
+    ASSERT_EQ(tok::newline, lex->lex().getKind());
+
+    ASSERT_EQ(tok::kw_int, lex->lex().getKind());
+    ASSERT_EQ(tok::identifier, lex->lex().getKind());
+    ASSERT_EQ(tok::equal, lex->lex().getKind());
+    ASSERT_EQ(tok::intlit, lex->lex().getKind());
+    ASSERT_EQ(true, lex->eof());
+    delete lex;
+}
