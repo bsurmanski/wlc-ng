@@ -263,6 +263,16 @@ int String::indexOf(int c, int startAt) const {
     return -1;
 }
 
+int String::lastIndexOf(int c, int startAt) const {
+    if(startAt < 0) startAt = length() - 1;
+
+    for(int i = startAt; i >= 0; i--) {
+        if(charAt(i) == c) return i;
+    }
+
+    return -1;
+}
+
 bool String::empty() const {
 	return len <= 0;
 }

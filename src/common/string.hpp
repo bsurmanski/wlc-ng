@@ -61,6 +61,7 @@ class String {
 	void copy(char *dst, size_t len, size_t pos = 0) const;
     String substring(int start, int len = -1) const;
     int indexOf(int c, int startAt = 0) const;
+    int lastIndexOf(int c, int startAt = -1) const;
 	bool empty() const;
 	String dup() const;
 };

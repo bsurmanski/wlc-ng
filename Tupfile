@@ -13,7 +13,7 @@ src/parse/parser.cpp
 MAIN=src/driver/main.cpp
 
 # test files
-TST=test/string_test.cpp test/stringInput_test.cpp test/lexer_test.cpp
+TST=test/string_test.cpp test/stringInput_test.cpp test/lexer_test.cpp test/file_test.cpp
 
 CXXFLAGS=-Isrc -g -O0
 LDFLAGS=
