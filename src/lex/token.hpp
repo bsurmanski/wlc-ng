@@ -33,26 +33,26 @@ namespace tok {
 
 struct Token {
 	private:
-	
+
 	union {
 		char strdata[sizeof(String)];
 		double floatdata;
 		long long intdata;
 		unsigned long long uintdata;
 	};
-	
+
 	enum DataTag {
 		NONE,
 		STRING,
 		FLOAT,
 		INT,
 	};
-	
+
 	DataTag tag;
-	
+
     SourceLocation loc;
     tok::TokenKind kind;
-	
+
 	bool hasStringData() const;
 
     public:
@@ -61,9 +61,9 @@ struct Token {
     Token(tok::TokenKind _kind, SourceLocation _loc);
 	Token(tok::TokenKind _kind, String _data, SourceLocation _loc);
 	~Token();
-	
+
 	Token &operator=(const Token& o);
-	
+
 	static Token createCharToken(char c, SourceLocation _loc);
 	static Token createStringToken(String str, SourceLocation _loc);
 	static Token createIdentifierToken(String str, SourceLocation _loc);
@@ -75,6 +75,7 @@ struct Token {
     bool isLiteral();
     bool isIdentifier();
     bool isPunct();
+    bool isTerminator();
     bool is(tok::TokenKind k);
     bool isNot(tok::TokenKind k);
 

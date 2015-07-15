@@ -143,6 +143,10 @@ bool Token::isPunct() {
 	}
 }
 
+bool Token::isTerminator() {
+    return kind == tok::newline || kind == tok::semicolon;
+}
+
 bool Token::is(tok::TokenKind k) {
     return kind == k;
 }
