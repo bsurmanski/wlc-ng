@@ -3,14 +3,15 @@
 
 #include "ast/module.hpp"
 #include "io/environment.hpp"
-#include "common/varray.hpp"
+#include "common/dynarray.hpp"
 
 class Program {
-    VArray<Module*> modules;
+    DynArray<Module*> modules;
     Environment *env;
 
     public:
     Program(Environment *_env);
+    ~Program();
 
 };
 

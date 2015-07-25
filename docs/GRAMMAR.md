@@ -65,7 +65,7 @@
     true
     false
 
-# pointer\_literal
+# null\_literal
     null
 
 # hex\_escape\_seq
@@ -116,13 +116,6 @@
 	regular\_string\_literal
 	raw\_string\_literal
 
-# literal
-    char\_literal
-    string\_literal
-    bool\_literal
-    pointer\_literal
-    numeric\_literal
-
 # id
     *nondigit* { *digit* | *nondigit* }
 
@@ -158,6 +151,7 @@
     *jump\_stmt*
     *label_stmt*
     *case\_stmt*
+    *if\_stmt*
     *loop\_stmt*
     *use\_stmt*
     *assignment\_stmt*
@@ -189,7 +183,7 @@
     *value\_exp* *assignment\_op* *expression*
 
 # compound\_stmt
-    { {*statement* .} }
+    { {*statement*} }
 
 # jump\_stmt
     goto *id*
@@ -220,6 +214,7 @@
 
 # include\_stmt
     include *id* //allow id.id.id
+    include *path*
 
 ----------
 
@@ -272,7 +267,7 @@
     uint64
     float
     double
-    /float32
+    float32
     float64
 
 # tuple\_type
@@ -316,6 +311,7 @@
     *type\_decl*
     *function\_decl*
     *variable\_decl*
+    *alias\_decl*
 
 # simple\_template
     *id*
@@ -334,7 +330,6 @@
     union [*id*] { {*declaration* .} }
     class [*id*] [: *id*] { {*declaration* .} }
     interface [*id*] { {*declaration* .} }
-    let *id* = *type*
 
 # parameter
     *type* *id* [= *expression*]
@@ -349,26 +344,38 @@
 # variable\_decl
     *type\_qual* *type* *id* [= *value\_exp*]
 
+# alias\_decl
+    let *id* = *expression*
+
 -----------
 
 # expression
-    *type\_exp*
     *value\_exp*
     *declaration*
 
 # primary\_expression
-    *literal*
+    *literal\_exp*
     *tuple\_exp*
     ( *expression* )
     this
     super
     *identifier\_exp*
 
-# import\_exp
-    import *id* {. *id*}
+# literal\_exp
+    char\_literal
+    string\_literal
+    bool\_literal
+    null\_literal
+    numeric\_literal
+
+# tuple\_exp
+    [ *expression* {, *expression*} ]
 
 # identifier\_exp
     *id*
+
+# import\_exp
+    import *id* {. *id*}
 
 # member\_exp
     . *id*
@@ -381,36 +388,29 @@
     [*expression* [, *argument\_list*]]
     
 # call\_exp
-    *expression* ( *argument\_list* )
-
-# index\_exp
-    *value\_exp* [ *expression* ]
-
-# tuple\_exp
-    [ *expression* {, *expression*} ]
-
-# type\_exp
-    *type*
+    *primary\_postfix\_exp* ( *argument\_list* )
 
 # mem\_exp
     new *type* [( *argument\_list* )]
-    delete *value\_exp*
-    retain *value\_exp*
-    release *value\_exp*
-
-# delete\_exp
-    delete *postfix\_exp*
+    delete *primary\_postfix\_exp*
+    retain *primary\_postfix\_exp*
+    release *primary\_postfix\_exp*
 
 # index\_exp
     *posfix\_exp* [ *expression* ]
 
-# postfix\_exp
-    *member\_exp*
-    *index\_exp*
+# arithmetic\_postifx\_exp
     *postfix\_exp* ++
     *postfix\_exp* --
-    *type\_exp*
+
+# primary\_postfix\_exp
+    *member\_exp*
+    *index\_exp*
     *primary\_exp*
+
+# postfix\_exp
+    *arithmetic\_postifx\_exp*
+    *primary\_postfix\_exp*
 
 # unary\_exp
     ++ *cast\_exp*
