@@ -19,7 +19,7 @@ CXXFLAGS=-Isrc -g -O0
 LDFLAGS=
 EXE=wlc
 TESTEXE=test/test
-TEST_LDFLAGS=-lgtest -lgtest_main
+TEST_LDFLAGS=-lgtest -lgtest_main -lpthread
 
 ifeq (@(TUP_PLATFORM),win32)
 LDFLAGS+=-lmingw32
