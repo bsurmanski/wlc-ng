@@ -49,7 +49,7 @@ class ReleaseExpr : MemExpr {
 };
 
 class IdExpr : Expr {
-}:
+};
 
 class PackExpr : Expr {
 };
