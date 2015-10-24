@@ -3,11 +3,16 @@
 
 Exception::Exception(String _message) {
 	message = _message;
+    whatStr = message.c_str();
 }
 
-Exception::~Exception() {
+Exception::~Exception() throw() {
 }
 
 String &Exception::getMessage() {
 	return message;
+}
+
+const char *Exception::what() const throw() {
+    return whatStr;
 }
