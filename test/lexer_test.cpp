@@ -19,6 +19,24 @@ TEST(Lexer, Keywords) {
 #undef TEST_KW
 }
 
+TEST(Lexer, Types) {
+	Lexer *lex;
+#define TEST_KW(KW) lex = new Lexer(new StringInput(#KW));\
+					ASSERT_EQ(tok::kw_##KW, lex->lex().getKind());\
+					ASSERT_EQ(lex->eof(), true); \
+					delete lex;
+    TEST_KW(bool);
+    TEST_KW(void);
+    TEST_KW(char);
+    TEST_KW(short);
+    TEST_KW(int);
+    TEST_KW(int8);
+    TEST_KW(int64);
+    TEST_KW(float);
+    TEST_KW(double);
+#undef TEST_KW
+}
+
 TEST(Lexer, Integers) {
 	Lexer *lex;
 	Token tok;
