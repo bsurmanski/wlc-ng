@@ -1,86 +1,86 @@
-# nondigit
+## nondigit
     a-z
     A-Z
     _
 
-# digit
+## digit
     0-9
 
-# dec\_seq
+## dec\_seq
     digit {_} dec\_seq
 
-# sign
+## sign
     +
     -
 
-# numeric\_frac
+## numeric\_frac
     . digit+ [E [sign] digit+]
 
-# bin\_digit
+## bin\_digit
     0
     1
 
-# bin\_seq
+## bin\_seq
     bin\_digit {_} bin\_seq
 
-# bin\_literal
+## bin\_literal
     0b bin\_seq
 
-# oct\_digit
+## oct\_digit
     0-7
 
-# oct\_seq
+## oct\_seq
     oct_digit {_} oct\_seq
 
-# oct\_literal
+## oct\_literal
     0o oct\_seq
 
-# hex\_digit
+## hex\_digit
     0-9
     a-f
     A-F
 
-# hex\_seq
+## hex\_seq
     hex\_digit {_} hex\_seq
 
-# hex\_literal
+## hex\_literal
     0x hex\_seq
 
-# dec\_literal
+## dec\_literal
     dec\_seq
 	
-# floating_\exponent\_part
+## floating_\exponent\_part
 	 E [sign] dec\_seq
 	 e [sign] dec\_seq
 	 P [sign] dec\_seq
 	 p [sign] dec\_seq
 
-# numeric\_literal
+## numeric\_literal
     dec\_literal [. dec\_seq] [floating\_exponent\_part]
     hex\_literal [. hex\_seq] [floating\_exponent\_part]
     oct\_literal [. oct\_seq] [floating\_exponent\_part]
     bin\_literal [. bin\_seq] [floating\_exponent\_part]
 
-# bool\_literal
+## bool\_literal
     true
     false
 
-# null\_literal
+## null\_literal
     null
 
-# hex\_escape\_seq
+## hex\_escape\_seq
 	\x { hex\_digit }
 	
-# oct\_escape\_seq
+## oct\_escape\_seq
 	\o { oct\_digit }
 	
-# bin\_escape\_seq
+## bin\_escape\_seq
 	\b { bin\_digit }
 	
-# unicode\_escape\_seq
+## unicode\_escape\_seq
 	\u { hex\_digit }
 	
-# simple\_escape\_seq
+## simple\_escape\_seq
 	\0
     \'
     \"
@@ -92,61 +92,61 @@
     \t
     \  # followed by a space; no character is parsed
 
-# escape\_seq
+## escape\_seq
     simple_escape_seq
     hex_escape_seq
     oct_escape_seq
     bin_escape_seq
     unicode_escape_seq
 
-# schar
+## schar
     ?any character not "?
     *escape_seq*
 	
-# rchar
+## rchar
 	?any character not `?
 
-# regular\_string\_literal
+## regular\_string\_literal
     " {schar} "
 	
-# raw\_string\_literal
+## raw\_string\_literal
 	` {rchar} `
 	
-# string\_literal
+## string\_literal
 	regular\_string\_literal
 	raw\_string\_literal
 
-# id
+## id
     *nondigit* { *digit* | *nondigit* }
 
-# line\_comment
+## line\_comment
     / / ?any character not \n?
 
-# start\_block\_comment
+## start\_block\_comment
     / *
 
-# end\_block\_comment
+## end\_block\_comment
     * /
 
-# block\_comment\_character
+## block\_comment\_character
     *block\_comment*
     ?any character sequence not *end\_block_comment*
 
-# block\_comment
+## block\_comment
     *start\_block\_comment* {*block\_comment\_character*} *end\_block\_comment*
 
-# comment
+## comment
     *line\_comment*
     *block\_comment*
 
 ----------
 
-# module
+## module
     {*declaration* .}
 
 ----------
 
-# statement\_body
+## statement\_body
     *compound_stmt*
     *jump\_stmt*
     *label_stmt*
@@ -157,15 +157,15 @@
     *assignment\_stmt*
     *expression*
 
-# statement\_terminator
+## statement\_terminator
     ;
     (\n)
     
 
-# statement
+## statement
     *statement\_body* *statement\_terminator*+
 
-# assignment\_op
+## assignment\_op
     =
     :=
     +=
@@ -179,60 +179,63 @@
     |=
     ^=
 
-# assignment\_stmt
+## assignment\_stmt
     *value\_exp* *assignment\_op* *expression*
 
-# compound\_stmt
+## compound\_stmt
     { {*statement*} }
 
-# jump\_stmt
+## jump\_stmt
     goto *id*
     break
     continue
     return [*expression*]
 
-# label\_stmt
+## label\_stmt
     label *id*
 
-# if\_stmt
+## if\_stmt
     if ( *logical\_exp* ) *statement* [else *statement*]
 
-# switch\_stmt
+## switch\_stmt
     switch ( *logical\_exp* ) *statement*
 
-# case\_stmt
+## case\_stmt
     case *expression* {, *expression*}
 
-# loop\_stmt
+## loop\_stmt
     while ( [*value\_exp*] ) *statement* [else *statement*]
     do *statement* while ( *value\_exp* ) 
     for ( *declaration* ; *expression* ; *expression* ) *statement* [else *statement*]
     foreach ( *declaration* in *expression* ) *statement* [else *statement*]
 
-# use\_stmt
+## use\_stmt
     use *id*
 
-# include\_stmt
+## include\_stmt
     include *id* //allow id.id.id
     include *path*
 
 ----------
 
-# type\_qualifier
+## type\_qualifier
     const
 
-# type
-    *tuple\_type* {*type\_postfix*}
-    *primative\_type* {*type\_postfix*}
-    *id* {*type\_postfix*}
+## base\_type
+    *primative\_type*
+    *user\_type*
+    *tuple\_type*
 
-# primative\_type\_class
+## type
+    *base\_type* {*type\_postfix*}
+
+## primative\_type\_class
     var
     num
     integer
 
 <!--
-# vector\_type
+## vector\_type
     vchar2
     vchar4
     vchar8
@@ -244,7 +247,7 @@
 -->
     
 
-# primative\_type
+## primative\_type
     *primate\_type\_class*
 <!-- *vector\_type* -->
     bool
@@ -270,90 +273,93 @@
     float32
     float64
 
-# tuple\_type
+## user\_type
+    *id*
+
+## tuple\_type
     [ *type* {, *type*} ]
 
-# type\_postfix
-    function\_type\_postfix
-    pointer\_type\_postfix
-    array\_type\_postfix
+## type\_postfix
+    function\_type\_postfix [*type\_postfix*]
+    pointer\_type\_postfix [*type\_postfix*]
+    array\_type\_postfix [*type\_postfix*]
 
-# function\_type\_postfix
+## function\_type\_postfix
     function ( [*type* {, *type*}] )
 
-# pointer\_type\_postfix
+## pointer\_type\_postfix
     ^
 
-# array\_type\_postfix
+## array\_type\_postfix
     *static\_array\_type\_postfix*
     *dynamic\_array\_type\_postfix*
 
-# static\_array\_type\_postfix
+## static\_array\_type\_postfix
     [ *expression* ]
 
-# dynamic\_array\_type\_postfix
+## dynamic\_array\_type\_postfix
     [ ]
 
 -----------
 
-# storage\_class
+## storage\_class
     extern
     undecorated
     decorated
     weak
     static
 
-# access\_modifier
+## access\_modifier
     public
     private
 
-# declaration
+## declaration
     *type\_decl*
     *function\_decl*
     *variable\_decl*
     *alias\_decl*
 
-# simple\_template
+## simple\_template
     *id*
     *basic\_type*
 
-# template\_member
+## template\_member
     *type*
     *primary\_exp*
 
-# template\_spec
+## template\_spec
     ! *template\_member*
     ! [ *template\_member* {, *template\_member*} ]
 
-# type\_decl
+## type\_decl
     struct [*id*] { {*declaration* .} }
     union [*id*] { {*declaration* .} }
     class [*id*] [: *id*] { {*declaration* .} }
     interface [*id*] { {*declaration* .} }
 
-# parameter
+## parameter
     *type* *id* [= *expression*]
 
-# parameter\_list
+## parameter\_list
     [*parameter* [, *parameter\_list*]]
     ...
 
-# function\_decl
+## function\_decl
     *type* *id* ( *parameter\_list* ) *statement*
 
-# variable\_decl
+## variable\_decl
     *type\_qual* *type* *id* [= *value\_exp*]
 
-# alias\_decl
+## alias\_decl
     let *id* = *expression*
 
 -----------
 
-# expression
+## expression
     *value\_exp*
     *declaration*
 
-# primary\_expression
+## primary\_expression
     *literal\_exp*
     *tuple\_exp*
     ( *expression* )
@@ -361,58 +367,58 @@
     super
     *identifier\_exp*
 
-# literal\_exp
+## literal\_exp
     char\_literal
     string\_literal
     bool\_literal
     null\_literal
     numeric\_literal
 
-# tuple\_exp
+## tuple\_exp
     [ *expression* {, *expression*} ]
 
-# identifier\_exp
+## identifier\_exp
     *id*
 
-# import\_exp
+## import\_exp
     import *id* {. *id*}
 
-# member\_exp
+## member\_exp
     . *id*
     *expression* . *id*
 
-# pack\_exp
+## pack\_exp
     pack *value\_exp*
 
-# argument\_list
+## argument\_list
     [*expression* [, *argument\_list*]]
     
-# call\_exp
+## call\_exp
     *primary\_postfix\_exp* ( *argument\_list* )
 
-# mem\_exp
+## mem\_exp
     new *type* [( *argument\_list* )]
     delete *primary\_postfix\_exp*
     retain *primary\_postfix\_exp*
     release *primary\_postfix\_exp*
 
-# index\_exp
+## index\_exp
     *posfix\_exp* [ *expression* ]
 
-# arithmetic\_postifx\_exp
+## arithmetic\_postifx\_exp
     *postfix\_exp* ++
     *postfix\_exp* --
 
-# primary\_postfix\_exp
+## primary\_postfix\_exp
     *member\_exp*
     *index\_exp*
     *primary\_exp*
 
-# postfix\_exp
+## postfix\_exp
     *arithmetic\_postifx\_exp*
     *primary\_postfix\_exp*
 
-# unary\_exp
+## unary\_exp
     ++ *cast\_exp*
     -- *cast\_exp*
      + *cast\_exp*
@@ -425,34 +431,34 @@
     *pack\_exp*
     *postfix\_exp*
 
-# cast\_exp
+## cast\_exp
     *type* : *cast\_exp*
     *unary\_exp*
 
-# mulplicative\_exp
+## mulplicative\_exp
     *mulplicative\_exp* % *value\_exp*
     *mulplicative\_exp* ** *value\_exp*
     *mulplicative\_exp* / *value\_exp*
     *mulplicative\_exp* * *value\_exp*
     *cast\_exp*
 
-# shift\_exp
+## shift\_exp
     *shift\_exp* >> *value\_exp*
     *shift\_exp* << *value\_exp*
     *mulplicative\_exp*
 
-# additive\_exp
+## additive\_exp
     *additive\_exp* + *shift\_exp*
     *additive\_exp* - *shift\_exp*
     *shift\_exp*
 
-# bitwise\_exp
+## bitwise\_exp
     *bitwise\_exp* ^ *value\_exp*
     *bitwise\_exp* & *value\_exp*
     *bitwise\_exp* | *value\_exp*
     *additive\_exp*
 
-# relational\_exp
+## relational\_exp
     *relational\_exp* < *value\_exp*
     *relational\_exp* <= *value\_exp*
     *relational\_exp* > *value\_exp*
@@ -461,12 +467,12 @@
     *relational\_exp* == *value\_exp*
     *bitwise\_exp*
 
-# logical\_exp
+## logical\_exp
     *logical\_exp* or *value\_exp*
     *logical\_exp* || *value\_exp*
     *logical\_exp* and *value\_exp*
     *logical\_exp* && *value\_exp*
     *relational\_exp*
 
-# value\_exp
+## value\_exp
     *logical\_exp*
