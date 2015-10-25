@@ -1,4 +1,5 @@
 #include "string.hpp"
+#include "char.hpp"
 #include "exception/exception.hpp"
 
 #include <string.h>
@@ -60,6 +61,21 @@ String::~String() {
 	if(isLong()) {
 		refdata->release();
 	}
+}
+
+String String::fromInt(int i) {
+    String ret;
+
+    bool neg = i < 0;
+    i = abs(i);
+
+    while(i != 0) {
+        ret.prepend(Char::dectochar(i % 10));
+        i /= 10;
+    }
+
+    if(neg) ret.prepend('-');
+    return ret;
 }
 
 bool String::isLong() const {
@@ -151,6 +167,13 @@ void String::operator+=(const String &o) {
 	append(o);
 }
 
+String String::operator+(String o) {
+    String str;
+    str.append(*this);
+    str.append(o);
+    return str;
+}
+
 bool String::equals(const String &o) const {
 	return !compare(o);
 }
@@ -211,6 +234,33 @@ void String::append(const String &o) {
 	}
 
 	len += o.length();
+}
+
+void String::prepend(char c) {
+    if(len == capacity) {
+        resize(capacity + STRING_APPEND_PAD);
+    }
+
+    for(int i = length(); i > 0; i--) {
+		charAt(i) = charAt(i-1);
+    }
+    charAt(0) = c;
+    len++;
+}
+
+void String::prepend(const String &o) {
+    while(len + o.length() >= capacity) {
+        resize(capacity + STRING_APPEND_PAD);
+    }
+
+    for(int i = length() + o.length() - 1; i >= o.length(); i--) {
+		charAt(i) = charAt(i-o.length());
+    }
+
+    for(int i = o.length() - 1; i >= 0; i--) {
+        charAt(i) = o.charAt(i);
+    }
+    len+=o.length();
 }
 
 char *String::c_str() {

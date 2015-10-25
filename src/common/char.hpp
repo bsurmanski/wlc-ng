@@ -15,6 +15,7 @@ namespace Char {
     int octtoi(char c);
     int dectoi(char c);
     int bintoi(char c);
+    char dectochar(int d);
     bool isWhitespace(char c);
     bool isEndOfLine(char c);
     bool isExponentChar(char c);

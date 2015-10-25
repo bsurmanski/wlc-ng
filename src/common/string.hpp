@@ -36,6 +36,8 @@ class String {
 	String(char c);
 	~String();
 
+    static String fromInt(int i);
+
 	void clear();
 	size_t length() const;
 	String &operator=(const String &o);
@@ -49,12 +51,15 @@ class String {
 	bool operator>=(const String &o) const;
 	void operator+=(char c);
 	void operator+=(const String &o);
+    String operator+(String o);
 	const char &charAt(int i) const;
 	char &charAt(int i);
 	bool equals(const String &o) const;
 	int compare(const String &o) const;
 	void append(char c);
 	void append(const String &o);
+    void prepend(char c);
+    void prepend(const String &o);
 	char *c_str();
 	char *dataPtr();
 	const char *dataPtr() const;

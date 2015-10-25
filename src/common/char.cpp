@@ -65,6 +65,11 @@ int Char::bintoi(char c) {
 	return c - '0';
 }
 
+char Char::dectochar(int d) {
+    assert(d < 10 && d >= 0);
+    return d + '0';
+}
+
 bool Char::isWhitespace(char c) {
 	return c == ' ' || c == '\t' || c == '\v' || c == '\f';
 }

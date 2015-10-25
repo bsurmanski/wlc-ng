@@ -8,6 +8,20 @@ TEST(String, Create) {
 	EXPECT_FALSE(memcmp(str.c_str(), "Hello", 5));
 }
 
+TEST(String, FromInt) {
+    String str1 = String::fromInt(1000);
+    EXPECT_EQ(str1, "1000");
+
+    str1 = String::fromInt(1234567890);
+    EXPECT_EQ(str1, "1234567890");
+
+    str1 = String::fromInt(-1);
+    EXPECT_EQ(str1, "-1");
+
+    str1 = String::fromInt(-987123);
+    EXPECT_EQ(str1, "-987123");
+}
+
 TEST(String, Compare) {
 	String str1("SomeString");
 	String str2("SomeString");
@@ -52,6 +66,23 @@ TEST(String, Append) {
 	EXPECT_EQ(str1, "always");
 	str1.append(" bet on black. always and forever");
 	EXPECT_EQ(str1, "always bet on black. always and forever");
+}
+
+TEST(String, Prepend) {
+    String str1 = "Hello";
+    str1.prepend('a');
+    EXPECT_EQ(str1, "aHello");
+
+    String str2 = " World";
+    str2.prepend(str1);
+    EXPECT_EQ(str2, "aHello World");
+
+    String str3 = "A Quite Long String To Test With. Quite Long Indeed";
+    String str4 = str3.dup();
+    str4.prepend(str2);
+    str2.append(str3);
+
+    EXPECT_STREQ(str2.c_str(), str4.c_str());
 }
 
 TEST(String, Cstr) {
