@@ -1,10 +1,11 @@
 #ifndef _LEXER_HPP
 #define _LEXER_HPP
 
+#include "common/object.hpp"
 #include "io/input.hpp"
 #include "token.hpp"
 
-class Lexer {
+class Lexer : public Object {
     Input *input;
 
     public:
@@ -25,7 +26,8 @@ class Lexer {
     Token lexWord();
     Token lexNumericLiteral();
     Token lexStringLiteral();
-	Token lexRawStringLiteral();
+    String lexNormalStringLiteralPart();
+	String lexRawStringLiteralPart();
     Token lexCharLiteral();
 	Token lexPunctuator();
 	Token lexBlockComment();

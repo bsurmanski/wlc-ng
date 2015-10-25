@@ -9,10 +9,15 @@ struct SourceLocation {
     int offset; // character offset into file
                 // if column/char info is needed, it can be computed
 
+    int line;
+    int ch;
+
     SourceLocation();
     SourceLocation(Input *_input, int _offset);
 
     bool isValid();
+    int getLine();
+    int getLineOffset();
 };
 
 struct SourceRange {
@@ -53,6 +58,8 @@ struct Token {
     SourceLocation loc;
     tok::TokenKind kind;
 
+    void initializeStringData(String &data);
+    void deleteStringData();
 	bool hasStringData() const;
 
     public:
@@ -84,10 +91,10 @@ struct Token {
 	double getFloatData();
     String &getStringData();
     String &getIdentifierName();
+    String &getKeyword();
 	String &getStringRepr();
 
     tok::TokenKind getKind();
-    String &getKeyword();
     SourceLocation getSourceLocation();
 };
 

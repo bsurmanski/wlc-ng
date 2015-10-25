@@ -5,6 +5,8 @@
 #include "lex/lexer.hpp"
 #include "exception/exception.hpp"
 
+#define TRY(X) { try { (X); } catch(std::exception *e) { printf("%s\n", e->what()); FAIL(); }}
+
 TEST(Lexer, Keywords) {
 	Lexer *lex;
 #define TEST_KW(KW) lex = new Lexer(new StringInput(#KW));\
@@ -71,9 +73,11 @@ TEST(Lexer, Strings) {
 					ASSERT_EQ(tok.getStringData(), STR);\
 					delete lex;
 
+    TRY({
 	TEST_STR("Hello");
 	TEST_STR("Hi\"");
 	TEST_STR("Long String with \' escape \' characters \t \n");
+    })
 
 	#undef TEST_STR
 	#define TEST_STR(EXP, STR) lex = new Lexer(new StringInput(STR));\
@@ -81,9 +85,22 @@ TEST(Lexer, Strings) {
 					ASSERT_EQ(tok::stringlit, tok.getKind());\
 					ASSERT_EQ(tok.getStringData(), EXP);\
 					delete lex;
+    TRY({
     TEST_STR("empty escape sequence", "\"empty\\  escape\\  sequence\"");
 	TEST_STR("raw string \\ :)", "`raw string \\ :)`");
     TEST_STR("raw string\n with newlines", "`raw string\n with newlines`");
+    })
+
+	#undef TEST_STR
+	#define TEST_STR(EXP, STR) lex = new Lexer(new StringInput(#STR));\
+					tok = lex->lex();\
+					ASSERT_EQ(tok::stringlit, tok.getKind());\
+					ASSERT_EQ(tok.getStringData(), EXP);\
+					delete lex;
+    TRY({
+	TEST_STR("test multiple strings", "test ""multiple ""strings");
+	TEST_STR("test multiple \"raw\" strings", "test ""multiple "`"raw"`" strings");
+    })
 
 	#undef TEST_STR
 }

@@ -3,11 +3,14 @@
 #include <assert.h>
 #include <string.h>
 #include <new>
+#include "common/char.hpp"
 #include "exception/exception.hpp"
 
 SourceLocation::SourceLocation() {
     input = NULL;
     offset = 0;
+    line = 0;
+    ch = 0;
 }
 
 SourceLocation::SourceLocation(Input *_input, int _offset) {
@@ -17,6 +20,59 @@ SourceLocation::SourceLocation(Input *_input, int _offset) {
 
 bool SourceLocation::isValid() {
     return input != NULL; //TODO: figure this out later
+}
+
+static bool isEndofLine(char c) {
+    return c == '\n' || c == '\r';
+}
+
+int SourceLocation::getLine() {
+    if(line <= 0) {
+        int seek = input->tell();
+        input->set(0);
+        line = 1;
+
+        for(int i = 0; i < seek; i++) {
+            if(Char::isEndOfLine(input->get())) {
+                line++;
+            }
+        }
+    }
+
+    return line;
+}
+
+int SourceLocation::getLineOffset() {
+    if(ch <= 0) {
+        int seek = input->tell();
+        int off = seek;
+        ch = 1;
+
+        while(off >= 0) {
+            input->set(off);
+            if(Char::isEndOfLine(input->peek())) {
+                break;
+            }
+            ch++;
+        }
+
+        input->set(seek);
+    }
+
+    return ch;
+}
+
+void Token::initializeStringData(String &data) {
+    if(hasStringData()) {
+        deleteStringData();
+    }
+    tag = STRING;
+	new(strdata) String(data); // copy string into strdata buffer
+}
+
+void Token::deleteStringData() {
+    String *str = reinterpret_cast<String*>(strdata);
+    str->~String(); // destruct string if we are using it
 }
 
 bool Token::hasStringData() const {
@@ -54,8 +110,7 @@ Token::Token(tok::TokenKind _kind, String _data, SourceLocation _loc) {
 
 Token::~Token() {
 	if(hasStringData()) {
-		String *str = reinterpret_cast<String*>(strdata);
-		str->~String(); // destruct string if we are using it
+        deleteStringData();
 	}
 }
 
@@ -180,13 +235,37 @@ String &Token::getIdentifierName() {
 	return getStringData();
 }
 
+String &Token::getKeyword() {
+    switch(getKind()) {
+#define KEYWORD(X) case tok::kw_ ## X: \
+        if(tag != STRING) {\
+            String tmp(#X);\
+            initializeStringData(tmp);\
+        }\
+        return getStringData();
+#include "tokenkinds.def"
+#undef KEYWORD
+    }
+
+	throw new Exception("Token is not a valid keyword");
+}
+
+String &Token::getStringRepr() {
+    if(isKeyword()) {
+        return getKeyword();
+    }
+
+    if(isIdentifier()) {
+        return getIdentifierName();
+    }
+
+    throw new Exception("unimplemented token stringify");
+}
+
 tok::TokenKind Token::getKind() {
     return kind;
 }
 
-String &Token::getKeyword() {
-	throw new Exception("unimplemented");
-}
 
 SourceLocation Token::getSourceLocation() {
 	return loc;

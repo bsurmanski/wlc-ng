@@ -1,9 +1,12 @@
 #include "lexer.hpp"
+#include "common/char.hpp"
 #include "exception/exception.hpp"
 
 #include <assert.h>
 #include <math.h>
 #include <stdio.h>
+
+using namespace Char;
 
 enum NumericFormat {
 	NUM_BIN,
@@ -11,116 +14,6 @@ enum NumericFormat {
 	NUM_DEC,
 	NUM_HEX,
 };
-
-static char lowercase(char c) {
-    if(c >= 'A' && c <= 'Z') {
-        return c - 'A' + 'a';
-    }
-    return c;
-}
-
-static bool isNonDigit(char c) {
-    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_';
-}
-
-static bool isDigit(char c) {
-    return c >= '0' && c <= '9';
-}
-
-static bool isIdChar(char c) {
-    return isNonDigit(c) || isDigit(c);
-}
-
-static bool isSign(char c) {
-    return c == '-' || c == '+';
-}
-
-static bool isBinDigit(char c) {
-    return c == '0' || c == '1';
-}
-
-static bool isOctDigit(char c) {
-    return c >= '0' && c <= '7';
-}
-
-static bool isHexDigit(char c) {
-    char low = lowercase(c);
-    return (c >= '0' && c <= '9') || (low >= 'a' && low <= 'f');
-}
-
-static bool isDecDigit(char c) {
-	return c >= '0' && c <= '9';
-}
-
-static int hextoi(char c) {
-	assert(isHexDigit(c) && "invalid hex digit");
-	if(c >= '0' && c <= '9') return c - '0';
-	if(c >= 'a' && c <= 'f') return c - 'a' + 10;
-	if(c >= 'A' && c <= 'F') return c - 'A' + 10;
-	assert(false);
-}
-
-static int octtoi(char c) {
-	assert(isOctDigit(c) && "invalid oct digit");
-	return c - '0';
-}
-
-static int dectoi(char c) {
-	assert(isDecDigit(c) && "invalid dec digit");
-	return c - '0';
-}
-
-static int bintoi(char c) {
-	assert(isBinDigit(c) && "invalid binary digit");
-	return c - '0';
-}
-
-static bool isWhitespace(char c) {
-	return c == ' ' || c == '\t' || c == '\v' || c == '\f';
-}
-
-static bool isEndOfLine(char c) {
-	return c == '\n' || c == '\r';
-}
-
-static bool isExponentChar(char c) {
-	return c == 'e' || c == 'E' || c == 'p' || c == 'P';
-}
-
-static bool isBinExponentChar(char c) {
-	return c == 'p' || c == 'P';
-}
-
-static bool isPunctuatorChar(char c) {
-	switch(c) {
-		case '~':
-		case '!':
-		case '%':
-		case '^':
-		case '&':
-		case '*':
-		case '(':
-		case ')':
-		case '-':
-		case '+':
-		case '=':
-		case '[':
-		case ']':
-		case '{':
-		case '}':
-		case '|':
-		case '/':
-		case '<':
-		case '>':
-		case ';':
-		case ':':
-		case '.':
-		case ',':
-			return true;
-		default:
-			return false;
-	}
-}
 
 static double makeFloat(long long integral, double fraction, double exponent) {
 	return (integral + fraction) * exponent;
@@ -152,13 +45,9 @@ Token Lexer::lexRaw() {
         return lexWord();
     }
 
-	if(c == '"') {
+    if (c == '"' || c == '`') {
         return lexStringLiteral();
     }
-
-	if(c == '`') {
-		return lexRawStringLiteral();
-	}
 
     if(c == '\'') {
         return lexCharLiteral();
@@ -522,15 +411,33 @@ Token Lexer::lexNumericLiteral() {
 	}
 }
 
+//TODO: deal with whitespace
 Token Lexer::lexStringLiteral() {
 	SourceLocation loc = getLocation();
+    char c = input->peek();
+    String str;
+    while(c == '"' || c == '`') {
+        if(c == '"') {
+            str.append(lexNormalStringLiteralPart());
+        } else if(c == '`') {
+            str.append(lexRawStringLiteralPart());
+        }
+        c = input->peek();
+    }
+	return Token::createStringToken(str, loc);
+}
+
+String Lexer::lexNormalStringLiteralPart() {
+    char c;
 	String str;
 
-	if(input->get() != '\"') { // ignore "
-		throw new Exception("lexer: expected \"");
+	if((c = input->get()) != '\"') { // ignore "
+        String error = "lexer: expected \", found ";
+        error.append(c);
+		throw new Exception(error);
 	}
 
-	while(input->peek() != '\"') {
+	while((c = input->peek()) != '\"') {
 		if(input->eof()) {
 			throw new Exception("expected closing \", found EOF");
 		}
@@ -543,16 +450,15 @@ Token Lexer::lexStringLiteral() {
 		}
 	}
 
-	if(input->get() != '\"') { // ignore "
+	if((c = input->get()) != '\"') { // ignore "
 		throw new Exception("lexer: expected terminating \" in string");
 	}
 
-	return Token::createStringToken(str, loc);
+	return str;
 }
 
 
-Token Lexer::lexRawStringLiteral() {
-	SourceLocation loc = getLocation();
+String Lexer::lexRawStringLiteralPart() {
 	String str;
 
 	if(input->get() != '`') { // ignore `
@@ -571,7 +477,7 @@ Token Lexer::lexRawStringLiteral() {
 		throw new Exception("lexer: expected terminating ` in raw string");
 	}
 
-	return Token::createStringToken(str, loc);
+	return str;
 }
 
 
