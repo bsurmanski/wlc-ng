@@ -4,8 +4,9 @@
 #include "ast/module.hpp"
 #include "io/environment.hpp"
 #include "common/dynarray.hpp"
+#include "common/object.hpp"
 
-class Program {
+class Program : public Object {
     DynArray<Module*> modules;
     Environment *env;
 
