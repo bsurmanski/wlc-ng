@@ -106,15 +106,18 @@
 ## rchar
 	?any character not `?
 
-## regular\_string\_literal
+## normal\_string\_literal
     " {schar} "
 	
 ## raw\_string\_literal
 	` {rchar} `
+
+## string\_literal\_part
+	normal\_string\_literal
+	raw\_string\_literal
 	
 ## string\_literal
-	regular\_string\_literal
-	raw\_string\_literal
+    {string\_literal\_part}
 
 ## id
     *nondigit* { *digit* | *nondigit* }
