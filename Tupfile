@@ -10,13 +10,22 @@ src/io/stringInput.cpp \
 src/lex/lexer.cpp \
 src/lex/token.cpp \
 src/parse/parser.cpp\
+src/ast/stmt.cpp\
+src/ast/type.cpp\
 src/program.cpp
 
 # main function
 MAIN=src/driver/main.cpp
 
 # test files
-TST=test/string_test.cpp test/stringInput_test.cpp test/lexer_test.cpp test/file_test.cpp test/parser_test.cpp
+TST=\
+test/string_test.cpp \
+test/stringInput_test.cpp \
+test/lexer_test.cpp \
+test/file_test.cpp \
+test/parser_test.cpp \
+test/buffer_test.cpp \
+test/exception_test.cpp
 
 CXXFLAGS=-Isrc -g -O0
 LDFLAGS=
