@@ -52,7 +52,7 @@ class DynArray {
 
     void append(T &t) {
         if(len >= cap) {
-            ptr = realloc(ptr, cap * 2);
+            ptr = (T*) realloc(ptr, cap * 2);
             cap = cap * 2;
         }
 
