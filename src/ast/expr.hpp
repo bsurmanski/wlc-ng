@@ -2,68 +2,198 @@
 #define _EXPR_HPP
 
 #include "stmt.hpp"
+#include "type.hpp"
+#include "common/string.hpp"
 
-class Expr : Stmt {
+class BinaryExpr;
+class UnaryExpr;
+class LiteralExpr;
+class CharLiteralExpr;
+class StringLiteralExpr;
+class BoolLiteralExpr;
+class NullLiteralExpr;
+class NumericLiteralExpr;
+class TupleExpr;
+class MemExpr;
+class NewExpr;
+class DeleteExpr;
+class RetainExpr;
+class ReleaseExpr;
+class IdExpr;
+class PackExpr;
+class MemberExpr;
+class CallExpr;
+class IndexExpr;
+class CastExpr;
+
+class Expr : public Stmt {
+    public:
+    virtual BinaryExpr          *asBinaryExpr();
+    virtual UnaryExpr           *asUnaryExpr();
+    virtual LiteralExpr         *asLiteralExpr();
+    virtual CharLiteralExpr     *asCharLiteralExpr();
+    virtual StringLiteralExpr   *asStringLiteralExpr();
+    virtual BoolLiteralExpr     *asBoolLiteralExpr();
+    virtual NullLiteralExpr     *asNullLiteralExpr();
+    virtual NumericLiteralExpr  *asNumericLiteralExpr();
+    virtual TupleExpr           *asTupleExpr();
+    virtual MemExpr             *asMemExpr();
+    virtual NewExpr             *asNewExpr();
+    virtual DeleteExpr          *asDeleteExpr();
+    virtual RetainExpr          *asRetainExpr();
+    virtual ReleaseExpr         *asReleaseExpr();
+    virtual IdExpr              *asIdExpr();
+    virtual PackExpr            *asPackExpr();
+    virtual MemberExpr          *asMemberExpr();
+    virtual CallExpr            *asCallExpr();
+    virtual IndexExpr           *asIndexExpr();
+    virtual CastExpr            *asCastExpr();
+
+    virtual bool isBinaryExpr();
+    virtual bool isUnaryExpr();
+    virtual bool isLiteralExpr();
+    virtual bool isCharLiteralExpr();
+    virtual bool isStringLiteralExpr();
+    virtual bool isBoolLiteralExpr();
+    virtual bool isNullLiteralExpr();
+    virtual bool isNumericLiteralExpr();
+    virtual bool isTupleExpr();
+    virtual bool isMemExpr();
+    virtual bool isNewExpr();
+    virtual bool isDeleteExpr();
+    virtual bool isRetainExpr();
+    virtual bool isReleaseExpr();
+    virtual bool isIdExpr();
+    virtual bool isPackExpr();
+    virtual bool isMemberExpr();
+    virtual bool isCallExpr();
+    virtual bool isIndexExpr();
+    virtual bool isCastExpr();
+
+    virtual Type *getType();
 };
 
-class BinaryExpr : Expr {
+class BinaryExpr : public Expr {
+    Expr *lhs;
+    Expr *rhs;
+
+    public:
+    virtual BinaryExpr *asBinaryExpr();
 };
 
-class UnaryExpr : Expr {
+class UnaryExpr : public Expr {
+    Expr *operand;
+
+    public:
+    virtual UnaryExpr *asUnaryExpr();
 };
 
-class LiteralExpr : Expr {
+class LiteralExpr : public Expr {
+    public:
+    virtual LiteralExpr *asLiteralExpr();
 };
 
-class CharLiteralExpr : LiteralExpr {
+class CharLiteralExpr : public LiteralExpr {
+    char value;
+
+    public:
+    virtual CharLiteralExpr *asCharLiteralExpr();
 };
 
-class StringLiteralExpr : LiteralExpr {
+class StringLiteralExpr : public LiteralExpr {
+    String value;
+
+    public:
+    virtual StringLiteralExpr *asStringLiteralExpr();
 };
 
-class BoolLiteralExpr : LiteralExpr {
+class BoolLiteralExpr : public LiteralExpr {
+    bool value;
+
+    public:
+    virtual BoolLiteralExpr *asBoolLiteralExpr();
 };
 
-class NullLiteralExpr : LiteralExpr {
+class NullLiteralExpr : public LiteralExpr {
+    public:
+    virtual NullLiteralExpr *asNullLiteralExpr();
 };
 
-class NumericLiteralExpr : LiteralExpr {
+class NumericLiteralExpr : public LiteralExpr {
+    public:
+    virtual NumericLiteralExpr *asNumericLiteralExpr();
 };
 
-class TupleExpr : Expr {
+class TupleExpr : public Expr {
+    public:
+    virtual TupleExpr *asTupleExpr();
 };
 
-class MemExpr : Expr {
+class MemExpr : public Expr {
+    public:
+    virtual MemExpr *asMemExpr();
 };
 
-class NewExpr : MemExpr {
+class NewExpr : public MemExpr {
+    public:
+    virtual NewExpr *asNewExpr();
 };
 
-class DeleteExpr : MemExpr {
+class DeleteExpr : public MemExpr {
+    Expr *operand;
+
+    public:
+    virtual DeleteExpr *asDeleteExpr();
 };
 
-class RetainExpr : MemExpr {
+class RetainExpr : public MemExpr {
+    Expr *operand;
+
+    public:
+    virtual RetainExpr *asRetainExpr();
 };
 
-class ReleaseExpr : MemExpr {
+class ReleaseExpr : public MemExpr {
+    Expr *operand;
+
+    public:
+    virtual ReleaseExpr *asReleaseExpr();
 };
 
-class IdExpr : Expr {
+class IdExpr : public Expr {
+    String name;
+
+    public:
+    virtual IdExpr *asIdExpr();
 };
 
-class PackExpr : Expr {
+class PackExpr : public Expr {
+    String filename;
+
+    public:
+    virtual PackExpr *asPackExpr();
 };
 
-class MemberExpr : Expr {
+class MemberExpr : public Expr {
+    public:
+    virtual MemberExpr *asMemberExpr();
 };
 
-class CallExpr : Expr {
+class CallExpr : public Expr {
+    public:
+    virtual CallExpr *asCallExpr();
 };
 
-class IndexExpr : Expr {
+class IndexExpr : public Expr {
+    public:
+    virtual IndexExpr *asIndexExpr();
 };
 
-class CastExpr : Expr {
+class CastExpr : public Expr {
+    Expr *operand;
+
+    public:
+    virtual CastExpr *asCastExpr();
 };
 
 #endif
