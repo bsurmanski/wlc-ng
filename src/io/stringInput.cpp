@@ -8,7 +8,7 @@ StringInput::StringInput(const String &_str) {
 long StringInput::getSize() {
 	return str.length();
 }
- 
+
 int StringInput::seek(long sval) {
 	if(offset + sval >= str.length()) return -1;
 	offset += sval;
@@ -48,4 +48,8 @@ long StringInput::read(void *buf, long sz, long nmemb) {
 
 bool StringInput::eof() {
 	return offset >= str.length();
+}
+
+String StringInput::getName() const {
+    return "string-constant";
 }

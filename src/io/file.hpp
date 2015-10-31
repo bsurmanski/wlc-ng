@@ -3,7 +3,6 @@
 
 #include <stdio.h>
 
-#include "common/string.hpp"
 #include "input.hpp"
 
 class File : Input {
@@ -18,7 +17,7 @@ class File : Input {
     File(String _filename);
 	~File();
     String getPath();
-    String getName();
+    virtual String getName() const;
     String getBasename();
     String getExtension();
 

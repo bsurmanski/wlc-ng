@@ -47,7 +47,7 @@ String File::getPath() {
     return filename;
 }
 
-String File::getName() {
+String File::getName() const {
     int slash = filename.lastIndexOf('/');
     return filename.substring(slash+1);
 }

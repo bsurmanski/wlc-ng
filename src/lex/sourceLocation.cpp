@@ -13,7 +13,7 @@ SourceLocation::SourceLocation(Input *_input, int _offset) {
     offset = _offset;
 }
 
-bool SourceLocation::isValid() {
+bool SourceLocation::isValid() const {
     return input != NULL; //TODO: figure this out later
 }
 
@@ -51,4 +51,14 @@ int SourceLocation::getLineOffset() {
     }
 
     return ch;
+}
+
+String SourceLocation::toString() {
+    String str;
+    str.append(input->getName());
+    str.append(":");
+    str.append(String::fromInt(getLine()));
+    str.append(":");
+    str.append(String::fromInt(getLineOffset()));
+    return str;
 }

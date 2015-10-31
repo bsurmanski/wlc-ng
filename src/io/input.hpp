@@ -1,6 +1,8 @@
 #ifndef _INPUT_HPP
 #define _INPUT_HPP
 
+#include "common/string.hpp"
+
 class Input {
     public:
 	virtual ~Input() {}
@@ -13,6 +15,8 @@ class Input {
     virtual int peek(int ahead = 0) = 0;
     virtual long read(void *buf, long sz, long nmemb) = 0;
     virtual bool eof() = 0;
+
+    virtual String getName() const = 0;
 };
 
 #endif

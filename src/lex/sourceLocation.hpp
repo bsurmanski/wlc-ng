@@ -1,4 +1,5 @@
 #include "io/file.hpp"
+#include "common/string.hpp"
 
 struct SourceLocation {
     Input *input;
@@ -11,7 +12,8 @@ struct SourceLocation {
     SourceLocation();
     SourceLocation(Input *_input, int _offset);
 
-    bool isValid();
+    bool isValid() const;
     int getLine();
     int getLineOffset();
+    String toString();
 };

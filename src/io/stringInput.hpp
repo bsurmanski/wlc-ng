@@ -7,7 +7,7 @@
 class StringInput : public Input {
 	long offset;
 	String str;
-	
+
 	public:
 	StringInput(const String &_str);
     virtual long getSize();
@@ -19,6 +19,7 @@ class StringInput : public Input {
     virtual int peek(int ahead = 0);
     virtual long read(void *buf, long sz, long nmemb);
     virtual bool eof();
+    virtual String getName() const;
 };
 
 #endif
