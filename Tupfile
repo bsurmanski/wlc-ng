@@ -5,6 +5,7 @@ src/common/char.cpp \
 src/common/string.cpp \
 src/common/object.cpp \
 src/exception/exception.cpp\
+src/exception/parseException.cpp\
 src/io/file.cpp \
 src/io/stringInput.cpp \
 src/lex/sourceLocation.cpp \

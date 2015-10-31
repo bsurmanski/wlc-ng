@@ -5,6 +5,7 @@
 #include <exception>
 
 class Exception : public std::exception {
+    protected:
 	String message;
     const char *whatStr;
 
