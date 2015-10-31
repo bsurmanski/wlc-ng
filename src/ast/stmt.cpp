@@ -6,6 +6,9 @@
  * Stmt
  */
 
+Stmt::~Stmt() {
+}
+
 CompoundStmt *Stmt::asCompoundStmt() {
     return NULL;
 }

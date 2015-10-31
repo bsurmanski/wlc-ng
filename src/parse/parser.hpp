@@ -1,11 +1,14 @@
 #ifndef _PARSER_HPP
 #define _PARSER_HPP
 
-#include "program.hpp"
-#include "lex/lexer.hpp"
-#include "ast/module.hpp"
 #include "ast/ast.hpp"
 #include "common/buffer.hpp"
+#include "common/object.hpp"
+#include "lex/token.hpp"
+
+class Lexer;
+class Program;
+class Module;
 
 class Parser : public Object {
     Program *program;

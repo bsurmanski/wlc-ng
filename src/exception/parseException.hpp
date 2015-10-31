@@ -1,5 +1,5 @@
-#include "exception.hpp"
 #include "common/string.hpp"
+#include "exception/exception.hpp"
 #include "lex/sourceLocation.hpp"
 
 class ParseException : public Exception {

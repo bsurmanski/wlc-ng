@@ -2,8 +2,9 @@
 #define _LEXER_HPP
 
 #include "common/object.hpp"
-#include "io/input.hpp"
 #include "token.hpp"
+
+class Input;
 
 class Lexer : public Object {
     Input *input;

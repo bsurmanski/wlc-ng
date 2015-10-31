@@ -1,11 +1,13 @@
 #include <gtest/gtest.h>
 #include <stdio.h>
 
-#include "program.hpp"
+#include "ast/ast.hpp"
+#include "common/string.hpp"
 #include "io/environment.hpp"
 #include "io/stringInput.hpp"
-#include "common/string.hpp"
+#include "lex/lexer.hpp"
 #include "parse/parser.hpp"
+#include "program.hpp"
 
 #define TRY(X) { try { (X); } catch(std::exception *e) { printf("%s\n", e->what()); FAIL(); }}
 

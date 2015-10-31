@@ -1,7 +1,6 @@
 #ifndef _TOKEN_HPP
 #define _TOKEN_HPP
 
-#include "io/file.hpp"
 #include "common/string.hpp"
 #include "lex/sourceLocation.hpp"
 

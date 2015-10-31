@@ -1,4 +1,5 @@
 #include "parseException.hpp"
+
 #include "common/string.hpp"
 
 ParseException::ParseException(SourceLocation _loc, String _message) : Exception(_message), loc(_loc) {

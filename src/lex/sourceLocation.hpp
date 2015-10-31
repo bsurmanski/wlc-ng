@@ -1,8 +1,9 @@
 #ifndef _SOURCELOCATION_HPP
 #define _SOURCELOCATION_HPP
 
-#include "io/file.hpp"
 #include "common/string.hpp"
+
+class Input;
 
 struct SourceLocation {
     Input *input;

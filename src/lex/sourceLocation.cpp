@@ -1,5 +1,6 @@
 #include "sourceLocation.hpp"
 #include "common/char.hpp"
+#include "io/input.hpp"
 
 SourceLocation::SourceLocation() {
     input = NULL;

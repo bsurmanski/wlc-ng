@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
 
-#include "io/stringInput.hpp"
-#include "lex/token.hpp"
-#include "lex/lexer.hpp"
 #include "exception/exception.hpp"
+#include "io/stringInput.hpp"
+#include "lex/lexer.hpp"
+#include "lex/token.hpp"
 
 #define TRY(X) { try { (X); } catch(std::exception *e) { printf("%s\n", e->what()); FAIL(); }}
 

@@ -23,6 +23,8 @@ class ReturnStmt;
 
 class Stmt {
     public:
+    virtual ~Stmt();
+
     virtual CompoundStmt    *asCompoundStmt();
     virtual LabelStmt       *asLabelStmt();
     virtual CaseStmt        *asCaseStmt();

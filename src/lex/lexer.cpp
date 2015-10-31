@@ -1,6 +1,7 @@
 #include "lexer.hpp"
 #include "common/char.hpp"
 #include "exception/exception.hpp"
+#include "io/input.hpp"
 
 #include <assert.h>
 #include <math.h>

@@ -1,10 +1,11 @@
-#include "string.hpp"
 #include "char.hpp"
+#include "string.hpp"
 #include "exception/exception.hpp"
 
 #include <string.h>
 #include <stdlib.h>
 #include <assert.h>
+
 
 #define MAX(A, B) ((A) > (B) ? (A) : (B))
 #define MIN(A, B) ((A) > (B) ? (B) : (A))

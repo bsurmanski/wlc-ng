@@ -1,10 +1,11 @@
 #ifndef _PROGRAM_HPP
 #define _PROGRAM_HPP
 
-#include "ast/module.hpp"
-#include "io/environment.hpp"
 #include "common/dynarray.hpp"
 #include "common/object.hpp"
+
+class Module;
+class Environment;
 
 class Program : public Object {
     DynArray<Module*> modules;

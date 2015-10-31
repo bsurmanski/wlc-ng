@@ -1,7 +1,7 @@
 #ifndef _CODEGEN_HPP
 #define _CODEGEN_HPP
 
-#include "../program.hpp"
+class Program;
 
 class Codegen {
     Program *program;

@@ -1,7 +1,10 @@
 #include "parser.hpp"
 
+#include "program.hpp"
 #include "exception/exception.hpp"
 #include "exception/parseException.hpp"
+#include "ast/module.hpp"
+#include "lex/lexer.hpp"
 
 #include <assert.h>
 
