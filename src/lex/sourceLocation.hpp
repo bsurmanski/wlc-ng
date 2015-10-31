@@ -1,3 +1,6 @@
+#ifndef _SOURCELOCATION_HPP
+#define _SOURCELOCATION_HPP
+
 #include "io/file.hpp"
 #include "common/string.hpp"
 
@@ -17,3 +20,5 @@ struct SourceLocation {
     int getLineOffset();
     String toString();
 };
+
+#endif
