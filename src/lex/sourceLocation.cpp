@@ -11,6 +11,8 @@ SourceLocation::SourceLocation() {
 SourceLocation::SourceLocation(Input *_input, int _offset) {
     input = _input;
     offset = _offset;
+    line = 0;
+    ch = 0;
 }
 
 bool SourceLocation::isValid() const {
@@ -36,14 +38,11 @@ int SourceLocation::getLine() {
 int SourceLocation::getLineOffset() {
     if(ch <= 0) {
         int seek = input->tell();
-        int off = seek;
+        int off = seek-1;
         ch = 1;
 
-        while(off >= 0) {
-            input->set(off);
-            if(Char::isEndOfLine(input->peek())) {
-                break;
-            }
+        while(off > 0 && !Char::isEndOfLine(input->peek())) {
+            input->set(--off);
             ch++;
         }
 

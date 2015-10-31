@@ -1,6 +1,7 @@
 #include "parser.hpp"
 
 #include "exception/exception.hpp"
+#include "exception/parseException.hpp"
 
 #include <assert.h>
 
@@ -103,8 +104,7 @@ Stmt *Parser::parseStmt() {
 
     do {
         if(!peekTok().isTerminator() && !peekTok().is(tok::eof)) {
-            SourceLocation loc = peekTok().getSourceLocation();
-            throw new Exception(String("Expected line-terminator at line ") + String::fromInt(loc.getLine()));
+            throw new ParseException(peekTok().getSourceLocation(), String("Expected line-terminator"));
         }
     } while(peekTok().isTerminator());
 
@@ -114,7 +114,7 @@ Stmt *Parser::parseStmt() {
 
 CompoundStmt *Parser::parseCompoundStmt() {
     if(peekTok().getKind() != tok::lbrace || !ignoreTok()) {
-        throw new Exception("expected left brace beginning compound stmt");
+        throw new ParseException(peekTok().getSourceLocation(), "expected left brace beginning compound stmt");
     }
 
     DynArray<Stmt*> stmts;
@@ -124,52 +124,52 @@ CompoundStmt *Parser::parseCompoundStmt() {
     }
 
     if(peekTok().getKind() != tok::lbrace || !ignoreTok()) {
-        throw new Exception("expected right brace following compound stmt");
+        throw new ParseException(peekTok().getSourceLocation(), "expected right brace following compound stmt");
     }
 
     return new CompoundStmt(stmts);
 }
 
 LabelStmt *Parser::parseLabelStmt() {
-    throw new Exception("unimplemented: parse label stmt");
+    throw new ParseException(peekTok().getSourceLocation(), "unimplemented: parse label stmt");
 }
 
 GotoStmt *Parser::parseGotoStmt() {
-    throw new Exception("unimplemented: parse goto stmt");
+    throw new ParseException(peekTok().getSourceLocation(), "unimplemented: parse goto stmt");
 }
 
 BreakStmt *Parser::parseBreakStmt() {
-    throw new Exception("unimplemented: parse break stmt");
+    throw new ParseException(peekTok().getSourceLocation(), "unimplemented: parse break stmt");
 }
 
 ContinueStmt *Parser::parseContinueStmt() {
-    throw new Exception("unimplemented: parse continue stmt");
+    throw new ParseException(peekTok().getSourceLocation(), "unimplemented: parse continue stmt");
 }
 
 ReturnStmt *Parser::parseReturnStmt() {
     if(peekTok().getKind() != tok::kw_return) {
-        throw new Exception("expected 'return' keyword");
+        throw new ParseException(peekTok().getSourceLocation(), "expected 'return' keyword");
     }
     ignoreTok();
     Expr *ex = parseExpr();
     //TODO
-    throw new Exception("unimplemented: parse return stmt");
+    throw new ParseException(peekTok().getSourceLocation(), "unimplemented: parse return stmt");
 }
 
 CaseStmt *Parser::parseCaseStmt() {
-    throw new Exception("unimplemented: parse case stmt");
+    throw new ParseException(peekTok().getSourceLocation(), "unimplemented: parse case stmt");
 }
 
 IfStmt *Parser::parseIfStmt() {
-    throw new Exception("unimplemented: parse if stmt");
+    throw new ParseException(peekTok().getSourceLocation(), "unimplemented: parse if stmt");
 }
 
 Expr *Parser::parseExpr() {
-    throw new Exception("unimplemented: parse expr");
+    throw new ParseException(peekTok().getSourceLocation(), "unimplemented: parse expr");
 }
 
 Decl *Parser::parseDecl() {
-    throw new Exception("unimplemented: parse decl");
+    throw new ParseException(peekTok().getSourceLocation(), "unimplemented: parse decl");
 }
 
 Type *Parser::parseType() {
@@ -240,7 +240,7 @@ PrimativeType *Parser::parsePrimativeType() {
             break;
 
         default:
-            throw new Exception("Unknown primative type");
+            throw new ParseException(peekTok().getSourceLocation(), "Unknown primative type");
     }
 
     return type;

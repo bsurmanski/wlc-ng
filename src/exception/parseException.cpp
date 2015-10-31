@@ -2,14 +2,14 @@
 #include "common/string.hpp"
 
 ParseException::ParseException(SourceLocation _loc, String _message) : Exception(_message), loc(_loc) {
+    full_message.append(loc.toString());
+    full_message.append(": ");
+    full_message.append(message);
+    what_str = full_message.c_str();
 }
 
-const char* ParseException::what() const throw() {
-    SourceLocation loc_ = loc;
+ParseException::~ParseException() throw() {}
 
-    String str;
-    str.append(loc_.toString());
-    str.append(": ");
-    str.append(message);
-    return str.c_str();
+const char* ParseException::what() const throw() {
+    return what_str;
 }
