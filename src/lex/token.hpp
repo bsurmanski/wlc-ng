@@ -63,6 +63,7 @@ struct Token {
 	static Token createCommentToken(String str, SourceLocation _loc);
 
     bool isKeyword();
+    bool isTypeKeyword();
     bool isLiteral();
     bool isIdentifier();
     bool isPunct();

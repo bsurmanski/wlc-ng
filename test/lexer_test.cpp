@@ -23,8 +23,11 @@ TEST(Lexer, Keywords) {
 
 TEST(Lexer, Types) {
 	Lexer *lex;
+    Token tok;
 #define TEST_KW(KW) lex = new Lexer(new StringInput(#KW));\
-					ASSERT_EQ(tok::kw_##KW, lex->lex().getKind());\
+                    tok = lex->lex();\
+					ASSERT_TRUE(tok.isTypeKeyword());\
+					ASSERT_EQ(tok::kw_##KW, tok.getKind());\
 					ASSERT_EQ(lex->eof(), true); \
 					delete lex;
     TEST_KW(bool);

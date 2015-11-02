@@ -14,19 +14,23 @@
 #define KEYWORD(X) TOK(kw_ ## X)
 #endif
 
+#ifndef TYPE
+#define TYPE(X) KEYWORD(X)
+#endif
+
 //basic type
 #ifndef BTYPE
-#define BTYPE(X,SZ,SIGN) KEYWORD(X)
+#define BTYPE(X,SZ,SIGN) TYPE(X)
 #endif
 
 //floating point
 #ifndef FTYPE
-#define FTYPE(X,SZ) KEYWORD(X)
+#define FTYPE(X,SZ) TYPE(X)
 #endif
 
 //vector types
 #ifndef VTYPE
-#define VTYPE(X,LEN,TYPE) KEYWORD(X)
+#define VTYPE(X,LEN,TYPE) TYPE(X)
 #endif
 
 #ifndef RESERVE
@@ -186,6 +190,7 @@ PUNCT(dotdotdot, "...")
 #undef PUNCT
 #undef KEYWORD
 #undef RESERVE
+#undef TYPE
 #undef BTYPE
 #undef VTYPE
 #undef FTYPE

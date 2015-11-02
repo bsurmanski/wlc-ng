@@ -116,6 +116,17 @@ bool Token::isKeyword() {
 	}
 }
 
+bool Token::isTypeKeyword() {
+    switch(kind) {
+#define TYPE(X) case tok::kw_##X :
+#include "tokenkinds.def"
+#undef TYPE
+        return true;
+        default:
+        return false;
+    }
+}
+
 bool Token::isLiteral() {
 	switch(kind) {
 #define LITERAL(NM) case ##NM :
