@@ -134,13 +134,30 @@ TEST(Parser, IdExpr) {
 #undef TEST_STR
 }
 
+TEST(Parser, Literals) {
+#define TEST_STR(EXP, STR)\
+    parser = createStringParser(STR);\
+    expr = parser->parseExpr();\
+    EXPECT_EQ(String(EXP), expr->serialize());\
+    delete expr;\
+    delete parser;
+
+    EXPECT_EQ("123", "123");
+    EXPECT_EQ("true", "true");
+    EXPECT_EQ("false", "false");
+    EXPECT_EQ("null", "null");
+
+#undef TEST_STR
+}
+
 TEST(Parser, Serialize) {
+    EXPECT_EQ(String("123"), IntLiteralExpr(123).serialize());
     EXPECT_EQ(String("null"), NullLiteralExpr().serialize());
     EXPECT_EQ(String("true"), BoolLiteralExpr(true).serialize());
     EXPECT_EQ(String("false"), BoolLiteralExpr(false).serialize());
     EXPECT_EQ(String("(preinc null)"), PreIncExpr(new NullLiteralExpr).serialize());
     EXPECT_EQ(String("(predec null)"), PreDecExpr(new NullLiteralExpr).serialize());
-    EXPECT_EQ(String("(neg null)"), NegateExpr(new NullLiteralExpr).serialize());
+    EXPECT_EQ(String("(neg 987)"), NegateExpr(new IntLiteralExpr(987)).serialize());
     EXPECT_EQ(String("(not null)"), NotExpr(new NullLiteralExpr).serialize());
     EXPECT_EQ(String("(deref null)"), DerefExpr(new NullLiteralExpr).serialize());
     EXPECT_EQ(String("(ref null)"), RefExpr(new NullLiteralExpr).serialize());

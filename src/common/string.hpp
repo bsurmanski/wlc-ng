@@ -36,7 +36,8 @@ class String {
 	String(char c);
 	~String();
 
-    static String fromInt(int i);
+    static String fromInt(long long i);
+    static String fromUInt(unsigned long long i);
 
 	void clear();
 	size_t length() const;

@@ -64,18 +64,25 @@ String::~String() {
 	}
 }
 
-String String::fromInt(int i) {
+String String::fromInt(long long i) {
     String ret;
 
     bool neg = i < 0;
-    i = abs(i);
+
+    ret = fromUInt((unsigned long long) abs(i));
+
+    if(neg) ret.prepend('-');
+    return ret;
+}
+
+String String::fromUInt(unsigned long long i) {
+    String ret;
 
     while(i != 0) {
         ret.prepend(Char::dectochar(i % 10));
         i /= 10;
     }
 
-    if(neg) ret.prepend('-');
     return ret;
 }
 

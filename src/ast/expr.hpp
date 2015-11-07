@@ -193,6 +193,7 @@ class IntLiteralExpr : public NumericLiteralExpr {
     public:
     IntLiteralExpr(uint64_t _value);
     virtual IntLiteralExpr *asIntLiteralExpr();
+    virtual String serialize();
 };
 
 class FloatLiteralExpr : public NumericLiteralExpr {

@@ -306,6 +306,10 @@ IntLiteralExpr *IntLiteralExpr::asIntLiteralExpr() {
     return this;
 }
 
+String IntLiteralExpr::serialize() {
+    return String::fromUInt(value);
+}
+
 FloatLiteralExpr::FloatLiteralExpr(double _value) : value(_value) {
 }
 
