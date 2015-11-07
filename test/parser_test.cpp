@@ -11,13 +11,23 @@
 
 #define TRY(X) { try { (X); } catch(std::exception *e) { printf("%s\n", e->what()); FAIL(); }}
 
+class TestParser : testing::Test {
+    Parser *parser;
+    public:
+    virtual void OnTestStart(const testing::TestInfo &test_info) {
+    }
+
+    virtual void OnTestEnd(const testing::TestInfo &test_info) {
+    }
+};
+
 static Program *createDummyProgram() {
     Environment *e = new Environment;
     Program *p = new Program(e);
     return p;
 }
 
-static Parser *createStringParser(String &str) {
+static Parser *createStringParser(String str) {
     Program *prog = createDummyProgram();
     Lexer *lex = new Lexer(new StringInput(str));
     return new Parser(prog, lex);
@@ -31,20 +41,17 @@ TEST(Parser, CompoundStmt) {
 }
 
 TEST(Parser, ReturnStmt) {
-    String in("return 0");
-    Parser *parser = createStringParser(in);
+    Parser *parser = createStringParser("return 0");
     Stmt *stmt;
     TRY((stmt = parser->parseStmt()));
 }
 
 TEST(Parser, PrimativeType) {
-    String in;
     Parser *parser = NULL;
     PrimativeType *type = NULL;
 
 #define TEST_STR(EXP, STR) \
-    in = String(STR); \
-    parser = createStringParser(in);\
+    parser = createStringParser(STR);\
     type = parser->parsePrimativeType();\
     if(type) {\
         EXPECT_EQ(EXP, type->getKind());\
@@ -89,12 +96,10 @@ TEST(Parser, PrimativeType) {
 }
 
 TEST(Parser, UnaryExpr) {
-    String in;
     UnaryExpr *uexp;
     Parser *parser;
 #define TEST_STR(EXP, STR)\
-    in = String(STR);\
-    parser = createStringParser(in);\
+    parser = createStringParser(STR);\
     uexp = parser->parseUnaryExpr();\
     EXPECT_EQ(String(EXP), uexp->serialize());\
     delete uexp;\
@@ -107,6 +112,24 @@ TEST(Parser, UnaryExpr) {
         TEST_STR("(deref null)", "^null");
         TEST_STR("(ref null)", "&null");
     });
+
+#undef TEST_STR
+}
+
+TEST(Parser, IdExpr) {
+    Expr *expr;
+    Parser *parser;
+
+#define TEST_STR(EXP, STR)\
+    parser = createStringParser(STR);\
+    expr = parser->parseExpr();\
+    EXPECT_EQ(String(EXP), expr->serialize());\
+    delete expr;\
+    delete parser;
+
+    EXPECT_EQ(String("(id someid)"), IdExpr("someid").serialize());
+    TEST_STR("(id myid)", "myid");
+    TEST_STR("(id myid)", "myid myid");
 
 #undef TEST_STR
 }

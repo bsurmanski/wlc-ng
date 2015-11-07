@@ -1,6 +1,8 @@
 #ifndef _EXPR_HPP
 #define _EXPR_HPP
 
+#include <stdint.h>
+
 #include "stmt.hpp"
 #include "type.hpp"
 #include "common/string.hpp"
@@ -13,12 +15,15 @@ class StringLiteralExpr;
 class BoolLiteralExpr;
 class NullLiteralExpr;
 class NumericLiteralExpr;
+class IntLiteralExpr;
+class FloatLiteralExpr;
 class TupleExpr;
 class MemExpr;
 class NewExpr;
 class DeleteExpr;
 class RetainExpr;
 class ReleaseExpr;
+class ThisExpr;
 class IdExpr;
 class PackExpr;
 class MemberExpr;
@@ -36,12 +41,15 @@ class Expr : public Stmt {
     virtual BoolLiteralExpr     *asBoolLiteralExpr();
     virtual NullLiteralExpr     *asNullLiteralExpr();
     virtual NumericLiteralExpr  *asNumericLiteralExpr();
+    virtual IntLiteralExpr      *asIntLiteralExpr();
+    virtual FloatLiteralExpr    *asFloatLiteralExpr();
     virtual TupleExpr           *asTupleExpr();
     virtual MemExpr             *asMemExpr();
     virtual NewExpr             *asNewExpr();
     virtual DeleteExpr          *asDeleteExpr();
     virtual RetainExpr          *asRetainExpr();
     virtual ReleaseExpr         *asReleaseExpr();
+    virtual ThisExpr            *asThisExpr();
     virtual IdExpr              *asIdExpr();
     virtual PackExpr            *asPackExpr();
     virtual MemberExpr          *asMemberExpr();
@@ -57,12 +65,15 @@ class Expr : public Stmt {
     virtual bool isBoolLiteralExpr();
     virtual bool isNullLiteralExpr();
     virtual bool isNumericLiteralExpr();
+    virtual bool isIntLiteralExpr();
+    virtual bool isFloatLiteralExpr();
     virtual bool isTupleExpr();
     virtual bool isMemExpr();
     virtual bool isNewExpr();
     virtual bool isDeleteExpr();
     virtual bool isRetainExpr();
     virtual bool isReleaseExpr();
+    virtual bool isThisExpr();
     virtual bool isIdExpr();
     virtual bool isPackExpr();
     virtual bool isMemberExpr();
@@ -152,7 +163,9 @@ class StringLiteralExpr : public LiteralExpr {
     String value;
 
     public:
+    StringLiteralExpr(String _value);
     virtual StringLiteralExpr *asStringLiteralExpr();
+    virtual String serialize();
 };
 
 class BoolLiteralExpr : public LiteralExpr {
@@ -173,6 +186,20 @@ class NullLiteralExpr : public LiteralExpr {
 class NumericLiteralExpr : public LiteralExpr {
     public:
     virtual NumericLiteralExpr *asNumericLiteralExpr();
+};
+
+class IntLiteralExpr : public NumericLiteralExpr {
+    uint64_t value;
+    public:
+    IntLiteralExpr(uint64_t _value);
+    virtual IntLiteralExpr *asIntLiteralExpr();
+};
+
+class FloatLiteralExpr : public NumericLiteralExpr {
+    double value;
+    public:
+    FloatLiteralExpr(double _value);
+    virtual FloatLiteralExpr *asFloatLiteralExpr();
 };
 
 class TupleExpr : public Expr {
@@ -215,7 +242,9 @@ class IdExpr : public Expr {
     String name;
 
     public:
+    IdExpr(String _name);
     virtual IdExpr *asIdExpr();
+    virtual String serialize();
 };
 
 class PackExpr : public Expr {

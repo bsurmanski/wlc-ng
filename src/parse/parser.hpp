@@ -44,6 +44,7 @@ class Parser : public Object {
     CaseStmt            *parseCaseStmt();
     IfStmt              *parseIfStmt();
 
+    Expr                *parsePrimaryExpr();
     BinaryExpr          *parseBinaryExpr(int precidence = 0);
     UnaryExpr           *parseUnaryExpr();
     CharLiteralExpr     *parseCharLiteralExpr();

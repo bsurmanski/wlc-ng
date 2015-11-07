@@ -239,28 +239,20 @@ Expr *Parser::parseExpr() {
 #define UBPUNCT(X, Y, Z) case ##X:
 #define UPUNCT(X, Y) case ##X:
 #include "lex/tokenkinds.def"
-        expr = parseUnaryExpr();
-        break;
+        return parseUnaryExpr();
 
+        case tok::lbracket:
         case tok::lparen:
-            ignoreTok();
-            expr = parseExpr();
-            if(peekTok().getKind() != tok::rparen && ignoreTok()) {
-                throw new ParseException(peekTok().getSourceLocation(), "expected )");
-            }
-            break;
-
         case tok::floatlit:
         case tok::intlit:
         case tok::stringlit:
         case tok::charlit:
         case tok::kw_null:
-            return new NullLiteralExpr;
         case tok::kw_true:
-            return new BoolLiteralExpr(true);
         case tok::kw_false:
-            return new BoolLiteralExpr(false);
-            break;
+        case tok::identifier:
+        return parsePrimaryExpr();
+
         default:
         throw new ParseException(peekTok().getSourceLocation(), "invalid expression");
     }
@@ -268,7 +260,46 @@ Expr *Parser::parseExpr() {
     throw new ParseException(peekTok().getSourceLocation(), "unimplemented: parse expr");
 }
 
+Expr *Parser::parsePrimaryExpr() {
+    Token tok = getTok();
+    Expr *expr;
+    switch(tok.getKind()) {
+        case tok::lbracket:
+            throw new ParseException(peekTok().getSourceLocation(), "unimplemented: parse tuple expr");
+
+        case tok::lparen:
+            expr = parseExpr();
+            if(peekTok().getKind() != tok::rparen && ignoreTok()) {
+                throw new ParseException(peekTok().getSourceLocation(), "expected )");
+            }
+            return expr;
+
+        case tok::kw_null:
+            return new NullLiteralExpr;
+
+        case tok::kw_true:
+            return new BoolLiteralExpr(true);
+
+        case tok::kw_false:
+            return new BoolLiteralExpr(false);
+
+        case tok::identifier:
+            return new IdExpr(tok.getIdentifierName());
+
+        case tok::floatlit:
+        case tok::intlit:
+            return new IntLiteralExpr(tok.getIntData());
+        case tok::stringlit:
+            return new StringLiteralExpr(tok.getStringData());
+        case tok::charlit:
+
+        default:
+            throw new ParseException(peekTok().getSourceLocation(), String("invalid or unimplemented primary expr: ") + tok.getStringRepr());
+    }
+}
+
 BinaryExpr *Parser::parseBinaryExpr(int precidence) {
+    Expr *lhs = parsePrimaryExpr();
     throw new ParseException(peekTok().getSourceLocation(), "unimplemented: parse binexpr");
 }
 
