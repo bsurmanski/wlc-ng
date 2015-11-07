@@ -145,6 +145,9 @@ CompoundStmt::CompoundStmt(DynArray<Stmt*> _stmts) : stmts(_stmts) {
  * LabelStmt
  */
 
+LabelStmt::LabelStmt(String _id) : id(_id) {
+}
+
 LabelStmt *LabelStmt::asLabelStmt() {
     return this;
 }
@@ -228,6 +231,9 @@ AssignStmt *AssignStmt::asAssignStmt() {
 /*
  * GotoStmt
  */
+
+GotoStmt::GotoStmt(String _id) : id(_id) {
+}
 
 GotoStmt *GotoStmt::asGotoStmt() {
     return this;

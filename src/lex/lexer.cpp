@@ -252,8 +252,6 @@ Token Lexer::lexWord() {
 
 #define KEYWORD(X) if(word == #X) return Token(tok::kw_##X, loc);
 #include "tokenkinds.def"
-#undef KEYWORD
-
     return Token::createIdentifierToken(word, loc);
 }
 

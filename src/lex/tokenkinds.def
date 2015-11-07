@@ -10,6 +10,18 @@
 #define PUNCT(X,Y) TOK(X)
 #endif
 
+#ifndef UPUNCT
+#define UPUNCT(NM, SYM) PUNCT(NM, SYM)
+#endif
+
+#ifndef BPUNCT
+#define BPUNCT(NM, SYM, PREC) PUNCT(NM, SYM)
+#endif
+
+#ifndef UBPUNCT
+#define UBPUNCT(NM, SYM, BPREC) PUNCT(NM, SYM)
+#endif
+
 #ifndef KEYWORD
 #define KEYWORD(X) TOK(kw_ ## X)
 #endif
@@ -139,55 +151,58 @@ RESERVE(let) /* like D alias, and for constants (let a = 7) */
 RESERVE(super)
 RESERVE(go)
 
-PUNCT(plus, "+")
-PUNCT(plusplus, "++")
-PUNCT(minus, "-")
-PUNCT(minusminus, "--")
-PUNCT(star, "*")
-PUNCT(starstar, "**")
-PUNCT(slash, "/")
-PUNCT(amp, "&")
-PUNCT(ampamp, "&&")
-PUNCT(bar, "|")
-PUNCT(barbar, "||")
-PUNCT(caret, "^")
-PUNCT(percent, "%")
-PUNCT(plusequal, "+=")
-PUNCT(minusequal, "-=")
-PUNCT(starequal, "*=")
-PUNCT(slashequal, "/=")
-PUNCT(ampequal, "&=")
-PUNCT(barequal, "|=")
-PUNCT(caretequal, "^=")
-PUNCT(percentequal, "%=")
-PUNCT(bang, "!")
-PUNCT(tilde, "~")
-PUNCT(equal, "=")
-PUNCT(equalequal, "==")
-PUNCT(bangequal, "!=")
-PUNCT(less, "<")
-PUNCT(lessless, "<<")
-PUNCT(lessequal, "<=")
-PUNCT(greater, ">")
-PUNCT(greaterequal, ">=")
-PUNCT(greatergreater, ">>")
-PUNCT(lparen, "(")
-PUNCT(rparen, ")")
-PUNCT(lbrace, "{")
-PUNCT(rbrace, "}")
-PUNCT(lbracket, "[")
-PUNCT(rbracket, "]")
-PUNCT(comma, ",")
-PUNCT(semicolon, ";")
-PUNCT(colon, ":")
-PUNCT(colonequal, ":=")
-PUNCT(dot, ".")
-PUNCT(dotdot, "..")
-PUNCT(dotdotdot, "...")
+UBPUNCT(plus,       "+",    5)
+UPUNCT(plusplus,    "++")
+UBPUNCT(minus,      "-",    5)
+UPUNCT(minusminus,  "--")
+BPUNCT(star,        "*",    5)
+BPUNCT(starstar,    "**",   5)
+BPUNCT(slash,       "/",    5)
+UBPUNCT(amp,        "&",    5)
+BPUNCT(ampamp,      "&&",   2)
+BPUNCT(bar,        "|",     5)
+BPUNCT(barbar,      "||",   1)
+UBPUNCT(caret,      "^",    4)
+BPUNCT(percent,     "%",    0)
+BPUNCT(plusequal,   "+=",   0)
+BPUNCT(minusequal,  "-=",   0)
+BPUNCT(starequal,   "*=",   0)
+BPUNCT(slashequal,  "/=",   0)
+BPUNCT(ampequal,    "&=",   0)
+BPUNCT(barequal,    "|=",   0)
+BPUNCT(caretequal,  "^=",   0)
+BPUNCT(percentequal, "%=",  0)
+UPUNCT(bang,        "!")
+UPUNCT(tilde,       "~")
+BPUNCT(equal,       "=",    0)
+BPUNCT(equalequal,  "==",   3)
+BPUNCT(bangequal,   "!=",   3)
+BPUNCT(less,        "<",    3)
+BPUNCT(lessless,    "<<",   5)
+BPUNCT(lessequal,   "<=",   3)
+BPUNCT(greater,     ">",    3)
+BPUNCT(greaterequal, ">=",  3)
+BPUNCT(greatergreater, ">>",5)
+PUNCT(lparen,       "(")
+PUNCT(rparen,       ")")
+PUNCT(lbrace,       "{")
+PUNCT(rbrace,       "}")
+PUNCT(lbracket,     "[")
+PUNCT(rbracket,     "]")
+PUNCT(comma,        ",")
+PUNCT(semicolon,    ";")
+PUNCT(colon,        ":")
+PUNCT(colonequal,   ":=")
+PUNCT(dot,          ".")
+PUNCT(dotdot,       "..")
+PUNCT(dotdotdot,    "...")
 
 #undef TOK
 #undef LITERAL
 #undef PUNCT
+#undef UPUNCT
+#undef BPUNCT
+#undef UBPUNCT
 #undef KEYWORD
 #undef RESERVE
 #undef TYPE

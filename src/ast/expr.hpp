@@ -70,7 +70,7 @@ class Expr : public Stmt {
     virtual bool isIndexExpr();
     virtual bool isCastExpr();
 
-    virtual Type *getType();
+    virtual Type *getType() {return NULL;} //= 0; //TODO pure virtual
 };
 
 class BinaryExpr : public Expr {
@@ -85,7 +85,39 @@ class UnaryExpr : public Expr {
     Expr *operand;
 
     public:
+    UnaryExpr(Expr *_operand);
     virtual UnaryExpr *asUnaryExpr();
+    virtual Type *getType(); //TODO
+};
+
+class PreIncExpr : public UnaryExpr {
+    public:
+    PreIncExpr(Expr *_operand);
+};
+
+class PreDecExpr : public UnaryExpr {
+    public:
+    PreDecExpr(Expr *_operand);
+};
+
+class NegateExpr : public UnaryExpr {
+    public:
+    NegateExpr(Expr *_operand);
+};
+
+class NotExpr : public UnaryExpr {
+    public:
+    NotExpr(Expr *_operand);
+};
+
+class DerefExpr : public UnaryExpr {
+    public:
+    DerefExpr(Expr *_operand);
+};
+
+class RefExpr : public UnaryExpr {
+    public:
+    RefExpr(Expr *_operand);
 };
 
 class LiteralExpr : public Expr {
@@ -111,6 +143,7 @@ class BoolLiteralExpr : public LiteralExpr {
     bool value;
 
     public:
+    BoolLiteralExpr(bool _value);
     virtual BoolLiteralExpr *asBoolLiteralExpr();
 };
 

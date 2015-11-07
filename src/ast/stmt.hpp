@@ -2,6 +2,7 @@
 #define _STMT_HPP
 
 #include "common/dynarray.hpp"
+#include "common/string.hpp"
 
 class Expr;
 
@@ -68,7 +69,10 @@ class CompoundStmt : public Stmt {
 };
 
 class LabelStmt : public Stmt {
+    String id;
+
     public:
+    LabelStmt(String _id);
     virtual LabelStmt *asLabelStmt();
 };
 
@@ -122,7 +126,10 @@ class AssignStmt : public Stmt {
 };
 
 class GotoStmt : public Stmt {
+    String id;
+
     public:
+    GotoStmt(String _id);
     virtual GotoStmt *asGotoStmt();
 };
 

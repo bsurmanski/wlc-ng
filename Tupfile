@@ -13,6 +13,7 @@ src/lex/lexer.cpp \
 src/lex/token.cpp \
 src/parse/parser.cpp\
 src/ast/stmt.cpp\
+src/ast/expr.cpp\
 src/ast/type.cpp\
 src/program.cpp
 

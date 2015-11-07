@@ -109,7 +109,6 @@ bool Token::isKeyword() {
 	switch(kind) {
 #define KEYWORD(NM) case tok::kw_##NM :
 #include "tokenkinds.def"
-#undef KEYWORD
 		return true;
 	default:
 		return false;
@@ -120,7 +119,6 @@ bool Token::isTypeKeyword() {
     switch(kind) {
 #define TYPE(X) case tok::kw_##X :
 #include "tokenkinds.def"
-#undef TYPE
         return true;
         default:
         return false;
@@ -131,7 +129,6 @@ bool Token::isLiteral() {
 	switch(kind) {
 #define LITERAL(NM) case ##NM :
 #include "tokenkinds.def"
-#undef LITERAL
 		return true;
 	default:
 		return false;
@@ -146,7 +143,6 @@ bool Token::isPunct() {
 	switch(kind) {
 #define PUNCT(NM, STR) case ##NM :
 #include "tokenkinds.def"
-#undef PUNCT
 			return true;
 		default:
 			return false;
@@ -199,7 +195,6 @@ String &Token::getKeyword() {
         }\
         return getStringData();
 #include "tokenkinds.def"
-#undef KEYWORD
     }
 
 	throw new Exception("Token is not a valid keyword");
