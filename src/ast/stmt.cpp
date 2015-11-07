@@ -130,6 +130,10 @@ bool Stmt::isReturnStmt() {
     return (bool) asReturnStmt();
 }
 
+String Stmt::serialize() {
+    return "(stmt)";
+}
+
 /*
  * CompoundStmt
  */
@@ -141,6 +145,15 @@ CompoundStmt *CompoundStmt::asCompoundStmt() {
 CompoundStmt::CompoundStmt(DynArray<Stmt*> _stmts) : stmts(_stmts) {
 }
 
+String CompoundStmt::serialize() {
+    String str = "(stmts ";
+    for(int i = 0; i < stmts.size(); i++) {
+        str.append(stmts[i]->serialize() + " ");
+    }
+    str.append(")");
+    return str;
+}
+
 /*
  * LabelStmt
  */
@@ -150,6 +163,10 @@ LabelStmt::LabelStmt(String _id) : id(_id) {
 
 LabelStmt *LabelStmt::asLabelStmt() {
     return this;
+}
+
+String LabelStmt::serialize() {
+    return String("(label ") + id + String(")");
 }
 
 /*
@@ -239,6 +256,10 @@ GotoStmt *GotoStmt::asGotoStmt() {
     return this;
 }
 
+String GotoStmt::serialize() {
+    return String("(goto ") + id + String(")");
+}
+
 /*
  * BreakStmt
  */
@@ -247,12 +268,20 @@ BreakStmt *BreakStmt::asBreakStmt() {
     return this;
 }
 
+String BreakStmt::serialize() {
+    return "(break)";
+}
+
 /*
  * ContinueStmt
  */
 
 ContinueStmt *ContinueStmt::asContinueStmt() {
     return this;
+}
+
+String ContinueStmt::serialize() {
+    return "(continue)";
 }
 
 /*

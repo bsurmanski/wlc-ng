@@ -52,7 +52,7 @@ TEST(Parser, PrimativeType) {
     } else {\
         EXPECT_NE((Type*) NULL, type);\
     }\
-    delete parser;\
+    delete parser;
 
     TRY({
         TEST_STR(PrimativeType::BOOL, "bool");
@@ -84,4 +84,41 @@ TEST(Parser, PrimativeType) {
         TEST_STR(PrimativeType::FLOAT32, "float32");
         TEST_STR(PrimativeType::FLOAT64, "float64");
     });
+
+#undef TEST_STR
+}
+
+TEST(Parser, UnaryExpr) {
+    String in;
+    UnaryExpr *uexp;
+    Parser *parser;
+#define TEST_STR(EXP, STR)\
+    in = String(STR);\
+    parser = createStringParser(in);\
+    uexp = parser->parseUnaryExpr();\
+    EXPECT_EQ(String(EXP), uexp->serialize());\
+    delete uexp;\
+    delete parser;
+
+    TRY({
+        TEST_STR("(preinc true)", "++true");
+        TEST_STR("(predec false)", "--false");
+        TEST_STR("(not null)", "!null");
+        TEST_STR("(deref null)", "^null");
+        TEST_STR("(ref null)", "&null");
+    });
+
+#undef TEST_STR
+}
+
+TEST(Parser, Serialize) {
+    EXPECT_EQ(String("null"), NullLiteralExpr().serialize());
+    EXPECT_EQ(String("true"), BoolLiteralExpr(true).serialize());
+    EXPECT_EQ(String("false"), BoolLiteralExpr(false).serialize());
+    EXPECT_EQ(String("(preinc null)"), PreIncExpr(new NullLiteralExpr).serialize());
+    EXPECT_EQ(String("(predec null)"), PreDecExpr(new NullLiteralExpr).serialize());
+    EXPECT_EQ(String("(neg null)"), NegateExpr(new NullLiteralExpr).serialize());
+    EXPECT_EQ(String("(not null)"), NotExpr(new NullLiteralExpr).serialize());
+    EXPECT_EQ(String("(deref null)"), DerefExpr(new NullLiteralExpr).serialize());
+    EXPECT_EQ(String("(ref null)"), RefExpr(new NullLiteralExpr).serialize());
 }

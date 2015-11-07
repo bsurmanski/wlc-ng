@@ -160,11 +160,19 @@ bool Expr::isCastExpr() {
     return (bool) asCastExpr();
 }
 
+String Expr::serialize() {
+    return "(expr)";
+}
+
 /*
  * UnaryExpr
  */
 
 UnaryExpr::UnaryExpr(Expr *_operand) : operand(_operand) {
+}
+
+UnaryExpr::~UnaryExpr() {
+    delete operand;
 }
 
 UnaryExpr *UnaryExpr::asUnaryExpr() {
@@ -175,22 +183,50 @@ Type *UnaryExpr::getType() {
     return NULL; //TODO
 }
 
+String UnaryExpr::serialize() {
+    return String("(") + serializeName() + String(" ") + operand->serialize() + String(")");
+}
+
 PreIncExpr::PreIncExpr(Expr *_operand) : UnaryExpr(_operand) {
+}
+
+String PreIncExpr::serializeName() {
+    return "preinc";
 }
 
 PreDecExpr::PreDecExpr(Expr *_operand) : UnaryExpr(_operand) {
 }
 
+String PreDecExpr::serializeName() {
+    return "predec";
+}
+
 NegateExpr::NegateExpr(Expr *_operand) : UnaryExpr(_operand) {
+}
+
+String NegateExpr::serializeName() {
+    return "neg";
 }
 
 NotExpr::NotExpr(Expr *_operand) : UnaryExpr(_operand) {
 }
 
+String NotExpr::serializeName() {
+    return "not";
+}
+
 DerefExpr::DerefExpr(Expr *_operand) : UnaryExpr(_operand) {
 }
 
+String DerefExpr::serializeName() {
+    return "deref";
+}
+
 RefExpr::RefExpr(Expr *_operand) : UnaryExpr(_operand) {
+}
+
+String RefExpr::serializeName() {
+    return "ref";
 }
 
 
@@ -208,6 +244,15 @@ BoolLiteralExpr *BoolLiteralExpr::asBoolLiteralExpr() {
 BoolLiteralExpr::BoolLiteralExpr(bool _value) : value(_value) {
 }
 
+String BoolLiteralExpr::serialize() {
+    if(value) return "true";
+    return "false";
+}
+
 NullLiteralExpr *NullLiteralExpr::asNullLiteralExpr() {
     return this;
+}
+
+String NullLiteralExpr::serialize() {
+    return "null";
 }

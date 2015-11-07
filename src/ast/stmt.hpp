@@ -57,6 +57,8 @@ class Stmt {
     virtual bool isBreakStmt();
     virtual bool isContinueStmt();
     virtual bool isReturnStmt();
+
+    virtual String serialize();
 };
 
 class CompoundStmt : public Stmt {
@@ -66,6 +68,7 @@ class CompoundStmt : public Stmt {
     CompoundStmt(DynArray<Stmt*> stmts);
 
     virtual CompoundStmt *asCompoundStmt();
+    virtual String serialize();
 };
 
 class LabelStmt : public Stmt {
@@ -74,6 +77,7 @@ class LabelStmt : public Stmt {
     public:
     LabelStmt(String _id);
     virtual LabelStmt *asLabelStmt();
+    virtual String serialize();
 };
 
 class CaseStmt : public Stmt {
@@ -131,16 +135,19 @@ class GotoStmt : public Stmt {
     public:
     GotoStmt(String _id);
     virtual GotoStmt *asGotoStmt();
+    virtual String serialize();
 };
 
 class BreakStmt : public Stmt {
     public:
     virtual BreakStmt *asBreakStmt();
+    virtual String serialize();
 };
 
 class ContinueStmt : public Stmt {
     public:
     virtual ContinueStmt *asContinueStmt();
+    virtual String serialize();
 };
 
 class ReturnStmt : public Stmt {

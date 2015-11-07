@@ -272,7 +272,7 @@ BinaryExpr *Parser::parseBinaryExpr(int precidence) {
     throw new ParseException(peekTok().getSourceLocation(), "unimplemented: parse binexpr");
 }
 
-UnaryExpr *Parser::parseUnaryExpr(int precidence) {
+UnaryExpr *Parser::parseUnaryExpr() {
     Token op = getTok();
     switch(op.getKind()) {
         case tok::plus:
@@ -304,8 +304,17 @@ Decl *Parser::parseDecl() {
     throw new ParseException(peekTok().getSourceLocation(), "unimplemented: parse decl");
 }
 
-Type *Parser::parseType() {
+/*
+ * Type
+ */
 
+Type *Parser::parseType() {
+    switch(peekTok().getKind()) {
+        case tok::lbracket:
+            // tuple
+        case tok::identifier:
+            break;
+    }
 }
 
 PrimativeType *Parser::parsePrimativeType() {

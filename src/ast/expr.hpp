@@ -71,6 +71,7 @@ class Expr : public Stmt {
     virtual bool isCastExpr();
 
     virtual Type *getType() {return NULL;} //= 0; //TODO pure virtual
+    virtual String serialize();
 };
 
 class BinaryExpr : public Expr {
@@ -84,38 +85,53 @@ class BinaryExpr : public Expr {
 class UnaryExpr : public Expr {
     Expr *operand;
 
+    virtual String serializeName() = 0;
     public:
     UnaryExpr(Expr *_operand);
+    ~UnaryExpr();
     virtual UnaryExpr *asUnaryExpr();
     virtual Type *getType(); //TODO
+    virtual String serialize();
 };
 
 class PreIncExpr : public UnaryExpr {
+    virtual String serializeName();
+
     public:
     PreIncExpr(Expr *_operand);
 };
 
 class PreDecExpr : public UnaryExpr {
+    virtual String serializeName();
+
     public:
     PreDecExpr(Expr *_operand);
 };
 
 class NegateExpr : public UnaryExpr {
+    virtual String serializeName();
+
     public:
     NegateExpr(Expr *_operand);
 };
 
 class NotExpr : public UnaryExpr {
+    virtual String serializeName();
+
     public:
     NotExpr(Expr *_operand);
 };
 
 class DerefExpr : public UnaryExpr {
+    virtual String serializeName();
+
     public:
     DerefExpr(Expr *_operand);
 };
 
 class RefExpr : public UnaryExpr {
+    virtual String serializeName();
+
     public:
     RefExpr(Expr *_operand);
 };
@@ -145,11 +161,13 @@ class BoolLiteralExpr : public LiteralExpr {
     public:
     BoolLiteralExpr(bool _value);
     virtual BoolLiteralExpr *asBoolLiteralExpr();
+    virtual String serialize();
 };
 
 class NullLiteralExpr : public LiteralExpr {
     public:
     virtual NullLiteralExpr *asNullLiteralExpr();
+    virtual String serialize();
 };
 
 class NumericLiteralExpr : public LiteralExpr {

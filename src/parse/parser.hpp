@@ -45,7 +45,7 @@ class Parser : public Object {
     IfStmt              *parseIfStmt();
 
     BinaryExpr          *parseBinaryExpr(int precidence = 0);
-    UnaryExpr           *parseUnaryExpr(int precidence = 0);
+    UnaryExpr           *parseUnaryExpr();
     CharLiteralExpr     *parseCharLiteralExpr();
     StringLiteralExpr   *parseStringLiteralExpr();
     BoolLiteralExpr     *parseBoolLiteralExpr();
