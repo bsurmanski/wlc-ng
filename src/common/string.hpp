@@ -67,6 +67,7 @@ class String {
     String substring(int start, int len = -1) const;
     int indexOf(int c, int startAt = 0) const;
     int lastIndexOf(int c, int startAt = -1) const;
+    int count(char ch);
 	bool empty() const;
 	String dup() const;
 };

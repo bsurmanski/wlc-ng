@@ -324,6 +324,14 @@ int String::lastIndexOf(int c, int startAt) const {
     return -1;
 }
 
+int String::count(char ch) {
+    int c = 0;
+    for(int i = 0; i < length(); i++) {
+        if (charAt(i) == ch) c++;
+    }
+    return c;
+}
+
 bool String::empty() const {
 	return len <= 0;
 }

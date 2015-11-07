@@ -142,3 +142,11 @@ TEST(String, IndexOf) {
     EXPECT_EQ(10, st.indexOf('4', 4));
     EXPECT_EQ(-1, st.indexOf('7'));
 }
+
+TEST(String, Count) {
+    EXPECT_EQ(2, String("hello").count('l'));
+    EXPECT_EQ(1, String("hello").count('o'));
+    EXPECT_EQ(2, String("a longer string").count('g'));
+    EXPECT_EQ(3, String("a \t string \n with \n escape \n characters").count('\n'));
+    EXPECT_EQ(0, String("").count('a'));
+}
