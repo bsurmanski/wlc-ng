@@ -78,10 +78,10 @@ String String::fromInt(long long i) {
 String String::fromUInt(unsigned long long i) {
     String ret;
 
-    while(i != 0) {
+    do {
         ret.prepend(Char::dectochar(i % 10));
         i /= 10;
-    }
+    } while(i != 0);
 
     return ret;
 }
@@ -349,4 +349,9 @@ String String::dup() const {
 	copy(o.dataPtr(), length(), 0);
 	o.len = length();
 	return o;
+}
+
+std::ostream& operator<<(std::ostream &os, const String &str) {
+    String dup = str;
+    return os << dup.c_str();
 }

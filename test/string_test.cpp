@@ -20,6 +20,9 @@ TEST(String, FromInt) {
 
     str1 = String::fromInt(-987123);
     EXPECT_EQ(str1, "-987123");
+
+    str1 = String::fromInt(0);
+    EXPECT_EQ(str1, "0");
 }
 
 TEST(String, Compare) {

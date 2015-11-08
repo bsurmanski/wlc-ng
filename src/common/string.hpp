@@ -2,6 +2,7 @@
 #define _STRING_HPP
 
 #include <stdlib.h>
+#include <ostream>
 
 #define STRING_LONG 28
 #define STRING_APPEND_PAD 16
@@ -35,6 +36,8 @@ class String {
 	String(const String& o);
 	String(char c);
 	~String();
+
+    //operator const char*();
 
     static String fromInt(long long i);
     static String fromUInt(unsigned long long i);
@@ -72,5 +75,7 @@ class String {
 	bool empty() const;
 	String dup() const;
 };
+
+std::ostream& operator<<(std::ostream &os, const String &str);
 
 #endif
