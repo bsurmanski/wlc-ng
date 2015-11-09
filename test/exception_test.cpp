@@ -10,13 +10,17 @@ TEST(Exception, CatchException) {
         throw new Exception("Exception Thrown!");
     } catch(std::exception *e) {
         EXPECT_STREQ("Exception Thrown!", e->what());
+        delete e;
     }
 }
 
 TEST(Exception, CatchParseException) {
+    StringInput *si = new StringInput("hello");
     try {
-        throw new ParseException(SourceLocation(new StringInput("hello"), 1), "Exception Thrown!");
+        throw new ParseException(SourceLocation(si, 1), "Exception Thrown!");
     } catch(std::exception *e) {
         EXPECT_STREQ("string-constant:1:1: Exception Thrown!", e->what());
+        delete e;
     }
+    delete  si;
 }

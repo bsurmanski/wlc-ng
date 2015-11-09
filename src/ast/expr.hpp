@@ -92,6 +92,7 @@ class BinaryExpr : public Expr {
 
     public:
     BinaryExpr(Expr *_lhs, Expr *rhs);
+    virtual ~BinaryExpr();
     virtual BinaryExpr *asBinaryExpr();
     virtual String serialize();
 };

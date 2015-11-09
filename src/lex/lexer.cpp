@@ -24,6 +24,10 @@ Lexer::Lexer(Input *_input) {
     input = _input;
 }
 
+Lexer::~Lexer() {
+    delete input;
+}
+
 Token Lexer::lex() {
 	Token tok;
 	do {

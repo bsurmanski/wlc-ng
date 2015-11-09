@@ -9,7 +9,7 @@
 #include "parse/parser.hpp"
 #include "program.hpp"
 
-#define TRY(X) { try { (X); } catch(std::exception *e) { printf("%s\n", e->what()); FAIL(); }}
+#define TRY(X) { try { (X); } catch(std::exception *e) { printf("%s\n", e->what()); ADD_FAILURE(); delete e; }}
 
 class TestParser : public testing::Test {
     Parser *parser;
@@ -38,6 +38,18 @@ class TestParser : public testing::Test {
         delete parser;
     }
 
+    void TestExpr(String serialized_exp, String expr_str) {
+        Parser *parser;
+        Expr *expr;
+        TRY({
+                parser = newStringParser(expr_str);
+                expr = parser->parseExpr();
+                EXPECT_EQ(serialized_exp, expr->serialize());
+                delete expr;
+            });
+        delete parser;
+    }
+
     virtual void OnTestStart(const testing::TestInfo &test_info) {
     }
 
@@ -61,7 +73,11 @@ TEST(Parser, CompoundStmt) {
     String in("{\nint i = 0\n if(i < 0) i = 5\n}");
     Parser *parser = createStringParser(in);
     Stmt *stmt;
-    TRY((stmt = parser->parseStmt()));
+    TRY({
+            stmt = parser->parseStmt();
+            delete stmt;
+        });
+    delete parser;
 }
 
 TEST_F(TestParser, ReturnStmt) {
@@ -76,11 +92,10 @@ TEST_F(TestParser, PrimativeType) {
 #define TEST_STR(EXP, STR) \
     parser = createStringParser(STR);\
     type = parser->parsePrimativeType();\
+    EXPECT_NE((Type*) NULL, type);\
     if(type) {\
         EXPECT_EQ(EXP, type->getKind());\
         EXPECT_EQ(true, parser->getLexer()->eof());\
-    } else {\
-        EXPECT_NE((Type*) NULL, type);\
     }\
     delete parser;
 
@@ -119,13 +134,13 @@ TEST_F(TestParser, PrimativeType) {
 }
 
 TEST(Parser, UnaryExpr) {
-    UnaryExpr *uexp;
+    Expr *exp;
     Parser *parser;
 #define TEST_STR(EXP, STR)\
     parser = createStringParser(STR);\
-    uexp = parser->parseUnaryExpr();\
-    EXPECT_EQ(String(EXP), uexp->serialize());\
-    delete uexp;\
+    exp = parser->parseUnaryExpr();\
+    EXPECT_EQ(String(EXP), exp->serialize());\
+    delete exp;\
     delete parser;
 
     TRY({
@@ -144,10 +159,12 @@ TEST(Parser, IdExpr) {
     Parser *parser;
 
 #define TEST_STR(EXP, STR)\
+    TRY({\
     parser = createStringParser(STR);\
     expr = parser->parseExpr();\
     EXPECT_EQ(String(EXP), expr->serialize());\
     delete expr;\
+    });\
     delete parser;
 
     EXPECT_EQ(String("(id someid)"), IdExpr("someid").serialize());

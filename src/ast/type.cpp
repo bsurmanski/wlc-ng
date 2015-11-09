@@ -82,4 +82,3 @@ PrimativeType *PrimativeType::getFloat64() {
     if(!float64Ty) float64Ty = new PrimativeType(PrimativeType::FLOAT64);
     return float64Ty;
 }
-

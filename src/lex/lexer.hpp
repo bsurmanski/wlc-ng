@@ -11,6 +11,7 @@ class Lexer : public Object {
 
     public:
     Lexer(Input *_input);
+    ~Lexer();
     Token lex();
 	Token lexRaw(); // does not throw away whitespace, comment tokens
 	bool eof();

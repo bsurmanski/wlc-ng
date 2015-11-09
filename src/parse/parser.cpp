@@ -193,9 +193,9 @@ ReturnStmt *Parser::parseReturnStmt() {
     }
 
     //TODO: check line terminator before trying to read value
-    Expr *ex = parseExpr();
+    Expr *expr = parseExpr();
     //TODO: line termnator
-    return new ReturnStmt(ex);
+    return new ReturnStmt(expr);
 }
 
 CaseStmt *Parser::parseCaseStmt() {

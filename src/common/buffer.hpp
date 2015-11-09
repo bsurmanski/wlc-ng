@@ -35,7 +35,7 @@ class Buffer {
     }
 
     void push(T t) {
-        ptr[(front + len) % cap] = t;
+        memcpy(&ptr[(front + len) % cap], &t, sizeof(T));
         len++;
         if(len >= cap) throw new Exception("Resize not implemented");
     }

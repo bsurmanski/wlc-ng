@@ -292,6 +292,10 @@ String ContinueStmt::serialize() {
 ReturnStmt::ReturnStmt(Expr *_value) : value(_value) {
 }
 
+ReturnStmt::~ReturnStmt() {
+    delete value;
+}
+
 ReturnStmt *ReturnStmt::asReturnStmt() {
     return this;
 }

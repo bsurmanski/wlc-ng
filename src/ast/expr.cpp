@@ -197,6 +197,11 @@ String Expr::serialize() {
 BinaryExpr::BinaryExpr(Expr *_lhs, Expr *_rhs) : lhs(_lhs), rhs(_rhs) {
 }
 
+BinaryExpr::~BinaryExpr() {
+    delete lhs;
+    delete rhs;
+}
+
 BinaryExpr *BinaryExpr::asBinaryExpr() {
     return this;
 }

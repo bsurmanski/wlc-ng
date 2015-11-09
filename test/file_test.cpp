@@ -35,6 +35,7 @@ TEST(File, Read) {
 
     ASSERT_EQ(' ', f->get());
     ASSERT_EQ('<', f->get());
+    delete f;
 }
 
 TEST(File, Seek) {
