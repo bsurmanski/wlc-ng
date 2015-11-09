@@ -191,6 +191,112 @@ String Expr::serialize() {
 }
 
 /*
+ * BinaryExpr
+ */
+
+BinaryExpr::BinaryExpr(Expr *_lhs, Expr *_rhs) : lhs(_lhs), rhs(_rhs) {
+}
+
+BinaryExpr *BinaryExpr::asBinaryExpr() {
+    return this;
+}
+
+String BinaryExpr::serialize() {
+    return String("(") + serializeName() + String(" ") + lhs->serialize() + String(" ") + rhs->serialize() + String(")");
+}
+
+ModulusExpr::ModulusExpr(Expr *_lhs, Expr *_rhs) : BinaryExpr(_lhs, _rhs) {
+}
+
+String ModulusExpr::serializeName() {
+    return "mod";
+}
+
+PowerExpr::PowerExpr(Expr *_lhs, Expr *_rhs) : BinaryExpr(_lhs, _rhs) {
+}
+
+String PowerExpr::serializeName() {
+    return "pow";
+}
+
+DivExpr::DivExpr(Expr *_lhs, Expr *_rhs) : BinaryExpr(_lhs, _rhs) {
+}
+
+String DivExpr::serializeName() {
+    return "div";
+}
+
+MulExpr::MulExpr(Expr *_lhs, Expr *_rhs) : BinaryExpr(_lhs, _rhs) {
+}
+
+String MulExpr::serializeName() {
+    return "mul";
+}
+
+LShiftExpr::LShiftExpr(Expr *_lhs, Expr *_rhs) : BinaryExpr(_lhs, _rhs) {
+}
+
+String LShiftExpr::serializeName() {
+    return "lshift";
+}
+
+RShiftExpr::RShiftExpr(Expr *_lhs, Expr *_rhs) : BinaryExpr(_lhs, _rhs) {
+}
+
+String RShiftExpr::serializeName() {
+    return "rshift";
+}
+
+AddExpr::AddExpr(Expr *_lhs, Expr *_rhs) : BinaryExpr(_lhs, _rhs) {
+}
+
+String AddExpr::serializeName() {
+    return "add";
+}
+
+SubExpr::SubExpr(Expr *_lhs, Expr *_rhs) : BinaryExpr(_lhs, _rhs) {
+}
+
+String SubExpr::serializeName() {
+    return "sub";
+}
+
+BitXorExpr::BitXorExpr(Expr *_lhs, Expr *_rhs) : BinaryExpr(_lhs, _rhs) {
+}
+
+String BitXorExpr::serializeName() {
+    return "bitxor";
+}
+
+BitAndExpr::BitAndExpr(Expr *_lhs, Expr *_rhs) : BinaryExpr(_lhs, _rhs) {
+}
+
+String BitAndExpr::serializeName() {
+    return "bitand";
+}
+
+BitOrExpr::BitOrExpr(Expr *_lhs, Expr *_rhs) : BinaryExpr(_lhs, _rhs) {
+}
+
+String BitOrExpr::serializeName() {
+    return "bitor";
+}
+
+AndExpr::AndExpr(Expr *_lhs, Expr *_rhs) : BinaryExpr(_lhs, _rhs) {
+}
+
+String AndExpr::serializeName() {
+    return "and";
+}
+
+OrExpr::OrExpr(Expr *_lhs, Expr *_rhs) : BinaryExpr(_lhs, _rhs) {
+}
+
+String OrExpr::serializeName() {
+    return "or";
+}
+
+/*
  * UnaryExpr
  */
 
@@ -239,6 +345,13 @@ NotExpr::NotExpr(Expr *_operand) : UnaryExpr(_operand) {
 
 String NotExpr::serializeName() {
     return "not";
+}
+
+BitNotExpr::BitNotExpr(Expr *_operand) : UnaryExpr(_operand) {
+}
+
+String BitNotExpr::serializeName() {
+    return "bitnot";
 }
 
 DerefExpr::DerefExpr(Expr *_operand) : UnaryExpr(_operand) {

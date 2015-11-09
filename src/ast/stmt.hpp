@@ -151,8 +151,11 @@ class ContinueStmt : public Stmt {
 };
 
 class ReturnStmt : public Stmt {
+    Expr *value;
     public:
+    ReturnStmt(Expr *_value);
     virtual ReturnStmt *asReturnStmt();
+    virtual String serialize();
 };
 
 #endif

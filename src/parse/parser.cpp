@@ -192,9 +192,10 @@ ReturnStmt *Parser::parseReturnStmt() {
         throw new ParseException(peekTok().getSourceLocation(), "expected 'return' keyword");
     }
 
+    //TODO: check line terminator before trying to read value
     Expr *ex = parseExpr();
-    //TODO
-    throw new ParseException(peekTok().getSourceLocation(), "unimplemented: parse return stmt");
+    //TODO: line termnator
+    return new ReturnStmt(ex);
 }
 
 CaseStmt *Parser::parseCaseStmt() {

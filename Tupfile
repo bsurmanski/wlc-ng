@@ -22,6 +22,7 @@ MAIN=src/driver/main.cpp
 
 # test files
 TST=\
+test/ast_test.cpp \
 test/string_test.cpp \
 test/stringInput_test.cpp \
 test/lexer_test.cpp \

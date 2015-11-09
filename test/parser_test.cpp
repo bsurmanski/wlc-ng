@@ -11,9 +11,33 @@
 
 #define TRY(X) { try { (X); } catch(std::exception *e) { printf("%s\n", e->what()); FAIL(); }}
 
-class TestParser : testing::Test {
+class TestParser : public testing::Test {
     Parser *parser;
     public:
+    Program *newDummyProgram() {
+        Environment *e = new Environment;
+        Program *p = new Program(e);
+        return p;
+    }
+
+    Parser *newStringParser(String str) {
+        Program *prog = newDummyProgram();
+        Lexer *lex = new Lexer(new StringInput(str));
+        return new Parser(prog, lex);
+    }
+
+    void TestStmt(String serialized_exp, String stmt_str) {
+        Parser *parser;
+        Stmt *stmt;
+        TRY({
+                parser = newStringParser(stmt_str);
+                stmt = parser->parseStmt();
+                EXPECT_EQ(serialized_exp, stmt->serialize());
+                delete stmt;
+            });
+        delete parser;
+    }
+
     virtual void OnTestStart(const testing::TestInfo &test_info) {
     }
 
@@ -40,13 +64,12 @@ TEST(Parser, CompoundStmt) {
     TRY((stmt = parser->parseStmt()));
 }
 
-TEST(Parser, ReturnStmt) {
-    Parser *parser = createStringParser("return 0");
-    Stmt *stmt;
-    TRY((stmt = parser->parseStmt()));
+TEST_F(TestParser, ReturnStmt) {
+    TestStmt("(return 0)", "return 0");
+    TestStmt("(return)", "return \n 0");
 }
 
-TEST(Parser, PrimativeType) {
+TEST_F(TestParser, PrimativeType) {
     Parser *parser = NULL;
     PrimativeType *type = NULL;
 
@@ -135,30 +158,20 @@ TEST(Parser, IdExpr) {
 }
 
 TEST(Parser, Literals) {
+    Parser *parser;
+    Expr *expr;
 #define TEST_STR(EXP, STR)\
-    parser = createStringParser(STR);\
+    parser = createStringParser(String(STR));\
     expr = parser->parseExpr();\
     EXPECT_EQ(String(EXP), expr->serialize());\
     delete expr;\
     delete parser;
 
-    EXPECT_EQ("123", "123");
-    EXPECT_EQ("true", "true");
-    EXPECT_EQ("false", "false");
-    EXPECT_EQ("null", "null");
+    TEST_STR("123", "123");
+    TEST_STR("true", "true");
+    TEST_STR("false", "false");
+    TEST_STR("null", "null");
 
 #undef TEST_STR
 }
 
-TEST(Parser, Serialize) {
-    EXPECT_EQ(String("123"), IntLiteralExpr(123).serialize());
-    EXPECT_EQ(String("null"), NullLiteralExpr().serialize());
-    EXPECT_EQ(String("true"), BoolLiteralExpr(true).serialize());
-    EXPECT_EQ(String("false"), BoolLiteralExpr(false).serialize());
-    EXPECT_EQ(String("(preinc null)"), PreIncExpr(new NullLiteralExpr).serialize());
-    EXPECT_EQ(String("(predec null)"), PreDecExpr(new NullLiteralExpr).serialize());
-    EXPECT_EQ(String("(neg 987)"), NegateExpr(new IntLiteralExpr(987)).serialize());
-    EXPECT_EQ(String("(not null)"), NotExpr(new NullLiteralExpr).serialize());
-    EXPECT_EQ(String("(deref null)"), DerefExpr(new NullLiteralExpr).serialize());
-    EXPECT_EQ(String("(ref null)"), RefExpr(new NullLiteralExpr).serialize());
-}

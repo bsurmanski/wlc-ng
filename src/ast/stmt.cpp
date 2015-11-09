@@ -1,4 +1,5 @@
 #include "stmt.hpp"
+#include "expr.hpp"
 
 #include <stddef.h>
 
@@ -288,6 +289,19 @@ String ContinueStmt::serialize() {
  * ReturnStmt
  */
 
+ReturnStmt::ReturnStmt(Expr *_value) : value(_value) {
+}
+
 ReturnStmt *ReturnStmt::asReturnStmt() {
     return this;
+}
+
+String ReturnStmt::serialize() {
+    String str("(return");
+    if(value) {
+        str.append(String(" "));
+        str.append(value->serialize());
+    }
+    str.append(")");
+    return str;
 }

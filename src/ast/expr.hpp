@@ -88,9 +88,90 @@ class Expr : public Stmt {
 class BinaryExpr : public Expr {
     Expr *lhs;
     Expr *rhs;
+    virtual String serializeName() = 0;
 
     public:
+    BinaryExpr(Expr *_lhs, Expr *rhs);
     virtual BinaryExpr *asBinaryExpr();
+    virtual String serialize();
+};
+
+class ModulusExpr : public BinaryExpr {
+    virtual String serializeName();
+    public:
+    ModulusExpr(Expr *_lhs, Expr *_rhs);
+};
+
+class PowerExpr : public BinaryExpr {
+    virtual String serializeName();
+    public:
+    PowerExpr(Expr *_lhs, Expr *_rhs);
+};
+
+class DivExpr : public BinaryExpr {
+    virtual String serializeName();
+    public:
+    DivExpr(Expr *_lhs, Expr *_rhs);
+};
+
+class MulExpr : public BinaryExpr {
+    virtual String serializeName();
+    public:
+    MulExpr(Expr *_lhs, Expr *_rhs);
+};
+
+class LShiftExpr : public BinaryExpr {
+    virtual String serializeName();
+    public:
+    LShiftExpr(Expr *_lhs, Expr *_rhs);
+};
+
+class RShiftExpr : public BinaryExpr {
+    virtual String serializeName();
+    public:
+    RShiftExpr(Expr *_lhs, Expr *_rhs);
+};
+
+class AddExpr : public BinaryExpr {
+    virtual String serializeName();
+    public:
+    AddExpr(Expr *_lhs, Expr *_rhs);
+};
+
+class SubExpr : public BinaryExpr {
+    virtual String serializeName();
+    public:
+    SubExpr(Expr *_lhs, Expr *_rhs);
+};
+
+class BitXorExpr : public BinaryExpr {
+    virtual String serializeName();
+    public:
+    BitXorExpr(Expr *_lhs, Expr *_rhs);
+};
+
+class BitAndExpr : public BinaryExpr {
+    virtual String serializeName();
+    public:
+    BitAndExpr(Expr *_lhs, Expr *_rhs);
+};
+
+class BitOrExpr : public BinaryExpr {
+    virtual String serializeName();
+    public:
+    BitOrExpr(Expr *_lhs, Expr *_rhs);
+};
+
+class AndExpr : public BinaryExpr {
+    virtual String serializeName();
+    public:
+    AndExpr(Expr *_lhs, Expr *_rhs);
+};
+
+class OrExpr : public BinaryExpr {
+    virtual String serializeName();
+    public:
+    OrExpr(Expr *_lhs, Expr *_rhs);
 };
 
 class UnaryExpr : public Expr {
@@ -131,6 +212,13 @@ class NotExpr : public UnaryExpr {
 
     public:
     NotExpr(Expr *_operand);
+};
+
+class BitNotExpr : public UnaryExpr {
+    virtual String serializeName();
+
+    public:
+    BitNotExpr(Expr *_operand);
 };
 
 class DerefExpr : public UnaryExpr {
@@ -189,6 +277,7 @@ class NumericLiteralExpr : public LiteralExpr {
 };
 
 class IntLiteralExpr : public NumericLiteralExpr {
+    public:
     uint64_t value;
     public:
     IntLiteralExpr(uint64_t _value);
