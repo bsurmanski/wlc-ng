@@ -85,6 +85,7 @@ TEST_F(TestParser, ReturnStmt) {
     TestStmt("(return)", "return \n 0");
 }
 
+#include <stdio.h>
 TEST_F(TestParser, PrimativeType) {
     Parser *parser = NULL;
     PrimativeType *type = NULL;
@@ -154,6 +155,10 @@ TEST(Parser, UnaryExpr) {
 #undef TEST_STR
 }
 
+TEST_F(TestParser, BinaryExpr) {
+    TestExpr("(add 1 1)", "1 + 1");
+}
+
 TEST(Parser, IdExpr) {
     Expr *expr;
     Parser *parser;
@@ -166,6 +171,7 @@ TEST(Parser, IdExpr) {
     delete expr;\
     });\
     delete parser;
+
 
     EXPECT_EQ(String("(id someid)"), IdExpr("someid").serialize());
     TEST_STR("(id myid)", "myid");

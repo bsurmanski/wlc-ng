@@ -234,31 +234,7 @@ IfStmt *Parser::parseIfStmt() {
  * Expr
  */
 Expr *Parser::parseExpr() {
-    Expr *expr = NULL;
-
-    switch(peekTok().getKind()) {
-#define UBPUNCT(X, Y, Z) case ##X:
-#define UPUNCT(X, Y) case ##X:
-#include "lex/tokenkinds.def"
-        return parseUnaryExpr();
-
-        case tok::lbracket:
-        case tok::lparen:
-        case tok::floatlit:
-        case tok::intlit:
-        case tok::stringlit:
-        case tok::charlit:
-        case tok::kw_null:
-        case tok::kw_true:
-        case tok::kw_false:
-        case tok::identifier:
-        return parsePrimaryExpr();
-
-        default:
-        throw new ParseException(peekTok().getSourceLocation(), "invalid expression");
-    }
-
-    throw new ParseException(peekTok().getSourceLocation(), "unimplemented: parse expr");
+    return parseBinaryExpr();
 }
 
 Expr *Parser::parsePrimaryExpr() {
@@ -288,44 +264,115 @@ Expr *Parser::parsePrimaryExpr() {
             return new IdExpr(tok.getIdentifierName());
 
         case tok::floatlit:
+            return new FloatLiteralExpr(tok.getFloatData());
+
         case tok::intlit:
             return new IntLiteralExpr(tok.getIntData());
+
         case tok::stringlit:
             return new StringLiteralExpr(tok.getStringData());
-        case tok::charlit:
 
+        case tok::charlit:
         default:
             throw new ParseException(peekTok().getSourceLocation(), String("invalid or unimplemented primary expr: ") + tok.getStringRepr());
     }
 }
 
-BinaryExpr *Parser::parseBinaryExpr(int precidence) {
-    Expr *lhs = parsePrimaryExpr();
-    throw new ParseException(peekTok().getSourceLocation(), "unimplemented: parse binexpr");
+Expr *Parser::parseBinaryExpr(int precidence) {
+    Expr *lhs = parseUnaryExpr();
+
+    Token tok = peekTok();
+    while(tok.mayBeBinaryOperator() && tok.binaryOperatorPrecidence() > precidence) {
+        ignoreTok();
+        switch(tok.getKind()) {
+            case tok::plus:
+                lhs = new AddExpr(lhs, parseBinaryExpr(tok.binaryOperatorPrecidence()));
+                break;
+
+            case tok::minus:
+                lhs = new SubExpr(lhs, parseBinaryExpr(tok.binaryOperatorPrecidence()));
+                break;
+
+            case tok::star:
+                lhs = new MulExpr(lhs, parseBinaryExpr(tok.binaryOperatorPrecidence()));
+                break;
+
+            case tok::starstar:
+                lhs = new PowerExpr(lhs, parseBinaryExpr(tok.binaryOperatorPrecidence()));
+                break;
+
+            case tok::slash:
+                lhs = new DivExpr(lhs, parseBinaryExpr(tok.binaryOperatorPrecidence()));
+                break;
+
+            case tok::amp:
+                lhs = new BitAndExpr(lhs, parseBinaryExpr(tok.binaryOperatorPrecidence()));
+                break;
+
+            case tok::ampamp:
+                lhs = new AndExpr(lhs, parseBinaryExpr(tok.binaryOperatorPrecidence()));
+                break;
+
+            case tok::bar:
+                lhs = new BitOrExpr(lhs, parseBinaryExpr(tok.binaryOperatorPrecidence()));
+                break;
+
+            case tok::barbar:
+                lhs = new OrExpr(lhs, parseBinaryExpr(tok.binaryOperatorPrecidence()));
+                break;
+
+            case tok::caret:
+                lhs = new BitXorExpr(lhs, parseBinaryExpr(tok.binaryOperatorPrecidence()));
+                break;
+
+            case tok::percent:
+                lhs = new ModulusExpr(lhs, parseBinaryExpr(tok.binaryOperatorPrecidence()));
+                break;
+
+            case tok::lessless:
+                lhs = new LShiftExpr(lhs, parseBinaryExpr(tok.binaryOperatorPrecidence()));
+                break;
+
+            case tok::greatergreater:
+                lhs = new RShiftExpr(lhs, parseBinaryExpr(tok.binaryOperatorPrecidence()));
+                break;
+        }
+
+        tok = peekTok();
+    }
+
+    return lhs;
 }
 
-UnaryExpr *Parser::parseUnaryExpr() {
-    Token op = getTok();
+Expr *Parser::parseUnaryExpr() {
+    Token op = peekTok();
     switch(op.getKind()) {
         case tok::plus:
+            ignoreTok();
             throw new ParseException(peekTok().getSourceLocation(), "unimplemented: parse unary +");
         case tok::plusplus:
-            return new PreIncExpr(parseExpr());
+            ignoreTok();
+            return new PreIncExpr(parseUnaryExpr());
         case tok::minus:
-            return new NegateExpr(parseExpr());
+            ignoreTok();
+            return new NegateExpr(parseUnaryExpr());
         case tok::minusminus:
-            return new PreDecExpr(parseExpr());
+            ignoreTok();
+            return new PreDecExpr(parseUnaryExpr());
         case tok::amp:
-            return new RefExpr(parseExpr());
+            ignoreTok();
+            return new RefExpr(parseUnaryExpr());
         case tok::caret:
-            return new DerefExpr(parseExpr());
+            ignoreTok();
+            return new DerefExpr(parseUnaryExpr());
         case tok::bang:
-            return new NotExpr(parseExpr());
+            ignoreTok();
+            return new NotExpr(parseUnaryExpr());
         case tok::tilde:
+            ignoreTok();
             throw new ParseException(peekTok().getSourceLocation(), "unimplemented: parse unary ~");
-            break;
         default:
-        throw new ParseException(peekTok().getSourceLocation(), String("invalid unary operator: ") + op.getStringRepr());
+            return parsePrimaryExpr(); //XXX parse postfix
     }
 }
 
@@ -416,5 +463,6 @@ PrimativeType *Parser::parsePrimativeType() {
             throw new ParseException(peekTok().getSourceLocation(), "Unknown primative type");
     }
 
+    ignoreTok();
     return type;
 }

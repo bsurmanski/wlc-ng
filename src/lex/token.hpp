@@ -67,9 +67,12 @@ struct Token {
     bool isLiteral();
     bool isIdentifier();
     bool isPunct();
+    bool mayBeBinaryOperator();
     bool isTerminator();
     bool is(tok::TokenKind k);
     bool isNot(tok::TokenKind k);
+
+    int binaryOperatorPrecidence();
 
     long long getIntData();
 	unsigned long long getUIntData();
@@ -77,8 +80,10 @@ struct Token {
     String &getStringData();
     String &getIdentifierName();
     String &getKeyword();
+    String &getPunctSymbol();
 	String &getStringRepr();
 
+    String getKindName();
     tok::TokenKind getKind();
     SourceLocation getSourceLocation();
 };

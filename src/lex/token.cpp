@@ -141,12 +141,23 @@ bool Token::isIdentifier() {
 
 bool Token::isPunct() {
 	switch(kind) {
-#define PUNCT(NM, STR) case ##NM :
+#define PUNCT(NM, SYM) case ##NM :
 #include "tokenkinds.def"
 			return true;
 		default:
 			return false;
 	}
+}
+
+bool Token::mayBeBinaryOperator() {
+    switch(kind) {
+#define BPUNCT(NM, SYM, PREC) case tok:: NM :
+#define UBPUNCT(NM, SYM, PREC) case tok:: NM :
+#include "tokenkinds.def"
+        return true;
+        default:
+        return false;
+    }
 }
 
 bool Token::isTerminator() {
@@ -159,6 +170,18 @@ bool Token::is(tok::TokenKind k) {
 
 bool Token::isNot(tok::TokenKind k) {
     return kind != k;
+}
+
+int Token::binaryOperatorPrecidence() {
+    switch(kind) {
+#define BPUNCT(NM, SYM, PREC) case tok:: NM :\
+        return PREC;
+#define UBPUNCT(NM, SYM, PREC) case tok:: NM :\
+        return PREC;
+#include "tokenkinds.def"
+        default:
+        return 0;
+    }
 }
 
 long long Token::getIntData() {
@@ -200,6 +223,20 @@ String &Token::getKeyword() {
 	throw new Exception("Token is not a valid keyword");
 }
 
+String &Token::getPunctSymbol() {
+    switch(getKind()) {
+#define PUNCT(NM, SYM) case tok:: NM: \
+        if(tag != STRING) {\
+            String tmp( SYM );\
+            initializeStringData(tmp);\
+        }\
+        return getStringData();
+#include "tokenkinds.def"
+    }
+
+	throw new Exception("Token is not a valid keyword");
+}
+
 String &Token::getStringRepr() {
     if(isKeyword()) {
         return getKeyword();
@@ -209,7 +246,21 @@ String &Token::getStringRepr() {
         return getIdentifierName();
     }
 
-    throw new Exception("unimplemented token stringify");
+    if(isPunct()) {
+        return getPunctSymbol();
+    }
+
+    throw new Exception(String("unimplemented token stringify for ") + getKindName());
+}
+
+String Token::getKindName() {
+    switch(getKind()) {
+#define TOK(NM) case tok:: NM: \
+        return #NM;
+#include "tokenkinds.def"
+    }
+
+	throw new Exception("Token is not a valid keyword");
 }
 
 tok::TokenKind Token::getKind() {
