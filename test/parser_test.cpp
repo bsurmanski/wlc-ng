@@ -157,6 +157,8 @@ TEST(Parser, UnaryExpr) {
 
 TEST_F(TestParser, BinaryExpr) {
     TestExpr("(add 1 1)", "1 + 1");
+    TestExpr("(add (add 1 2) 3)", "1 + 2 + 3");
+    TestExpr("(add 1 (mul 2 3))", "1 + 2 * 3");
 }
 
 TEST(Parser, IdExpr) {
