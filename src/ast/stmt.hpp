@@ -129,6 +129,43 @@ class AssignStmt : public Stmt {
     virtual AssignStmt *asAssignStmt();
 };
 
+class AuxAssignStmt : public Stmt {
+    Expr *lhs;
+    Expr *rhs;
+    public:
+    AuxAssignStmt(Expr *_lhs, Expr *_rhs);
+};
+
+class AddAssignStmt : public AuxAssignStmt {
+};
+
+class SubAssignStmt : public AuxAssignStmt {
+};
+
+class MulAssignStmt : public AuxAssignStmt {
+};
+
+class DivAssignStmt : public AuxAssignStmt {
+};
+
+class ModAssignStmt : public AuxAssignStmt {
+};
+
+class LShiftAssignStmt : public AuxAssignStmt {
+};
+
+class RShiftAssignStmt : public AuxAssignStmt {
+};
+
+class BitAndAssignStmt : public AuxAssignStmt {
+};
+
+class BitOrAssignStmt : public AuxAssignStmt {
+};
+
+class BitXorAssignStmt : public AuxAssignStmt {
+};
+
 class GotoStmt : public Stmt {
     String id;
 

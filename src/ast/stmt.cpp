@@ -247,6 +247,12 @@ AssignStmt *AssignStmt::asAssignStmt() {
 }
 
 /*
+ * AuxAssignStmt
+ */
+AuxAssignStmt::AuxAssignStmt(Expr *_lhs, Expr *_rhs) : lhs(_lhs), rhs(_rhs) {
+}
+
+/*
  * GotoStmt
  */
 
