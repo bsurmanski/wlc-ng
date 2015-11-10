@@ -3,6 +3,7 @@
 SRC=\
 src/common/char.cpp \
 src/common/string.cpp \
+src/common/prettyString.cpp \
 src/common/object.cpp \
 src/exception/exception.cpp\
 src/exception/parseException.cpp\
@@ -24,6 +25,7 @@ MAIN=src/driver/main.cpp
 TST=\
 test/ast_test.cpp \
 test/string_test.cpp \
+test/prettyString_test.cpp \
 test/stringInput_test.cpp \
 test/lexer_test.cpp \
 test/file_test.cpp \
