@@ -3,6 +3,7 @@
 
 #include "common/dynarray.hpp"
 #include "common/string.hpp"
+#include "common/stringFormatter.hpp"
 
 class Expr;
 
@@ -58,7 +59,8 @@ class Stmt {
     virtual bool isContinueStmt();
     virtual bool isReturnStmt();
 
-    virtual String serialize();
+    virtual String serialized();
+    virtual void serialize(StringFormatter &sfmt);
 };
 
 class CompoundStmt : public Stmt {
@@ -68,7 +70,7 @@ class CompoundStmt : public Stmt {
     CompoundStmt(DynArray<Stmt*> stmts);
 
     virtual CompoundStmt *asCompoundStmt();
-    virtual String serialize();
+    virtual void serialize(StringFormatter &sfmt);
 };
 
 class LabelStmt : public Stmt {
@@ -77,7 +79,7 @@ class LabelStmt : public Stmt {
     public:
     LabelStmt(String _id);
     virtual LabelStmt *asLabelStmt();
-    virtual String serialize();
+    virtual void serialize(StringFormatter &sfmt);
 };
 
 class CaseStmt : public Stmt {
@@ -172,19 +174,19 @@ class GotoStmt : public Stmt {
     public:
     GotoStmt(String _id);
     virtual GotoStmt *asGotoStmt();
-    virtual String serialize();
+    virtual void serialize(StringFormatter &sfmt);
 };
 
 class BreakStmt : public Stmt {
     public:
     virtual BreakStmt *asBreakStmt();
-    virtual String serialize();
+    virtual void serialize(StringFormatter &sfmt);
 };
 
 class ContinueStmt : public Stmt {
     public:
     virtual ContinueStmt *asContinueStmt();
-    virtual String serialize();
+    virtual void serialize(StringFormatter &sfmt);
 };
 
 class ReturnStmt : public Stmt {
@@ -193,7 +195,7 @@ class ReturnStmt : public Stmt {
     ReturnStmt(Expr *_value);
     virtual ~ReturnStmt();
     virtual ReturnStmt *asReturnStmt();
-    virtual String serialize();
+    virtual void serialize(StringFormatter &sfmt);
 };
 
 #endif

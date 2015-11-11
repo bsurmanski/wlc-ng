@@ -131,8 +131,14 @@ bool Stmt::isReturnStmt() {
     return (bool) asReturnStmt();
 }
 
-String Stmt::serialize() {
-    return "(stmt)";
+String Stmt::serialized() {
+    StringFormatter sfmt;
+    serialize(sfmt);
+    return sfmt.toString();
+}
+
+void Stmt::serialize(StringFormatter &sfmt) {
+    sfmt.write("(stmt)");
 }
 
 /*
@@ -146,13 +152,15 @@ CompoundStmt *CompoundStmt::asCompoundStmt() {
 CompoundStmt::CompoundStmt(DynArray<Stmt*> _stmts) : stmts(_stmts) {
 }
 
-String CompoundStmt::serialize() {
-    String str = "(stmts ";
+void CompoundStmt::serialize(StringFormatter &sfmt) {
+    sfmt.write("(stmts");
+    sfmt.indent();
     for(int i = 0; i < stmts.size(); i++) {
-        str.append(stmts[i]->serialize() + " ");
+        sfmt.write("\n");
+        stmts[i]->serialize(sfmt);
     }
-    str.append(")");
-    return str;
+    sfmt.unindent();
+    sfmt.write(")");
 }
 
 /*
@@ -166,8 +174,10 @@ LabelStmt *LabelStmt::asLabelStmt() {
     return this;
 }
 
-String LabelStmt::serialize() {
-    return String("(label ") + id + String(")");
+void LabelStmt::serialize(StringFormatter &sfmt) {
+    sfmt.write("(label ");
+    sfmt.write(id);
+    sfmt.write(")");
 }
 
 /*
@@ -263,8 +273,10 @@ GotoStmt *GotoStmt::asGotoStmt() {
     return this;
 }
 
-String GotoStmt::serialize() {
-    return String("(goto ") + id + String(")");
+void GotoStmt::serialize(StringFormatter &sfmt) {
+    sfmt.write("(goto ");
+    sfmt.write(id);
+    sfmt.write(")");
 }
 
 /*
@@ -275,8 +287,8 @@ BreakStmt *BreakStmt::asBreakStmt() {
     return this;
 }
 
-String BreakStmt::serialize() {
-    return "(break)";
+void BreakStmt::serialize(StringFormatter &sfmt) {
+    sfmt.write("(break)");
 }
 
 /*
@@ -287,8 +299,8 @@ ContinueStmt *ContinueStmt::asContinueStmt() {
     return this;
 }
 
-String ContinueStmt::serialize() {
-    return "(continue)";
+void ContinueStmt::serialize(StringFormatter &sfmt) {
+    sfmt.write("(continue)");
 }
 
 /*
@@ -306,12 +318,11 @@ ReturnStmt *ReturnStmt::asReturnStmt() {
     return this;
 }
 
-String ReturnStmt::serialize() {
-    String str("(return");
+void ReturnStmt::serialize(StringFormatter &sfmt) {
+    sfmt.write("(return");
     if(value) {
-        str.append(String(" "));
-        str.append(value->serialize());
+        sfmt.write(" ");
+        value->serialize(sfmt);
     }
-    str.append(")");
-    return str;
+    sfmt.write(")");
 }

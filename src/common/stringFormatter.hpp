@@ -1,10 +1,10 @@
-#ifndef _PRETTYSTRING_HPP
-#define _PRETTYSTRING_HPP
+#ifndef _STRINGFORMATTER_HPP
+#define _STRINGFORMATTER_HPP
 
 #include "object.hpp"
 #include "string.hpp"
 
-class PrettyString : Object {
+class StringFormatter : Object {
     int _indent;
     bool _newline;
     String contents;
@@ -12,8 +12,8 @@ class PrettyString : Object {
     void writeIndent();
 
     public:
-    virtual ~PrettyString();
-    PrettyString();
+    virtual ~StringFormatter();
+    StringFormatter();
 
     void reset();
     void indent();

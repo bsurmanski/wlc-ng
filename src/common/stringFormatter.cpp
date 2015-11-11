@@ -1,39 +1,39 @@
-#include "prettyString.hpp"
+#include "stringFormatter.hpp"
 
-PrettyString::~PrettyString() {
+StringFormatter::~StringFormatter() {
 }
 
-PrettyString::PrettyString() {
+StringFormatter::StringFormatter() {
     _indent = 0;
     _newline = false;
 }
 
-void PrettyString::reset() {
+void StringFormatter::reset() {
     contents = String("");
     _indent = 0;
 }
 
-void PrettyString::indent() {
+void StringFormatter::indent() {
     _indent++;
 }
 
-void PrettyString::unindent() {
+void StringFormatter::unindent() {
     _indent--;
     if(_indent < 0) _indent = 0;
 }
 
-void PrettyString::newline() {
+void StringFormatter::newline() {
     contents.append("\n");
     _newline = true;
 }
 
-void PrettyString::writeIndent() {
+void StringFormatter::writeIndent() {
     for(int i = 0; i < _indent; i++) {
         contents.append("  ");
     }
 }
 
-void PrettyString::write(String str) {
+void StringFormatter::write(String str) {
     int lastWrite = -1;
     for(int i = 0; i < str.length(); i++) {
         if(_newline) {
@@ -52,10 +52,10 @@ void PrettyString::write(String str) {
     contents.append(str.substring(lastWrite+1));
 }
 
-void PrettyString::write(const char *c_str) {
+void StringFormatter::write(const char *c_str) {
     write(String(c_str));
 }
 
-String &PrettyString::toString() {
+String &StringFormatter::toString() {
     return contents;
 }

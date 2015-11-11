@@ -186,8 +186,8 @@ bool Expr::isCastExpr() {
     return (bool) asCastExpr();
 }
 
-String Expr::serialize() {
-    return "(expr)";
+void Expr::serialize(StringFormatter &sfmt) {
+    sfmt.write("(expr)");
 }
 
 /*
@@ -206,8 +206,14 @@ BinaryExpr *BinaryExpr::asBinaryExpr() {
     return this;
 }
 
-String BinaryExpr::serialize() {
-    return String("(") + serializeName() + String(" ") + lhs->serialize() + String(" ") + rhs->serialize() + String(")");
+void BinaryExpr::serialize(StringFormatter &sfmt) {
+    sfmt.write("(");
+    sfmt.write(serializeName());
+    sfmt.write(" ");
+    lhs->serialize(sfmt);
+    sfmt.write(" ");
+    rhs->serialize(sfmt);
+    sfmt.write(")");
 }
 
 ModulusExpr::ModulusExpr(Expr *_lhs, Expr *_rhs) : BinaryExpr(_lhs, _rhs) {
@@ -320,8 +326,12 @@ Type *UnaryExpr::getType() {
     return NULL; //TODO
 }
 
-String UnaryExpr::serialize() {
-    return String("(") + serializeName() + String(" ") + operand->serialize() + String(")");
+void UnaryExpr::serialize(StringFormatter &sfmt) {
+    sfmt.write("(");
+    sfmt.write(serializeName());
+    sfmt.write(" ");
+    operand->serialize(sfmt);
+    sfmt.write(")");
 }
 
 PreIncExpr::PreIncExpr(Expr *_operand) : UnaryExpr(_operand) {
@@ -388,17 +398,20 @@ BoolLiteralExpr *BoolLiteralExpr::asBoolLiteralExpr() {
 BoolLiteralExpr::BoolLiteralExpr(bool _value) : value(_value) {
 }
 
-String BoolLiteralExpr::serialize() {
-    if(value) return "true";
-    return "false";
+void BoolLiteralExpr::serialize(StringFormatter &sfmt) {
+    if(value) {
+        sfmt.write("true");
+    } else {
+        sfmt.write("false");
+    }
 }
 
 NullLiteralExpr *NullLiteralExpr::asNullLiteralExpr() {
     return this;
 }
 
-String NullLiteralExpr::serialize() {
-    return "null";
+void NullLiteralExpr::serialize(StringFormatter &sfmt) {
+    sfmt.write("null");
 }
 
 StringLiteralExpr::StringLiteralExpr(String _value) : value(_value) {
@@ -408,7 +421,7 @@ StringLiteralExpr *StringLiteralExpr::asStringLiteralExpr() {
     return this;
 }
 
-String StringLiteralExpr::serialize() {
+void StringLiteralExpr::serialize(StringFormatter &sfmt) {
     //TODO: escape string
     throw new Exception("unimplemented: string literal serialize");
 }
@@ -424,8 +437,8 @@ IntLiteralExpr *IntLiteralExpr::asIntLiteralExpr() {
     return this;
 }
 
-String IntLiteralExpr::serialize() {
-    return String::fromUInt(value);
+void IntLiteralExpr::serialize(StringFormatter &sfmt) {
+    sfmt.write(String::fromUInt(value));
 }
 
 FloatLiteralExpr::FloatLiteralExpr(double _value) : value(_value) {
@@ -442,6 +455,8 @@ IdExpr *IdExpr::asIdExpr() {
     return this;
 }
 
-String IdExpr::serialize() {
-    return String("(id ") + name + String(")");
+void IdExpr::serialize(StringFormatter &sfmt) {
+    sfmt.write("(id ");
+    sfmt.write(name);
+    sfmt.write(")");
 }

@@ -32,7 +32,7 @@ class TestParser : public testing::Test {
         TRY({
                 parser = newStringParser(stmt_str);
                 stmt = parser->parseStmt();
-                EXPECT_EQ(serialized_exp, stmt->serialize());
+                EXPECT_EQ(serialized_exp, stmt->serialized());
                 delete stmt;
             });
         delete parser;
@@ -44,7 +44,7 @@ class TestParser : public testing::Test {
         TRY({
                 parser = newStringParser(expr_str);
                 expr = parser->parseExpr();
-                EXPECT_EQ(serialized_exp, expr->serialize());
+                EXPECT_EQ(serialized_exp, expr->serialized());
                 delete expr;
             });
         delete parser;
@@ -85,7 +85,6 @@ TEST_F(TestParser, ReturnStmt) {
     TestStmt("(return)", "return \n 0");
 }
 
-#include <stdio.h>
 TEST_F(TestParser, PrimativeType) {
     Parser *parser = NULL;
     PrimativeType *type = NULL;
@@ -140,7 +139,7 @@ TEST(Parser, UnaryExpr) {
 #define TEST_STR(EXP, STR)\
     parser = createStringParser(STR);\
     exp = parser->parseUnaryExpr();\
-    EXPECT_EQ(String(EXP), exp->serialize());\
+    EXPECT_EQ(String(EXP), exp->serialized());\
     delete exp;\
     delete parser;
 
@@ -159,6 +158,8 @@ TEST_F(TestParser, BinaryExpr) {
     TestExpr("(add 1 1)", "1 + 1");
     TestExpr("(add (add 1 2) 3)", "1 + 2 + 3");
     TestExpr("(add 1 (mul 2 3))", "1 + 2 * 3");
+    TestExpr("(add 1 (mul (mul 2 3) 4))", "1 + 2 * 3 * 4");
+    TestExpr("(sub (add 1 (div 2 3)) 4)", "1 + 2 / 3 - 4");
 }
 
 TEST(Parser, IdExpr) {
@@ -169,13 +170,13 @@ TEST(Parser, IdExpr) {
     TRY({\
     parser = createStringParser(STR);\
     expr = parser->parseExpr();\
-    EXPECT_EQ(String(EXP), expr->serialize());\
+    EXPECT_EQ(String(EXP), expr->serialized());\
     delete expr;\
     });\
     delete parser;
 
 
-    EXPECT_EQ(String("(id someid)"), IdExpr("someid").serialize());
+    EXPECT_EQ(String("(id someid)"), IdExpr("someid").serialized());
     TEST_STR("(id myid)", "myid");
     TEST_STR("(id myid)", "myid myid");
 
@@ -188,7 +189,7 @@ TEST(Parser, Literals) {
 #define TEST_STR(EXP, STR)\
     parser = createStringParser(String(STR));\
     expr = parser->parseExpr();\
-    EXPECT_EQ(String(EXP), expr->serialize());\
+    EXPECT_EQ(String(EXP), expr->serialized());\
     delete expr;\
     delete parser;
 

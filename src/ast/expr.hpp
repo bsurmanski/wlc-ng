@@ -6,6 +6,7 @@
 #include "stmt.hpp"
 #include "type.hpp"
 #include "common/string.hpp"
+#include "common/stringFormatter.hpp"
 
 class BinaryExpr;
 class UnaryExpr;
@@ -82,7 +83,7 @@ class Expr : public Stmt {
     virtual bool isCastExpr();
 
     virtual Type *getType() {return NULL;} //= 0; //TODO pure virtual
-    virtual String serialize();
+    virtual void serialize(StringFormatter &sfmt);
 };
 
 class BinaryExpr : public Expr {
@@ -94,7 +95,7 @@ class BinaryExpr : public Expr {
     BinaryExpr(Expr *_lhs, Expr *rhs);
     virtual ~BinaryExpr();
     virtual BinaryExpr *asBinaryExpr();
-    virtual String serialize();
+    virtual void serialize(StringFormatter &sfmt);
 };
 
 class ModulusExpr : public BinaryExpr {
@@ -184,7 +185,7 @@ class UnaryExpr : public Expr {
     ~UnaryExpr();
     virtual UnaryExpr *asUnaryExpr();
     virtual Type *getType(); //TODO
-    virtual String serialize();
+    virtual void serialize(StringFormatter &sfmt);
 };
 
 class PreIncExpr : public UnaryExpr {
@@ -254,7 +255,7 @@ class StringLiteralExpr : public LiteralExpr {
     public:
     StringLiteralExpr(String _value);
     virtual StringLiteralExpr *asStringLiteralExpr();
-    virtual String serialize();
+    virtual void serialize(StringFormatter &sfmt);
 };
 
 class BoolLiteralExpr : public LiteralExpr {
@@ -263,13 +264,13 @@ class BoolLiteralExpr : public LiteralExpr {
     public:
     BoolLiteralExpr(bool _value);
     virtual BoolLiteralExpr *asBoolLiteralExpr();
-    virtual String serialize();
+    virtual void serialize(StringFormatter &sfmt);
 };
 
 class NullLiteralExpr : public LiteralExpr {
     public:
     virtual NullLiteralExpr *asNullLiteralExpr();
-    virtual String serialize();
+    virtual void serialize(StringFormatter &sfmt);
 };
 
 class NumericLiteralExpr : public LiteralExpr {
@@ -283,7 +284,7 @@ class IntLiteralExpr : public NumericLiteralExpr {
     public:
     IntLiteralExpr(uint64_t _value);
     virtual IntLiteralExpr *asIntLiteralExpr();
-    virtual String serialize();
+    virtual void serialize(StringFormatter &sfmt);
 };
 
 class FloatLiteralExpr : public NumericLiteralExpr {
@@ -335,7 +336,7 @@ class IdExpr : public Expr {
     public:
     IdExpr(String _name);
     virtual IdExpr *asIdExpr();
-    virtual String serialize();
+    virtual void serialize(StringFormatter &sfmt);
 };
 
 class PackExpr : public Expr {

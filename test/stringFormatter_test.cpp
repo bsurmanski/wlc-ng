@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
 
-#include "common/prettyString.hpp"
+#include "common/stringFormatter.hpp"
 
-TEST(PrettyString, Write) {
-    PrettyString pstr;
+TEST(StringFormatter, Write) {
+    StringFormatter pstr;
 
     pstr.write("hello");
     EXPECT_EQ(String("hello"), pstr.toString());
@@ -21,8 +21,8 @@ TEST(PrettyString, Write) {
     EXPECT_EQ(String("hello world\neveryone\n\neverywhere\n\n\n"), pstr.toString());
 }
 
-TEST(PrettyString, Indent) {
-    PrettyString pstr;
+TEST(StringFormatter, Indent) {
+    StringFormatter pstr;
 
     pstr.write("hello");
     pstr.indent();
@@ -48,8 +48,8 @@ TEST(PrettyString, Indent) {
     EXPECT_EQ(String("hello\n\n    world"), pstr.toString());
 }
 
-TEST(PrettyString, UnIndent) {
-    PrettyString pstr;
+TEST(StringFormatter, UnIndent) {
+    StringFormatter pstr;
 
     pstr.write("hello\n");
     pstr.indent();
@@ -59,8 +59,8 @@ TEST(PrettyString, UnIndent) {
     EXPECT_EQ(String("hello\n  world\nand all"), pstr.toString());
 }
 
-TEST(PrettyString, Newline) {
-    PrettyString pstr;
+TEST(StringFormatter, Newline) {
+    StringFormatter pstr;
     pstr.write("hello");
     pstr.newline();
     pstr.indent();
