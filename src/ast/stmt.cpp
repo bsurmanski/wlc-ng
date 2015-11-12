@@ -30,6 +30,10 @@ LoopStmt *Stmt::asLoopStmt() {
     return NULL;
 }
 
+SimpleLoopStmt  *Stmt::asSimpleLoopStmt() {
+    return NULL;
+}
+
 WhileStmt *Stmt::asWhileStmt() {
     return NULL;
 }
@@ -184,16 +188,43 @@ void LabelStmt::serialize(StringFormatter &sfmt) {
  * CastStmt
  */
 
+CaseStmt::CaseStmt(DynArray<Expr*> _cases) : cases(_cases) {
+}
+
 CaseStmt *CaseStmt::asCaseStmt() {
     return this;
+}
+
+void CaseStmt::serialize(StringFormatter &sfmt) {
+    sfmt.write("(case");
+    for(int i = 0; i < cases.size(); i++) {
+        sfmt.write(" ");
+        cases[i]->serialize(sfmt);
+    }
+    sfmt.write(")");
 }
 
 /*
  * IfStmt
  */
 
+IfStmt::IfStmt(Expr *_cond, Stmt *_body, Stmt *_elseBody) : cond(_cond), body(_body), elseBody(_elseBody) {
+}
+
 IfStmt *IfStmt::asIfStmt() {
     return this;
+}
+
+void IfStmt::serialize(StringFormatter &sfmt) {
+    sfmt.write("(if ");
+    cond->serialize(sfmt);
+    sfmt.newline();
+    sfmt.indent();
+    body->serialize(sfmt);
+    sfmt.newline();
+    elseBody->serialize(sfmt);
+    sfmt.write(")");
+    sfmt.unindent();
 }
 
 /*
@@ -205,16 +236,58 @@ LoopStmt *LoopStmt::asLoopStmt() {
 }
 
 /*
+ * SimpleLoopStmt
+ */
+
+SimpleLoopStmt::SimpleLoopStmt(Expr *_cond, Stmt *_body, Stmt *_elseBody) : cond(_cond), body(_body), elseBody(_elseBody) {
+}
+
+SimpleLoopStmt *SimpleLoopStmt::asSimpleLoopStmt() {
+    return this;
+}
+
+void SimpleLoopStmt::serialize(StringFormatter &sfmt) {
+    sfmt.write("(");
+    sfmt.write(serializeName());
+    sfmt.write(" ");
+    cond->serialize(sfmt);
+    sfmt.newline();
+    sfmt.indent();
+    body->serialize(sfmt);
+    if(elseBody) {
+        sfmt.newline();
+        elseBody->serialize(sfmt);
+    }
+    sfmt.write(")");
+    sfmt.unindent();
+}
+
+/*
  * WhileStmt
  */
+
+String WhileStmt::serializeName() {
+    return "while";
+}
+
+WhileStmt::WhileStmt(Expr *_cond, Stmt *_body, Stmt *_elseBody) : SimpleLoopStmt(_cond, _body, _elseBody) {
+}
 
 WhileStmt *WhileStmt::asWhileStmt() {
     return this;
 }
 
+
 /*
  * DoWhileStmt
  */
+
+String DoWhileStmt::serializeName() {
+    return "dowhile";
+}
+
+DoWhileStmt::DoWhileStmt(Expr *_cond, Stmt *_body, Stmt *_elseBody) : SimpleLoopStmt(_cond, _body, _elseBody) {
+}
 
 DoWhileStmt *DoWhileStmt::asDoWhileStmt() {
     return this;
@@ -223,6 +296,13 @@ DoWhileStmt *DoWhileStmt::asDoWhileStmt() {
 /*
  * ForStmt
  */
+
+String ForStmt::serializeName() {
+    return "for";
+}
+
+ForStmt::ForStmt(Expr *_cond, Stmt *_body, Stmt *_elseBody) : SimpleLoopStmt(_cond, _body, _elseBody) {
+}
 
 ForStmt *ForStmt::asForStmt() {
     return this;
@@ -254,6 +334,14 @@ AssignStmt::AssignStmt(Expr *_lhs, Expr *_rhs) : lhs(_lhs), rhs(_rhs) {
 
 AssignStmt *AssignStmt::asAssignStmt() {
     return this;
+}
+
+void AssignStmt::serialize(StringFormatter &sfmt) {
+    sfmt.write("(set ");
+    lhs->serialize(sfmt);
+    sfmt.write(" ");
+    rhs->serialize(sfmt);
+    sfmt.write(")");
 }
 
 /*

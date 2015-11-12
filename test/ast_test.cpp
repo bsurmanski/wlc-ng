@@ -2,6 +2,18 @@
 
 #include "ast/ast.hpp"
 
+TEST(AST, SerializeStmt) {
+    EXPECT_EQ(String("(continue)"), ContinueStmt().serialized());
+    EXPECT_EQ(String("(break)"), BreakStmt().serialized());
+    EXPECT_EQ(String("(goto somelabel)"), GotoStmt(String("somelabel")).serialized());
+    EXPECT_EQ(String("(label somelabel)"), LabelStmt(String("somelabel")).serialized());
+    EXPECT_EQ(String("(if true\n  (continue)\n  (break))"), IfStmt(new BoolLiteralExpr(true), new ContinueStmt, new BreakStmt).serialized());
+
+    //TODO: compoundStmt
+    //TODO: caseStmt
+    //TODO: loopStmt (and subclasses)
+}
+
 TEST(AST, SerializeLiteral) {
     EXPECT_EQ(String("1.0"), FloatLiteralExpr(1.0).serialized());
     EXPECT_EQ(String("123"), IntLiteralExpr(123).serialized());

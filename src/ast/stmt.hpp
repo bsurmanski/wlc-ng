@@ -12,6 +12,7 @@ class LabelStmt;
 class CaseStmt;
 class IfStmt;
 class LoopStmt;
+class SimpleLoopStmt;
 class WhileStmt;
 class DoWhileStmt;
 class ForStmt;
@@ -32,6 +33,7 @@ class Stmt {
     virtual CaseStmt        *asCaseStmt();
     virtual IfStmt          *asIfStmt();
     virtual LoopStmt        *asLoopStmt();
+    virtual SimpleLoopStmt  *asSimpleLoopStmt();
     virtual WhileStmt       *asWhileStmt();
     virtual DoWhileStmt     *asDoWhileStmt();
     virtual ForStmt         *asForStmt();
@@ -83,13 +85,23 @@ class LabelStmt : public Stmt {
 };
 
 class CaseStmt : public Stmt {
+    DynArray<Expr*> cases;
+
     public:
+    CaseStmt(DynArray<Expr*> _cases);
     virtual CaseStmt *asCaseStmt();
+    virtual void serialize(StringFormatter &sfmt);
 };
 
 class IfStmt : public Stmt {
+    Expr *cond;
+    Stmt *body;
+    Stmt *elseBody;
+
     public:
+    IfStmt(Expr *_cond, Stmt *_body, Stmt *_elseBody);
     virtual IfStmt *asIfStmt();
+    virtual void serialize(StringFormatter &sfmt);
 };
 
 class LoopStmt : public Stmt {
@@ -97,18 +109,36 @@ class LoopStmt : public Stmt {
     virtual LoopStmt *asLoopStmt();
 };
 
-class WhileStmt : public LoopStmt {
+class SimpleLoopStmt : public LoopStmt {
+    Expr *cond;
+    Stmt *body;
+    Stmt *elseBody;
+
     public:
+    virtual String serializeName() = 0;
+    SimpleLoopStmt(Expr *_cond, Stmt *_body, Stmt *_elseBody);
+    virtual SimpleLoopStmt *asSimpleLoopStmt();
+    virtual void serialize(StringFormatter &sfmt);
+};
+
+class WhileStmt : public SimpleLoopStmt {
+    String serializeName();
+    public:
+    WhileStmt(Expr *_cond, Stmt *_body, Stmt *_elseBody);
     virtual WhileStmt *asWhileStmt();
 };
 
-class DoWhileStmt : public LoopStmt {
+class DoWhileStmt : public SimpleLoopStmt {
+    String serializeName();
     public:
+    DoWhileStmt(Expr *_cond, Stmt *_body, Stmt *_elseBody);
     virtual DoWhileStmt *asDoWhileStmt();
 };
 
-class ForStmt : public LoopStmt {
+class ForStmt : public SimpleLoopStmt {
+    String serializeName();
     public:
+    ForStmt(Expr *_cond, Stmt *_body, Stmt *_elseBody);
     virtual ForStmt *asForStmt();
 };
 
@@ -129,6 +159,7 @@ class AssignStmt : public Stmt {
     public:
     AssignStmt(Expr *_lhs, Expr *_rhs);
     virtual AssignStmt *asAssignStmt();
+    virtual void serialize(StringFormatter &sfmt);
 };
 
 class AuxAssignStmt : public Stmt {
