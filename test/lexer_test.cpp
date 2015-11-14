@@ -5,7 +5,7 @@
 #include "lex/lexer.hpp"
 #include "lex/token.hpp"
 
-#define TRY(X) { try { (X); } catch(std::exception *e) { printf("%s\n", e->what()); FAIL(); }}
+#define TRY(X) { try { (X); } catch(std::exception &e) { printf("%s\n", e.what()); ADD_FAILURE(); }}
 
 TEST(Lexer, Keywords) {
 	Lexer *lex;
@@ -64,6 +64,16 @@ TEST(Lexer, Integers) {
 	TEST_INT(0xFFFFFFFF, 0xFFFFFFFF);
 
 	#undef TEST_INT
+
+	#define TEST_THROW(NUM) lex = new Lexer(new StringInput(#NUM));\
+                    try {\
+					    tok = lex->lex(); \
+                        ADD_FAILURE();\
+                    } catch(std::exception &e) {\
+                    }\
+					delete lex;
+    TEST_THROW(1.2s);
+    #undef TEST_THROW
 }
 
 TEST(Lexer, Strings) {

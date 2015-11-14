@@ -111,7 +111,7 @@ Stmt *Parser::parseStmt() {
 
     do {
         if(!peekTok().isTerminator() && !peekTok().is(tok::eof)) {
-            throw new ParseException(peekTok().getSourceLocation(), String("Expected line-terminator"));
+            throw ParseException(peekTok().getSourceLocation(), String("Expected line-terminator"));
         }
     } while(peekTok().isTerminator());
 
@@ -121,7 +121,7 @@ Stmt *Parser::parseStmt() {
 
 CompoundStmt *Parser::parseCompoundStmt() {
     if(peekTok().getKind() != tok::lbrace || !ignoreTok()) {
-        throw new ParseException(peekTok().getSourceLocation(), "expected left brace beginning compound stmt");
+        throw ParseException(peekTok().getSourceLocation(), "expected left brace beginning compound stmt");
     }
 
     DynArray<Stmt*> stmts;
@@ -131,7 +131,7 @@ CompoundStmt *Parser::parseCompoundStmt() {
     }
 
     if(peekTok().getKind() != tok::lbrace || !ignoreTok()) {
-        throw new ParseException(peekTok().getSourceLocation(), "expected right brace following compound stmt");
+        throw ParseException(peekTok().getSourceLocation(), "expected right brace following compound stmt");
     }
 
     return new CompoundStmt(stmts);
@@ -139,12 +139,12 @@ CompoundStmt *Parser::parseCompoundStmt() {
 
 LabelStmt *Parser::parseLabelStmt() {
     if(peekTok().getKind() != tok::kw_label || !ignoreTok()) {
-        throw new ParseException(peekTok().getSourceLocation(), "expected 'label' beginning label stmt");
+        throw ParseException(peekTok().getSourceLocation(), "expected 'label' beginning label stmt");
     }
 
     Token tok = getTok();
     if(tok.getKind() != tok::identifier) {
-        throw new ParseException(tok.getSourceLocation(), "expected identifier following 'label' keyword");
+        throw ParseException(tok.getSourceLocation(), "expected identifier following 'label' keyword");
     }
 
     //TODO: line terminator
@@ -154,12 +154,12 @@ LabelStmt *Parser::parseLabelStmt() {
 
 GotoStmt *Parser::parseGotoStmt() {
     if(peekTok().getKind() != tok::kw_goto || !ignoreTok()) {
-        throw new ParseException(peekTok().getSourceLocation(), "expected 'goto' beginning goto stmt");
+        throw ParseException(peekTok().getSourceLocation(), "expected 'goto' beginning goto stmt");
     }
 
     Token tok = getTok();
     if(tok.getKind() != tok::identifier) {
-        throw new ParseException(tok.getSourceLocation(), "expected identifier following 'goto' keyword");
+        throw ParseException(tok.getSourceLocation(), "expected identifier following 'goto' keyword");
     }
 
     //TODO: line terminator
@@ -169,7 +169,7 @@ GotoStmt *Parser::parseGotoStmt() {
 
 BreakStmt *Parser::parseBreakStmt() {
     if(peekTok().getKind() != tok::kw_break || !ignoreTok()) {
-        throw new ParseException(peekTok().getSourceLocation(), "expected 'break' beginning break stmt");
+        throw ParseException(peekTok().getSourceLocation(), "expected 'break' beginning break stmt");
     }
 
     //TODO: line terminator
@@ -179,7 +179,7 @@ BreakStmt *Parser::parseBreakStmt() {
 
 ContinueStmt *Parser::parseContinueStmt() {
     if(peekTok().getKind() != tok::kw_continue || !ignoreTok()) {
-        throw new ParseException(peekTok().getSourceLocation(), "expected 'continue' beginning continue stmt");
+        throw ParseException(peekTok().getSourceLocation(), "expected 'continue' beginning continue stmt");
     }
 
     //TODO: line terminator
@@ -189,7 +189,7 @@ ContinueStmt *Parser::parseContinueStmt() {
 
 ReturnStmt *Parser::parseReturnStmt() {
     if(peekTok().getKind() != tok::kw_return || !ignoreTok()) {
-        throw new ParseException(peekTok().getSourceLocation(), "expected 'return' keyword");
+        throw ParseException(peekTok().getSourceLocation(), "expected 'return' keyword");
     }
 
     //TODO: check line terminator before trying to read value
@@ -199,22 +199,22 @@ ReturnStmt *Parser::parseReturnStmt() {
 }
 
 CaseStmt *Parser::parseCaseStmt() {
-    throw new ParseException(peekTok().getSourceLocation(), "unimplemented: parse case stmt");
+    throw ParseException(peekTok().getSourceLocation(), "unimplemented: parse case stmt");
 }
 
 IfStmt *Parser::parseIfStmt() {
     if(peekTok().getKind() != tok::kw_if || !ignoreTok()) {
-        throw new ParseException(peekTok().getSourceLocation(), "expected 'if' keyword beginning if stmt");
+        throw ParseException(peekTok().getSourceLocation(), "expected 'if' keyword beginning if stmt");
     }
 
     if(peekTok().getKind() != tok::lparen || !ignoreTok()) {
-        throw new ParseException(peekTok().getSourceLocation(), "expected '(' in if stmt");
+        throw ParseException(peekTok().getSourceLocation(), "expected '(' in if stmt");
     }
 
     Expr *cond_expr = parseExpr();
 
     if(peekTok().getKind() != tok::rparen || !ignoreTok()) {
-        throw new ParseException(peekTok().getSourceLocation(), "expected ')' in if stmt");
+        throw ParseException(peekTok().getSourceLocation(), "expected ')' in if stmt");
     }
 
     Stmt *cond_stmt = parseStmt();
@@ -227,7 +227,7 @@ IfStmt *Parser::parseIfStmt() {
 
     //TODO: return new IfStmt(cond_expr, cond_stmt, else_stmt);
 
-    throw new ParseException(peekTok().getSourceLocation(), "unimplemented: parse if stmt");
+    throw ParseException(peekTok().getSourceLocation(), "unimplemented: parse if stmt");
 }
 
 /*
@@ -242,12 +242,12 @@ Expr *Parser::parsePrimaryExpr() {
     Expr *expr;
     switch(tok.getKind()) {
         case tok::lbracket:
-            throw new ParseException(peekTok().getSourceLocation(), "unimplemented: parse tuple expr");
+            throw ParseException(peekTok().getSourceLocation(), "unimplemented: parse tuple expr");
 
         case tok::lparen:
             expr = parseExpr();
             if(peekTok().getKind() != tok::rparen && ignoreTok()) {
-                throw new ParseException(peekTok().getSourceLocation(), "expected )");
+                throw ParseException(peekTok().getSourceLocation(), "expected )");
             }
             return expr;
 
@@ -274,7 +274,7 @@ Expr *Parser::parsePrimaryExpr() {
 
         case tok::charlit:
         default:
-            throw new ParseException(peekTok().getSourceLocation(), String("invalid or unimplemented primary expr: ") + tok.getStringRepr());
+            throw ParseException(peekTok().getSourceLocation(), String("invalid or unimplemented primary expr: ") + tok.getStringRepr());
     }
 }
 
@@ -349,7 +349,7 @@ Expr *Parser::parseUnaryExpr() {
     switch(op.getKind()) {
         case tok::plus:
             ignoreTok();
-            throw new ParseException(peekTok().getSourceLocation(), "unimplemented: parse unary +");
+            throw ParseException(peekTok().getSourceLocation(), "unimplemented: parse unary +");
         case tok::plusplus:
             ignoreTok();
             return new PreIncExpr(parseUnaryExpr());
@@ -370,7 +370,7 @@ Expr *Parser::parseUnaryExpr() {
             return new NotExpr(parseUnaryExpr());
         case tok::tilde:
             ignoreTok();
-            throw new ParseException(peekTok().getSourceLocation(), "unimplemented: parse unary ~");
+            throw ParseException(peekTok().getSourceLocation(), "unimplemented: parse unary ~");
         default:
             return parsePrimaryExpr(); //XXX parse postfix
     }
@@ -380,7 +380,7 @@ Expr *Parser::parseUnaryExpr() {
  * Decl
  */
 Decl *Parser::parseDecl() {
-    throw new ParseException(peekTok().getSourceLocation(), "unimplemented: parse decl");
+    throw ParseException(peekTok().getSourceLocation(), "unimplemented: parse decl");
 }
 
 /*
@@ -460,7 +460,7 @@ PrimativeType *Parser::parsePrimativeType() {
             break;
 
         default:
-            throw new ParseException(peekTok().getSourceLocation(), "Unknown primative type");
+            throw ParseException(peekTok().getSourceLocation(), "Unknown primative type");
     }
 
     ignoreTok();

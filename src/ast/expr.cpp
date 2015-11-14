@@ -423,7 +423,7 @@ StringLiteralExpr *StringLiteralExpr::asStringLiteralExpr() {
 
 void StringLiteralExpr::serialize(StringFormatter &sfmt) {
     //TODO: escape string
-    throw new Exception("unimplemented: string literal serialize");
+    throw Exception("unimplemented: string literal serialize");
 }
 
 NumericLiteralExpr *NumericLiteralExpr::asNumericLiteralExpr() {

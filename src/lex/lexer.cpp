@@ -87,7 +87,7 @@ Token Lexer::lexRaw() {
         return Token(tok::newline, loc);
     }
 
-	throw new Exception("invalid input character found");
+	throw Exception("invalid input character found");
 }
 
 
@@ -120,7 +120,7 @@ String Lexer::lexUTF8Char() {
         str.append((char) (0x80 | ((val >> 6) & 0x3F)));
         str.append((char) (0x80 | ((val & 0x3F))));
     } else {
-        throw new Exception("UTF8 constant must be <= 0x10FFFF");
+        throw Exception("UTF8 constant must be <= 0x10FFFF");
     }
 
     return str;
@@ -189,7 +189,7 @@ String Lexer::lexEscapeSequence() {
     // decimal escape sequence
     if(c == 'd') {
         //TODO
-        throw new Exception("lexer: decimal escape sequence not supported");
+        throw Exception("lexer: decimal escape sequence not supported");
     }
 
     // binary escape sequence
@@ -242,7 +242,7 @@ String Lexer::lexEscapeSequence() {
 String Lexer::consumeWord() {
     String str;
 
-    if(!isNonDigit(input->peek())) throw new Exception("Lex Exception: invalid start character in word");
+    if(!isNonDigit(input->peek())) throw Exception("Lex Exception: invalid start character in word");
 
     do {
         str += (char) input->get();
@@ -403,8 +403,8 @@ Token Lexer::lexNumericLiteral() {
 		exponent = (isBinExponentChar(expChar) ? pow(2, expSeq) : pow(10, expSeq));
 	}
 
-	if(!isWhitespace(input->peek()) && !isEndOfLine(input->peek()) && !input->eof()) {
-		throw new Exception("invalid trailing characters on numeric constant: " + input->get());
+	if(!input->eof() && isalpha(input->peek())) {
+		throw Exception(String("invalid trailing characters on numeric constant: ") + String(input->get()));
 	}
 
 	if(floating) {
@@ -437,12 +437,12 @@ String Lexer::lexNormalStringLiteralPart() {
 	if((c = input->get()) != '\"') { // ignore "
         String error = "lexer: expected \", found ";
         error.append(c);
-		throw new Exception(error);
+		throw Exception(error);
 	}
 
 	while((c = input->peek()) != '\"') {
 		if(input->eof()) {
-			throw new Exception("expected closing \", found EOF");
+			throw Exception("expected closing \", found EOF");
 		}
 
 		if(input->peek() == '\\') {
@@ -454,7 +454,7 @@ String Lexer::lexNormalStringLiteralPart() {
 	}
 
 	if((c = input->get()) != '\"') { // ignore "
-		throw new Exception("lexer: expected terminating \" in string");
+		throw Exception("lexer: expected terminating \" in string");
 	}
 
 	return str;
@@ -465,19 +465,19 @@ String Lexer::lexRawStringLiteralPart() {
 	String str;
 
 	if(input->get() != '`') { // ignore `
-		throw new Exception("lexer: expected `");
+		throw Exception("lexer: expected `");
 	}
 
 	while(input->peek() != '`') {
 		if(input->eof()) {
-			throw new Exception("expected closing `, found EOF");
+			throw Exception("expected closing `, found EOF");
 		}
 
 		str += input->get();
 	}
 
 	if(input->get() != '`') { // ignore `
-		throw new Exception("lexer: expected terminating ` in raw string");
+		throw Exception("lexer: expected terminating ` in raw string");
 	}
 
 	return str;
@@ -490,14 +490,14 @@ Token Lexer::lexCharLiteral() {
 
 	// ignore opening '
 	if(input->get() != '\'') {
-		throw new Exception("lexer: expected \' beginning char constant");
+		throw Exception("lexer: expected \' beginning char constant");
 	}
 
 	char c;
     if(input->peek() == '\\') {
         String escape = lexEscapeSequence();
-        if(escape.length() < 1) throw new Exception("lexer: invalid empty character literal");
-        if(escape.length() > 1) throw new Exception("lexer: escape sequence is greater than one byte long");
+        if(escape.length() < 1) throw Exception("lexer: invalid empty character literal");
+        if(escape.length() > 1) throw Exception("lexer: escape sequence is greater than one byte long");
         c = escape.charAt(0);
     } else {
 		c = input->get();
@@ -505,11 +505,11 @@ Token Lexer::lexCharLiteral() {
 
 	// ignore closing '
 	if(input->get() != '\'') {
-		throw new Exception("lexer: expected \' following char constant");
+		throw Exception("lexer: expected \' following char constant");
 	}
 
     if(!c) {
-		throw new Exception("lexer: invalid empty character literal");
+		throw Exception("lexer: invalid empty character literal");
     }
 
     return Token::createCharToken(c, loc);
@@ -600,7 +600,7 @@ Token Lexer::lexPunctuator() {
 		default:
 			String err = String("lexer: unknown punctuator character in input: ");
 			err += str[0];
-			throw new Exception(err);
+			throw Exception(err);
 	}
 }
 
@@ -634,7 +634,7 @@ Token Lexer::lexBlockComment() {
 
 		str += c;
 
-		if(input->eof() && level > 0) throw new Exception("expected closing '*/' for block comment");
+		if(input->eof() && level > 0) throw Exception("expected closing '*/' for block comment");
 
 	} while(true);
 

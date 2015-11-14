@@ -188,7 +188,7 @@ bool String::equals(const String &o) const {
 
 const char &String::charAt(int i) const {
 	if(i >= capacity) {
-		throw new Exception("index out of bounds");
+		throw Exception("index out of bounds");
 	}
 
 	if(isLong()) {
@@ -200,7 +200,7 @@ const char &String::charAt(int i) const {
 
 char &String::charAt(int i) {
 	if(i >= capacity) {
-		throw new Exception("index out of bounds");
+		throw Exception("index out of bounds");
 	}
 
 	if(isLong()) {

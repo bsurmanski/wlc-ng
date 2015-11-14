@@ -9,7 +9,7 @@
 #include "parse/parser.hpp"
 #include "program.hpp"
 
-#define TRY(X) { try { (X); } catch(std::exception *e) { printf("%s\n", e->what()); ADD_FAILURE(); delete e; }}
+#define TRY(X) { try { (X); } catch(std::exception &e) { printf("%s\n", e.what()); ADD_FAILURE(); }}
 
 class TestParser : public testing::Test {
     Parser *parser;

@@ -200,12 +200,12 @@ double Token::getFloatData() {
 }
 
 String &Token::getStringData() {
-	if(tag != STRING) throw new Exception("Token does not contain string data");
+	if(tag != STRING) throw Exception("Token does not contain string data");
 	return *reinterpret_cast<String*>(strdata);
 }
 
 String &Token::getIdentifierName() {
-	if(isNot(tok::identifier)) throw new Exception("attempt to get name of non-identifier token");
+	if(isNot(tok::identifier)) throw Exception("attempt to get name of non-identifier token");
 	return getStringData();
 }
 
@@ -220,7 +220,7 @@ String &Token::getKeyword() {
 #include "tokenkinds.def"
     }
 
-	throw new Exception("Token is not a valid keyword");
+	throw Exception("Token is not a valid keyword");
 }
 
 String &Token::getPunctSymbol() {
@@ -234,7 +234,7 @@ String &Token::getPunctSymbol() {
 #include "tokenkinds.def"
     }
 
-	throw new Exception("Token is not a valid keyword");
+	throw Exception("Token is not a valid keyword");
 }
 
 String &Token::getStringRepr() {
@@ -250,7 +250,7 @@ String &Token::getStringRepr() {
         return getPunctSymbol();
     }
 
-    throw new Exception(String("unimplemented token stringify for ") + getKindName());
+    throw Exception(String("unimplemented token stringify for ") + getKindName());
 }
 
 String Token::getKindName() {
@@ -260,7 +260,7 @@ String Token::getKindName() {
 #include "tokenkinds.def"
     }
 
-	throw new Exception("Token is not a valid keyword");
+	throw Exception("Token is not a valid keyword");
 }
 
 tok::TokenKind Token::getKind() {

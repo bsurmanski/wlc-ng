@@ -22,12 +22,12 @@ class Buffer {
     }
 
     ~Buffer() {
-        if(len > 0) throw new Exception("Buffer must be empty to destroy");
+        if(len > 0) throw Exception("Buffer must be empty to destroy");
         free(ptr);
     }
 
     T pop() {
-        if(len <= 0) throw new Exception("Attempt to pop empty buffer");
+        if(len <= 0) throw Exception("Attempt to pop empty buffer");
         T tmp = ptr[front];
         len--;
         front = (front + 1) % cap;
@@ -37,7 +37,7 @@ class Buffer {
     void push(T t) {
         memcpy(&ptr[(front + len) % cap], &t, sizeof(T));
         len++;
-        if(len >= cap) throw new Exception("Resize not implemented");
+        if(len >= cap) throw Exception("Resize not implemented");
     }
 
     T &peek(int i = 0) {
