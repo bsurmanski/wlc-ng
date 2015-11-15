@@ -178,7 +178,7 @@ TEST(Parser, IdExpr) {
 
     EXPECT_EQ(String("(id someid)"), IdExpr("someid").serialized());
     TEST_STR("(id myid)", "myid");
-    TEST_STR("(id myid)", "myid myid");
+    TEST_STR("(id myid)", "myid 5");
 
 #undef TEST_STR
 }

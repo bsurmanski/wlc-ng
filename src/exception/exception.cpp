@@ -1,7 +1,7 @@
 #include "exception.hpp"
 
 
-Exception::Exception(String _message) {
+Exception::Exception(const String &_message) {
 	message = _message;
     whatStr = message.c_str();
 }

@@ -10,7 +10,7 @@ class Exception : public std::exception {
     const char *whatStr;
 
 	public:
-	Exception(String _message);
+	Exception(const String &_message);
 	virtual ~Exception() throw();
 	String &getMessage();
     virtual const char* what() const throw();

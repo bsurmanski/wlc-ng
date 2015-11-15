@@ -6,9 +6,10 @@
 #include "ast/module.hpp"
 #include "lex/lexer.hpp"
 
+#include <stdio.h>
 #include <assert.h>
 
-Parser::Parser(Program *_program, Lexer *_lex) : program(_program), lex(_lex) {
+Parser::Parser(Program *_program, Lexer *_lex) : error(0), program(_program), lex(_lex), module(NULL) {
 }
 
 Parser::~Parser() {
@@ -52,6 +53,15 @@ Token Parser::getTok() {
     } else {
         return lex->lex();
     }
+}
+
+void Parser::emit_error(SourceLocation loc, String err) {
+    String msg;
+    msg.append(loc.toString());
+    msg.append(": ");
+    msg.append(err);
+    printf("%s\n", msg.c_str());
+    error++;
 }
 
 /*
@@ -246,7 +256,7 @@ Expr *Parser::parsePrimaryExpr() {
 
         case tok::lparen:
             expr = parseExpr();
-            if(peekTok().getKind() != tok::rparen && ignoreTok()) {
+            if(peekTok().getKind() != tok::rparen || !ignoreTok()) {
                 throw ParseException(peekTok().getSourceLocation(), "expected )");
             }
             return expr;

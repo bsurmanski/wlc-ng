@@ -34,7 +34,7 @@ class Buffer {
         return tmp;
     }
 
-    void push(T t) {
+    void push(const T &t) {
         memcpy(&ptr[(front + len) % cap], &t, sizeof(T));
         len++;
         if(len >= cap) throw Exception("Resize not implemented");

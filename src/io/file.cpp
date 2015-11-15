@@ -28,9 +28,9 @@ File *File::findInPath(String name, String path) {
     return NULL;
 }
 
-File::File(String _filename) {
+File::File(const String &_filename) {
     filename = _filename;
-    fp = fopen(_filename.c_str(), "rb");
+    fp = fopen(filename.c_str(), "rb");
 }
 
 File::~File() {

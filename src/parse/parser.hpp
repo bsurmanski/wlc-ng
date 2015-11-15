@@ -11,6 +11,8 @@ class Program;
 class Module;
 
 class Parser : public Object {
+    int error;
+
     Program *program;
     Lexer *lex;
 
@@ -28,6 +30,8 @@ class Parser : public Object {
     Token &peekTok(int i = 0);
     bool ignoreTok();
     Token getTok();
+
+    void emit_error(SourceLocation loc, String err);
 
     public:
     Stmt *parseStmt();

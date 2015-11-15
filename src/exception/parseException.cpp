@@ -2,7 +2,7 @@
 
 #include "common/string.hpp"
 
-ParseException::ParseException(SourceLocation _loc, String _message) : Exception(_message), loc(_loc) {
+ParseException::ParseException(SourceLocation _loc, const String &_message) : Exception(_message), loc(_loc) {
     full_message.append(loc.toString());
     full_message.append(": ");
     full_message.append(message);

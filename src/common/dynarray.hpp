@@ -50,7 +50,7 @@ class DynArray {
 
     }
 
-    void append(T &t) {
+    void append(const T &t) {
         if(len >= cap) {
             ptr = (T*) realloc(ptr, cap * 2);
             cap = cap * 2;

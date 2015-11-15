@@ -8,7 +8,7 @@ class ParseException : public Exception {
     const char *what_str;
 
     public:
-        ParseException(SourceLocation _loc, String _message);
+        ParseException(SourceLocation _loc, const String &_message);
     	virtual ~ParseException() throw();
         virtual const char* what() const throw();
 };

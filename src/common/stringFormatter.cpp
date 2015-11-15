@@ -33,7 +33,7 @@ void StringFormatter::writeIndent() {
     }
 }
 
-void StringFormatter::write(String str) {
+void StringFormatter::write(const String &str) {
     int lastWrite = -1;
     for(int i = 0; i < str.length(); i++) {
         if(_newline) {

@@ -14,7 +14,7 @@ class File : Input {
     static bool exists(String filename);
     static File *findInPath(String name, String path);
 
-    File(String _filename);
+    File(const String &_filename);
 	~File();
     String getPath();
     virtual String getName() const;

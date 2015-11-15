@@ -19,7 +19,7 @@ class StringFormatter : Object {
     void indent();
     void unindent();
     void newline();
-    void write(String str);
+    void write(const String &str);
     void write(const char *c_str);
     String &toString();
 };
