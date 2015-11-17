@@ -211,6 +211,12 @@ void CaseStmt::serialize(StringFormatter &sfmt) {
 IfStmt::IfStmt(Expr *_cond, Stmt *_body, Stmt *_elseBody) : cond(_cond), body(_body), elseBody(_elseBody) {
 }
 
+IfStmt::~IfStmt() {
+    delete cond;
+    delete body;
+    delete elseBody;
+}
+
 IfStmt *IfStmt::asIfStmt() {
     return this;
 }

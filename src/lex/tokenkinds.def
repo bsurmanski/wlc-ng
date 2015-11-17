@@ -118,7 +118,7 @@ KEYWORD(pack)
 KEYWORD(include)
 KEYWORD(label)
 KEYWORD(package) /* declare package like Java, (package com.mysite.mypackage) */
-KEYWORD(function) /* for function pointers */
+KEYWORD(func) /* for function pointers */
 KEYWORD(break)
 KEYWORD(continue)
 KEYWORD(use) /* use extensions */

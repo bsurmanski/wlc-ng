@@ -244,7 +244,19 @@ IfStmt *Parser::parseIfStmt() {
  * Expr
  */
 Expr *Parser::parseExpr() {
-    return parseBinaryExpr();
+    switch(peekTok().getKind()) {
+        case tok::kw_struct:
+        case tok::kw_class:
+        case tok::kw_union:
+        case tok::kw_interface:
+            return parseDecl();
+        case tok::identifier:
+            if(peekTok(1).getKind() == tok::identifier) {
+                return parseDecl();
+            } // else fall through
+        default:
+            return parseBinaryExpr();
+    }
 }
 
 Expr *Parser::parsePrimaryExpr() {
@@ -390,7 +402,132 @@ Expr *Parser::parseUnaryExpr() {
  * Decl
  */
 Decl *Parser::parseDecl() {
+    //TODO: parse access modifier
+
+    switch(peekTok().getKind()) {
+        case tok::kw_struct:
+        case tok::kw_class:
+        case tok::kw_union:
+        case tok::kw_interface:
+            return parseTypeDecl();
+        default:
+            return parseNonTypeDecl();
+    }
     throw ParseException(peekTok().getSourceLocation(), "unimplemented: parse decl");
+}
+
+TypeDecl *Parser::parseTypeDecl() {
+    UserTypeDecl *tdecl = NULL;
+    switch(peekTok().getKind()) {
+        case tok::kw_struct:
+            tdecl = new StructDecl;
+            break;
+        case tok::kw_class:
+            tdecl = new ClassDecl;
+            break;
+        case tok::kw_union:
+            tdecl = new UnionDecl;
+            break;
+        case tok::kw_interface:
+            tdecl = new InterfaceDecl;
+            break;
+        default:
+            throw ParseException(peekTok().getSourceLocation(), "exepected type declaration kind");
+    }
+    ignoreTok();
+
+    if(peekTok().getKind() == tok::identifier) {
+        tdecl->setName(getTok().getIdentifierName());
+    }
+
+    if(peekTok().getKind() == tok::colon) {
+        if(!tdecl->isClassDecl()) {
+            emit_error(peekTok().getSourceLocation(), "base class specifier on non-class type");
+        }
+
+        ignoreTok();
+
+        if(peekTok().getKind() == tok::identifier) {
+            //TODO: tdecl->SetBaseClass(getTok().getIdentifierName());
+        } else {
+            // TODO: error, expected base class identifier following colon
+        }
+    }
+
+    if(peekTok().getKind() != tok::lbrace) {
+        //TODO: error, expected opening brace following type declaration specifier
+    }
+
+    DynArray<Decl*> members;
+    while(peekTok().getKind() != tok::rbrace) {
+        members.append(parseDecl());
+
+        if(getLexer()->eof()) {
+            throw ParseException(peekTok().getSourceLocation(), "encountered EOF while parsing type declaration");
+        }
+    }
+    //TODO: add members to tdecl
+
+    if(peekTok().getKind() != tok::rbrace || !ignoreTok()) {
+            throw ParseException(peekTok().getSourceLocation(), "expected } following usertype declaration");
+    }
+
+    return tdecl;
+}
+
+DynArray<VarDecl*> Parser::parseParams() {
+    if(peekTok().getKind() != tok::lparen || !ignoreTok()) {
+        throw ParseException(peekTok().getSourceLocation(), "expected ( in function parameter specification");
+    }
+
+    DynArray<VarDecl*> params;
+    do {
+        Type *type = parseType();
+        String name;
+        Expr *value = NULL;
+
+        if(peekTok().getKind() != tok::identifier) {
+            //TODO: destroy params?
+            throw ParseException(peekTok().getSourceLocation(), "expected identifier in parameter list");
+        }
+
+        name = getTok().getIdentifierName();
+
+        if(peekTok().getKind() == tok::equal) {
+            ignoreTok();
+            value = parseExpr(); //TODO: try catch
+        }
+        params.append(new VarDecl(type, name, value));
+    } while(peekTok().getKind() == tok::comma && ignoreTok());
+
+    if(peekTok().getKind() != tok::rparen || !ignoreTok()) {
+        //TODO: destroy params?
+        throw ParseException(peekTok().getSourceLocation(), "expected ) following function parameter specifier");
+    }
+
+    return params;
+}
+
+Decl *Parser::parseNonTypeDecl() {
+    Type *type = parseType();
+    String name;
+
+    if(peekTok().getKind() != tok::identifier) {
+        throw ParseException(peekTok().getSourceLocation(), "expected identifier following type");
+    }
+
+    name = getTok().getIdentifierName();
+
+    // function decl
+    if(peekTok().getKind() == tok::lparen) {
+        DynArray<VarDecl*> params = parseParams();
+        Stmt *body = parseStmt(); //TODO: allow empty stmt
+        return new FuncDecl(type, name, params, body);
+    } else {
+        //TODO: default value?
+        //TODO: expect EOL
+        return new VarDecl(type, name, NULL);
+    }
 }
 
 /*
@@ -398,12 +535,84 @@ Decl *Parser::parseDecl() {
  */
 
 Type *Parser::parseType() {
+    Type *type = NULL;
     switch(peekTok().getKind()) {
         case tok::lbracket:
-            // tuple
+            type = parseTupleType();
+            break;
+
         case tok::identifier:
             break;
+
+        case tok::kw_bool:
+        case tok::kw_void:
+        case tok::kw_char:
+        case tok::kw_int8:
+        case tok::kw_short:
+        case tok::kw_int16:
+        case tok::kw_int:
+        case tok::kw_int32:
+        case tok::kw_long:
+        case tok::kw_int64:
+        case tok::kw_uchar:
+        case tok::kw_uint8:
+        case tok::kw_ushort:
+        case tok::kw_uint16:
+        case tok::kw_uint:
+        case tok::kw_uint32:
+        case tok::kw_ulong:
+        case tok::kw_uint64:
+        case tok::kw_float:
+        case tok::kw_float32:
+        case tok::kw_double:
+        case tok::kw_float64:
+            type = parsePrimativeType();
+            break;
     }
+
+    if(!type) {
+        throw ParseException(peekTok().getSourceLocation(), "could not parse type");
+    }
+
+    return parseTypePostfix(type);
+}
+
+Type *Parser::parseTypePostfix(Type *base) {
+    Type *type = base;
+
+    switch(peekTok().getKind()) {
+        case tok::caret:
+            ignoreTok();
+            type = base->getPointer();
+            break;
+
+        //TODO: function, array
+        default:
+        return base;
+    }
+
+    return parseTypePostfix(type); // can have multiple postfixes
+}
+
+TupleType *Parser::parseTupleType() {
+    ignoreTok();
+    DynArray<Type*> types; //TODO: create linked list instead? type = type.tupledWith(parseType())
+    Type *ty = NULL;
+    while(true) {
+        types.append(parseType());
+        if(peekTok().getKind() != tok::comma) {
+            break;
+        } else {
+            ignoreTok();
+        }
+    }
+
+    if(peekTok().getKind() != tok::rbracket || ignoreTok()) {
+        throw ParseException(peekTok().getSourceLocation(), "expected ] following tuple type list");
+    }
+
+    //TODO: get tuple type
+    throw ParseException(peekTok().getSourceLocation(), "unimplemented: tuple type");
 }
 
 PrimativeType *Parser::parsePrimativeType() {

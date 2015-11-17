@@ -2,6 +2,23 @@
 
 #include "ast/ast.hpp"
 
+TEST(AST, SerializePrimativeType) {
+    EXPECT_EQ(String("bool"), PrimativeType::getBool()->serialized());
+    EXPECT_EQ(String("void"), PrimativeType::getVoid()->serialized());
+    EXPECT_EQ(String("int8"), PrimativeType::getInt8()->serialized());
+    EXPECT_EQ(String("int16"), PrimativeType::getInt16()->serialized());
+    EXPECT_EQ(String("int32"), PrimativeType::getInt32()->serialized());
+    EXPECT_EQ(String("int64"), PrimativeType::getInt64()->serialized());
+    EXPECT_EQ(String("uint8"), PrimativeType::getUInt8()->serialized());
+    EXPECT_EQ(String("uint16"), PrimativeType::getUInt16()->serialized());
+    EXPECT_EQ(String("uint32"), PrimativeType::getUInt32()->serialized());
+    EXPECT_EQ(String("uint64"), PrimativeType::getUInt64()->serialized());
+    EXPECT_EQ(String("float32"), PrimativeType::getFloat32()->serialized());
+    EXPECT_EQ(String("float64"), PrimativeType::getFloat64()->serialized());
+
+    EXPECT_EQ(String("(ptr bool)"), PrimativeType::getBool()->getPointer()->serialized());
+}
+
 TEST(AST, SerializeStmt) {
     EXPECT_EQ(String("(continue)"), ContinueStmt().serialized());
     EXPECT_EQ(String("(break)"), BreakStmt().serialized());

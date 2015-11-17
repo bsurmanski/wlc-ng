@@ -221,7 +221,7 @@
 
 ----------
 
-## type\_qualifier
+## type\_qual
     const
 
 ## base\_type
@@ -288,7 +288,7 @@
     array\_type\_postfix [*type\_postfix*]
 
 ## function\_type\_postfix
-    function ( [*type* {, *type*}] )
+    func ( [*type* {, *type*}] )
 
 ## pointer\_type\_postfix
     ^
@@ -305,21 +305,25 @@
 
 -----------
 
-## storage\_class
+## storage\_modifier
     extern
     undecorated
     decorated
-    weak
     static
 
 ## access\_modifier
     public
     private
 
+## type\_modifier
+    weak
+
 ## declaration
+    { *access\_modifier* } *base\_declaration*
+
+## base\_declaration
     *type\_decl*
-    *function\_decl*
-    *variable\_decl*
+    *nontype\_decl*
     *alias\_decl*
 
 ## simple\_template
@@ -339,6 +343,11 @@
     union [*id*] { {*declaration* .} }
     class [*id*] [: *id*] { {*declaration* .} }
     interface [*id*] { {*declaration* .} }
+
+## nontype\_decl
+    *function\_decl*
+    *variable\_decl*
+
 
 ## parameter
     *type* *id* [= *expression*]

@@ -68,12 +68,18 @@ class Parser : public Object {
     IndexExpr           *parseIndexExpr();
     CastExpr            *parseCastExpr();
 
+    TypeDecl            *parseTypeDecl();
+    DynArray<VarDecl*>   parseParams();
+    Decl                *parseNonTypeDecl();
+
     PrimativeType       *parsePrimativeType();
     UserType            *parseUserType();
     TupleType           *parseTupleType();
     FunctionType        *parseFunctionType();
     PointerType         *parsePointerType();
     ArrayType           *parseArrayType();
+
+    Type                *parseTypePostfix(Type *base);
 };
 
 #endif

@@ -1,0 +1,11 @@
+*Mutation set&: some sort of built-in property that provides a set of variables a
+function can mutate. This would provide a mechanism to assert some level of
+purity upon a function via unit tests without burdening the naive programmer.
+This would also allow greater architectural introspection for software designers.
+
+usage:
+    myfunc.mutations.equals([myvar, myothervar])
+    a.mymethod.mutations.equals([myglobal, a.mymember])
+
+for C or external functions either the mutation set wont exist, or it will
+consist of a meta-variable 'extern'

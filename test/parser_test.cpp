@@ -50,6 +50,18 @@ class TestParser : public testing::Test {
         delete parser;
     }
 
+    void TestDecl(String serialized_exp, String decl_str) {
+        Parser *parser;
+        Decl *decl;
+        TRY({
+                parser = newStringParser(decl_str);
+                decl = parser->parseDecl();
+                EXPECT_EQ(serialized_exp, decl->serialized());
+                delete decl;
+            });
+        delete parser;
+    }
+
     virtual void OnTestStart(const testing::TestInfo &test_info) {
     }
 
@@ -201,3 +213,19 @@ TEST(Parser, Literals) {
 #undef TEST_STR
 }
 
+TEST_F(TestParser, ComplexExpr) {
+    TestExpr("(sub 3 (mul 1 2))", "3 - (1 * 2)");
+    TestExpr("(sub (mul 1 2) 3)", "(1 * 2) - 3");
+    TestExpr("(mul (add (id a) (id b)) (div 2 3))", "(a + b) * (2 / 3)");
+    TestExpr("(mul (neg (id a)) (neg (id b)))", "-a * -b");
+}
+
+
+TEST_F(TestParser, VarDecl) {
+    TestDecl("(var hello int8)", "int8 hello");
+    TestDecl("(var goodbye (ptr float32))", "float^ goodbye");
+}
+
+TEST_F(TestParser, FuncDecl) {
+    TestDecl("(func hello void (vars (var a int8))\n  (break))", "void hello(int8 a) break");
+}

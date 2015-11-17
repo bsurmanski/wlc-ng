@@ -100,6 +100,7 @@ class IfStmt : public Stmt {
 
     public:
     IfStmt(Expr *_cond, Stmt *_body, Stmt *_elseBody);
+    ~IfStmt();
     virtual IfStmt *asIfStmt();
     virtual void serialize(StringFormatter &sfmt);
 };

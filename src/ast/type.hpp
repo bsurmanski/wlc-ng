@@ -3,9 +3,41 @@
 
 #include "common/dynarray.hpp"
 #include "common/object.hpp"
+#include "common/string.hpp"
+#include "common/stringFormatter.hpp"
+
+class PrimativeType;
+class TupleType;
+class FunctionType;
+class PointerType;
+class ArrayType;
+class UserType;
 
 class Type : public Object {
+    PointerType *ptrTy;
+
     public:
+    Type();
+    virtual ~Type();
+    PointerType *getPointer();
+    TupleType *tupleWith(Type *ty);
+    virtual String serialized();
+    virtual void serialize(StringFormatter &sfmt) = 0;
+
+
+    virtual PrimativeType   *asPrimativeType();
+    virtual TupleType       *asTupleType();
+    virtual FunctionType    *asFunctionType();
+    virtual PointerType     *asPointerType();
+    virtual ArrayType       *asArrayType();
+    virtual UserType        *asUserType();
+
+    virtual bool isPrimativeType();
+    virtual bool isTupleType();
+    virtual bool isFunctionType();
+    virtual bool isPointerType();
+    virtual bool isArrayType();
+    virtual bool isUserType();
 };
 
 class PrimativeType : public Type {
@@ -31,6 +63,7 @@ class PrimativeType : public Type {
     public:
     PrimativeType(Kind _kind);
     Kind getKind();
+    virtual void serialize(StringFormatter &sfmt);
 
     static PrimativeType *getBool();
     static PrimativeType *getVoid();
@@ -46,21 +79,21 @@ class PrimativeType : public Type {
     static PrimativeType *getFloat64();
 };
 
-class UserType : public Type {
-    DynArray<Type*> memberTypes;
-};
-
 class TupleType : public Type {
     DynArray<Type*> memberTypes;
 };
 
 class FunctionType : public Type {
     Type *returnType;
-    TupleType *paramType;
+    DynArray<Type*> paramTypes;
 };
 
 class PointerType : public Type {
     Type *baseType;
+
+    public:
+    PointerType(Type *ty);
+    virtual void serialize(StringFormatter &sfmt);
 };
 
 class ArrayType : public Type {
@@ -72,6 +105,13 @@ class StaticArrayType : public ArrayType {
 };
 
 class DynamicArrayType : public ArrayType {
+};
+
+class UserType : public Type {
+    String name;
+    public:
+    UserType(const String &_name);
+    virtual void serialize(StringFormatter &sfmt);
 };
 
 #endif
