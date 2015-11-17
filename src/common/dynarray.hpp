@@ -7,47 +7,45 @@
 #include <string.h>
 
 template<typename T>
-class DynArray {
-    T *ptr;
+struct _ArrayData {
+    int refcount;
     int len;
     int cap;
 
-    public:
-    DynArray() {
-        ptr = (T*) malloc(sizeof(T) * DYNARRAY_DEFAULT_CAP);
+    T *ptr;
+
+    _ArrayData<T>(int n = DYNARRAY_DEFAULT_CAP) {
+        refcount = 1;
         len = 0;
-        cap = DYNARRAY_DEFAULT_CAP;
+        cap = n;
+        ptr = (T*) malloc(sizeof(T) * n);
     }
 
-    ~DynArray() {
-        free(ptr); // dealloc members?
-    }
-
-    T &operator[](int i) const {
-        return at(i);
-    }
-
-    T &at(int i) const {
-        return ptr[i];
-    }
-
-    int size() const {
-        return len;
-    }
-
-    int capcity() const {
-        return cap;
-    }
-
-    void reserve(int i) {
-        if(cap < i) {
-            ptr = realloc(ptr, i * sizeof(T));
-            cap = i;
+    ~_ArrayData<T>() {
+        for(int i = 0; i < len; i++) {
+            ptr[i].~T();
         }
+        free(ptr);
     }
 
-    void clear() {
+    _ArrayData *retain() {
+        refcount++;
+        return this;
+    }
 
+    bool release() {
+        refcount--;
+        if(refcount <= 0) {
+            delete this;
+            return true;
+        }
+        return false;
+    }
+
+    _ArrayData *dup() {
+        _ArrayData *ret = new _ArrayData(cap);
+        memcpy(ret->ptr, ptr, sizeof(T) * len);
+        return ret;
     }
 
     void append(const T &t) {
@@ -57,6 +55,72 @@ class DynArray {
         }
 
         ptr[len++] = t;
+    }
+
+    T pop() {
+        len--;
+        T tmp = ptr[len];
+        ptr[len].~T();
+        return tmp;
+    }
+};
+
+template<typename T>
+class DynArray {
+    _ArrayData<T> *data;
+
+    public:
+    DynArray<T>() {
+        data = new _ArrayData<T>;
+    }
+
+    DynArray<T>(const DynArray<T> &o) {
+        data = o.data->retain();
+    }
+
+    ~DynArray() {
+        data->release();
+    }
+
+    const DynArray<T>& operator=(const DynArray<T> &o) {
+        data->release();
+        data = o.data.retain();
+        return *this;
+    }
+
+    T &operator[](int i) const {
+        return at(i);
+    }
+
+    T &at(int i) const {
+        return data->ptr[i];
+    }
+
+    int size() const {
+        return data->len;
+    }
+
+    bool empty() const {
+        return size() <= 0;
+    }
+
+    int capcity() const {
+        return data->cap;
+    }
+
+    // DOES NOT DELETE ANY ALLOCATED ITEMS
+    void clear() {
+        while(!empty()) {
+            data->pop();
+        }
+    }
+
+    void append(const T &t) {
+        data->append(t);
+    }
+
+    T pop() {
+        return data->pop();
     }
 
     T remove(int i) {
