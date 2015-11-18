@@ -2,6 +2,7 @@
 #define _STMT_HPP
 
 #include "common/dynarray.hpp"
+#include "common/object.hpp"
 #include "common/string.hpp"
 #include "common/stringFormatter.hpp"
 
@@ -24,7 +25,7 @@ class BreakStmt;
 class ContinueStmt;
 class ReturnStmt;
 
-class Stmt {
+class Stmt : Object {
     public:
     virtual ~Stmt();
 
@@ -70,6 +71,7 @@ class CompoundStmt : public Stmt {
 
     public:
     CompoundStmt(DynArray<Stmt*> stmts);
+    virtual ~CompoundStmt();
 
     virtual CompoundStmt *asCompoundStmt();
     virtual void serialize(StringFormatter &sfmt);
@@ -159,6 +161,7 @@ class AssignStmt : public Stmt {
 
     public:
     AssignStmt(Expr *_lhs, Expr *_rhs);
+    virtual ~AssignStmt();
     virtual AssignStmt *asAssignStmt();
     virtual void serialize(StringFormatter &sfmt);
 };

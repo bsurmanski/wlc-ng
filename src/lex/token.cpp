@@ -250,6 +250,12 @@ String &Token::getStringRepr() {
         return getPunctSymbol();
     }
 
+    if(getKind() == tok::newline) {
+        String tmp( "\\n" );
+        initializeStringData(tmp);
+        return getStringData();
+    }
+
     throw Exception(String("unimplemented token stringify for ") + getKindName());
 }
 

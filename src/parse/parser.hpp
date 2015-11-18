@@ -39,6 +39,7 @@ class Parser : public Object {
     Decl *parseDecl();
     Type *parseType();
 
+    Stmt                *parseAssignPostfix(Expr *lhs);
     CompoundStmt        *parseCompoundStmt();
     LabelStmt           *parseLabelStmt();
     GotoStmt            *parseGotoStmt();
@@ -47,6 +48,10 @@ class Parser : public Object {
     ReturnStmt          *parseReturnStmt();
     CaseStmt            *parseCaseStmt();
     IfStmt              *parseIfStmt();
+    WhileStmt           *parseWhileStmt();
+    DoWhileStmt         *parseDoWhileStmt();
+    ForStmt             *parseForStmt();
+    ForEachStmt         *parseForEachStmt();
 
     Expr                *parsePrimaryExpr();
     Expr                *parseBinaryExpr(int precidence = 0);

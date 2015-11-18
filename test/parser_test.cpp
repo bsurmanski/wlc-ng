@@ -145,25 +145,12 @@ TEST_F(TestParser, PrimativeType) {
 #undef TEST_STR
 }
 
-TEST(Parser, UnaryExpr) {
-    Expr *exp;
-    Parser *parser;
-#define TEST_STR(EXP, STR)\
-    parser = createStringParser(STR);\
-    exp = parser->parseUnaryExpr();\
-    EXPECT_EQ(String(EXP), exp->serialized());\
-    delete exp;\
-    delete parser;
-
-    TRY({
-        TEST_STR("(preinc true)", "++true");
-        TEST_STR("(predec false)", "--false");
-        TEST_STR("(not null)", "!null");
-        TEST_STR("(deref null)", "^null");
-        TEST_STR("(ref null)", "&null");
-    });
-
-#undef TEST_STR
+TEST_F(TestParser, UnaryExpr) {
+    TestExpr("(preinc true)", "++true");
+    TestExpr("(predec false)", "--false");
+    TestExpr("(not null)", "!null");
+    TestExpr("(deref null)", "^null");
+    TestExpr("(ref null)", "&null");
 }
 
 TEST_F(TestParser, BinaryExpr) {
@@ -174,43 +161,16 @@ TEST_F(TestParser, BinaryExpr) {
     TestExpr("(sub (add 1 (div 2 3)) 4)", "1 + 2 / 3 - 4");
 }
 
-TEST(Parser, IdExpr) {
-    Expr *expr;
-    Parser *parser;
-
-#define TEST_STR(EXP, STR)\
-    TRY({\
-    parser = createStringParser(STR);\
-    expr = parser->parseExpr();\
-    EXPECT_EQ(String(EXP), expr->serialized());\
-    delete expr;\
-    });\
-    delete parser;
-
-
-    EXPECT_EQ(String("(id someid)"), IdExpr("someid").serialized());
-    TEST_STR("(id myid)", "myid");
-    TEST_STR("(id myid)", "myid 5");
-
-#undef TEST_STR
+TEST_F(TestParser, IdExpr) {
+    TestExpr("(id myid)", "myid");
+    TestExpr("(id myid)", "myid ;");
 }
 
-TEST(Parser, Literals) {
-    Parser *parser;
-    Expr *expr;
-#define TEST_STR(EXP, STR)\
-    parser = createStringParser(String(STR));\
-    expr = parser->parseExpr();\
-    EXPECT_EQ(String(EXP), expr->serialized());\
-    delete expr;\
-    delete parser;
-
-    TEST_STR("123", "123");
-    TEST_STR("true", "true");
-    TEST_STR("false", "false");
-    TEST_STR("null", "null");
-
-#undef TEST_STR
+TEST_F(TestParser, Literals) {
+    TestExpr("123", "123");
+    TestExpr("true", "true");
+    TestExpr("false", "false");
+    TestExpr("null", "null");
 }
 
 TEST_F(TestParser, ComplexExpr) {

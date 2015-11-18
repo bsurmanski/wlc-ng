@@ -26,7 +26,12 @@ TEST(AST, SerializeStmt) {
     EXPECT_EQ(String("(label somelabel)"), LabelStmt(String("somelabel")).serialized());
     EXPECT_EQ(String("(if true\n  (continue)\n  (break))"), IfStmt(new BoolLiteralExpr(true), new ContinueStmt, new BreakStmt).serialized());
 
-    //TODO: compoundStmt
+    DynArray<Stmt*> stmts;
+    stmts.append(new BreakStmt);
+    stmts.append(new ContinueStmt);
+    EXPECT_EQ(String("(stmts\n  (break)\n  (continue))"), CompoundStmt(stmts).serialized());
+
+    EXPECT_EQ(String("(set (id a) 5)"), AssignStmt(new IdExpr("a"), new IntLiteralExpr(5)).serialized());
     //TODO: caseStmt
     //TODO: loopStmt (and subclasses)
 }

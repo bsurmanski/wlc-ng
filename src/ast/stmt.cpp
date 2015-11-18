@@ -156,6 +156,12 @@ CompoundStmt *CompoundStmt::asCompoundStmt() {
 CompoundStmt::CompoundStmt(DynArray<Stmt*> _stmts) : stmts(_stmts) {
 }
 
+CompoundStmt::~CompoundStmt() {
+    while(!stmts.empty()) {
+        delete stmts.pop();
+    }
+}
+
 void CompoundStmt::serialize(StringFormatter &sfmt) {
     sfmt.write("(stmts");
     sfmt.indent();
@@ -336,6 +342,11 @@ UseStmt *UseStmt::asUseStmt() {
  */
 
 AssignStmt::AssignStmt(Expr *_lhs, Expr *_rhs) : lhs(_lhs), rhs(_rhs) {
+}
+
+AssignStmt::~AssignStmt() {
+    delete lhs;
+    delete rhs;
 }
 
 AssignStmt *AssignStmt::asAssignStmt() {

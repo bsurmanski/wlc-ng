@@ -106,16 +106,27 @@ Stmt *Parser::parseStmt() {
             stmt = parseIfStmt();
             break;
 
+        case tok::kw_for:
+            stmt = parseForStmt();
+            break;
+
+        //case tok::kw_foreach:
+        //    stmt = parseForEachStmt();
+        //    break;
+
+        case tok::kw_while:
+            stmt = parseWhileStmt();
+            break;
+
+        case tok::kw_do:
+            stmt = parseDoWhileStmt();
+            break;
+
         //TODO: use_stmt, import_stmt
 
         default:
-            stmt = parseExpr();
-
-            //TODO: augmented assign, eg: +=, -=, *=
-            if(peekTok().is(tok::equal)) {
-                ignoreTok(); // ignore '='
-                stmt = new AssignStmt((Expr*) stmt, parseExpr());
-            }
+            // parse Expr, and get an assignment postfix if appropriate
+            stmt = parseAssignPostfix(parseExpr());
             break;
     }
 
@@ -126,6 +137,28 @@ Stmt *Parser::parseStmt() {
     } while(peekTok().isTerminator());
 
     //TODO: stmt terminator
+    return stmt;
+}
+
+Stmt *Parser::parseAssignPostfix(Expr *lhs) {
+    Stmt *stmt = lhs;
+    switch(peekTok().getKind()) {
+        case tok::equal:
+            ignoreTok(); // ignore '='
+            stmt = new AssignStmt(lhs, parseExpr());
+            break;
+        case tok::plusequal:
+        case tok::minusequal:
+        case tok::starequal:
+        case tok::slashequal:
+        case tok::ampequal:
+        case tok::barequal:
+        case tok::caretequal:
+        case tok::percentequal:
+            //XXX: := ?
+            //TODO: augmented assign, eg: +=, -=, *=
+            throw new ParseException(peekTok().getSourceLocation(), "unimplemented: augmented assignment");
+    }
     return stmt;
 }
 
@@ -238,6 +271,116 @@ IfStmt *Parser::parseIfStmt() {
     //TODO: return new IfStmt(cond_expr, cond_stmt, else_stmt);
 
     throw ParseException(peekTok().getSourceLocation(), "unimplemented: parse if stmt");
+}
+
+WhileStmt *Parser::parseWhileStmt() {
+    if(peekTok().getKind() != tok::kw_while || !ignoreTok()) {
+        throw ParseException(peekTok().getSourceLocation(), "expected 'while' beginning loop");
+    }
+
+    if(peekTok().getKind() != tok::lparen || !ignoreTok()) {
+        throw ParseException(peekTok().getSourceLocation(), "expected '(' in while stmt");
+    }
+
+    Expr *cond = parseExpr();
+
+    if(peekTok().getKind() != tok::rparen || !ignoreTok()) {
+        throw ParseException(peekTok().getSourceLocation(), "expected ')' in while stmt");
+    }
+
+    Stmt *body = parseStmt();
+    Stmt *elseBody = NULL;
+
+    if(peekTok().getKind() == tok::kw_else) {
+        ignoreTok();
+        elseBody = parseStmt();
+    }
+
+    return new WhileStmt(cond, body, elseBody);
+}
+
+DoWhileStmt *Parser::parseDoWhileStmt() {
+    if(peekTok().getKind() != tok::kw_do || !ignoreTok()) {
+        throw ParseException(peekTok().getSourceLocation(), "expected 'do' beginning loop");
+    }
+
+    Stmt *body = parseStmt();
+
+    if(peekTok().getKind() != tok::kw_while || !ignoreTok()) {
+        throw ParseException(peekTok().getSourceLocation(), "expected 'while' following do");
+    }
+
+    if(peekTok().getKind() != tok::lparen || !ignoreTok()) {
+        throw ParseException(peekTok().getSourceLocation(), "expected '(' in while stmt");
+    }
+
+    Expr *cond = parseExpr();
+
+    if(peekTok().getKind() != tok::rparen || !ignoreTok()) {
+        throw ParseException(peekTok().getSourceLocation(), "expected ')' in while stmt");
+    }
+
+    Stmt *elseBody = NULL;
+
+    if(peekTok().getKind() == tok::kw_else) {
+        ignoreTok();
+        elseBody = parseStmt();
+    }
+
+    return new DoWhileStmt(cond, body, elseBody);
+}
+
+ForStmt *Parser::parseForStmt() {
+    Decl *decl = NULL;
+    Expr *cond = NULL;
+    Stmt *upd = NULL;
+    Stmt *body = NULL;
+    Stmt *elseBody = NULL;
+
+    if(peekTok().getKind() != tok::kw_for || !ignoreTok()) {
+        throw ParseException(peekTok().getSourceLocation(), "expected 'for' beginning loop");
+    }
+
+    if(peekTok().getKind() != tok::lparen || !ignoreTok()) {
+        throw ParseException(peekTok().getSourceLocation(), "expected '(' in while stmt");
+    }
+
+    decl = parseDecl();
+
+    if(peekTok().getKind() != tok::semicolon || !ignoreTok()) {
+        throw ParseException(peekTok().getSourceLocation(), "expected ';' following decl in for stmt");
+    }
+
+    cond = parseExpr();
+
+    if(peekTok().getKind() != tok::semicolon || !ignoreTok()) {
+        throw ParseException(peekTok().getSourceLocation(), "expected ';' following condition in for stmt");
+    }
+
+    upd = parseStmt();
+
+    if(peekTok().getKind() != tok::rparen || !ignoreTok()) {
+        throw ParseException(peekTok().getSourceLocation(), "expected ')' following decl in for stmt");
+    }
+
+    body = parseStmt();
+
+    if(peekTok().getKind() == tok::kw_else) {
+        ignoreTok();
+        elseBody = parseStmt();
+    }
+
+    //TODO: create for stmt
+    throw ParseException(peekTok().getSourceLocation(), "unimplemented: parse for");
+}
+
+ForEachStmt *Parser::parseForEachStmt() {
+    /*
+    if(peekTok().getKind() != tok::kw_foreach || !ignoreTok()) {
+        throw ParseException(peekTok().getSourceLocation(), "expected 'foreach' beginning loop");
+    }*/
+
+    throw ParseException(peekTok().getSourceLocation(), "unimplemented: foreach");
 }
 
 /*
