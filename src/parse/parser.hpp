@@ -28,6 +28,7 @@ class Parser : public Object {
 
     protected:
     Token &peekTok(int i = 0);
+    void ignoreNewlines();
     bool ignoreTok();
     Token getTok();
 

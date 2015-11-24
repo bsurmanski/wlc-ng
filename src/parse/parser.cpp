@@ -47,6 +47,12 @@ bool Parser::ignoreTok() {
     return true;
 }
 
+void Parser::ignoreNewlines() {
+    while(peekTok().getKind() == tok::newline) {
+        ignoreTok();
+    }
+}
+
 Token Parser::getTok() {
     if(!tbuf.empty()) {
         return tbuf.pop();
@@ -132,7 +138,7 @@ Stmt *Parser::parseStmt() {
 
     do {
         if(!peekTok().isTerminator() && !peekTok().is(tok::eof)) {
-            throw ParseException(peekTok().getSourceLocation(), String("Expected line-terminator"));
+            throw ParseException(peekTok().getSourceLocation(), String("Expected terminator following statement"));
         }
     } while(peekTok().isTerminator());
 
@@ -145,6 +151,7 @@ Stmt *Parser::parseAssignPostfix(Expr *lhs) {
     switch(peekTok().getKind()) {
         case tok::equal:
             ignoreTok(); // ignore '='
+            ignoreNewlines();
             stmt = new AssignStmt(lhs, parseExpr());
             break;
         case tok::plusequal:
@@ -164,8 +171,10 @@ Stmt *Parser::parseAssignPostfix(Expr *lhs) {
 
 CompoundStmt *Parser::parseCompoundStmt() {
     if(peekTok().getKind() != tok::lbrace || !ignoreTok()) {
-        throw ParseException(peekTok().getSourceLocation(), "expected left brace beginning compound stmt");
+        throw ParseException(peekTok().getSourceLocation(), "expected '{' beginning compound stmt");
     }
+
+    ignoreNewlines();
 
     DynArray<Stmt*> stmts;
     while(peekTok().getKind() != tok::rbrace) {
@@ -173,8 +182,8 @@ CompoundStmt *Parser::parseCompoundStmt() {
         stmts.append(stmt);
     }
 
-    if(peekTok().getKind() != tok::lbrace || !ignoreTok()) {
-        throw ParseException(peekTok().getSourceLocation(), "expected right brace following compound stmt");
+    if(peekTok().getKind() != tok::rbrace || !ignoreTok()) {
+        throw ParseException(peekTok().getSourceLocation(), "expected '}' following compound stmt");
     }
 
     return new CompoundStmt(stmts);
@@ -190,8 +199,6 @@ LabelStmt *Parser::parseLabelStmt() {
         throw ParseException(tok.getSourceLocation(), "expected identifier following 'label' keyword");
     }
 
-    //TODO: line terminator
-
     return new LabelStmt(tok.getIdentifierName());
 }
 
@@ -205,8 +212,6 @@ GotoStmt *Parser::parseGotoStmt() {
         throw ParseException(tok.getSourceLocation(), "expected identifier following 'goto' keyword");
     }
 
-    //TODO: line terminator
-
     return new GotoStmt(tok.getIdentifierName());
 }
 
@@ -214,8 +219,6 @@ BreakStmt *Parser::parseBreakStmt() {
     if(peekTok().getKind() != tok::kw_break || !ignoreTok()) {
         throw ParseException(peekTok().getSourceLocation(), "expected 'break' beginning break stmt");
     }
-
-    //TODO: line terminator
 
     return new BreakStmt;
 }
@@ -225,8 +228,6 @@ ContinueStmt *Parser::parseContinueStmt() {
         throw ParseException(peekTok().getSourceLocation(), "expected 'continue' beginning continue stmt");
     }
 
-    //TODO: line terminator
-
     return new ContinueStmt;
 }
 
@@ -235,9 +236,7 @@ ReturnStmt *Parser::parseReturnStmt() {
         throw ParseException(peekTok().getSourceLocation(), "expected 'return' keyword");
     }
 
-    //TODO: check line terminator before trying to read value
     Expr *expr = parseExpr();
-    //TODO: line termnator
     return new ReturnStmt(expr);
 }
 
@@ -254,7 +253,11 @@ IfStmt *Parser::parseIfStmt() {
         throw ParseException(peekTok().getSourceLocation(), "expected '(' in if stmt");
     }
 
+    ignoreNewlines();
+
     Expr *cond_expr = parseExpr();
+
+    ignoreNewlines();
 
     if(peekTok().getKind() != tok::rparen || !ignoreTok()) {
         throw ParseException(peekTok().getSourceLocation(), "expected ')' in if stmt");
@@ -263,14 +266,14 @@ IfStmt *Parser::parseIfStmt() {
     Stmt *cond_stmt = parseStmt();
     Stmt *else_stmt = NULL;
 
+    ignoreNewlines();
+
     if(peekTok().getKind() == tok::kw_else) {
         ignoreTok();
         else_stmt = parseStmt();
     }
 
-    //TODO: return new IfStmt(cond_expr, cond_stmt, else_stmt);
-
-    throw ParseException(peekTok().getSourceLocation(), "unimplemented: parse if stmt");
+    return new IfStmt(cond_expr, cond_stmt, else_stmt);
 }
 
 WhileStmt *Parser::parseWhileStmt() {
@@ -282,7 +285,11 @@ WhileStmt *Parser::parseWhileStmt() {
         throw ParseException(peekTok().getSourceLocation(), "expected '(' in while stmt");
     }
 
+    ignoreNewlines();
+
     Expr *cond = parseExpr();
+
+    ignoreNewlines();
 
     if(peekTok().getKind() != tok::rparen || !ignoreTok()) {
         throw ParseException(peekTok().getSourceLocation(), "expected ')' in while stmt");
@@ -290,6 +297,8 @@ WhileStmt *Parser::parseWhileStmt() {
 
     Stmt *body = parseStmt();
     Stmt *elseBody = NULL;
+
+    ignoreNewlines();
 
     if(peekTok().getKind() == tok::kw_else) {
         ignoreTok();
@@ -304,7 +313,11 @@ DoWhileStmt *Parser::parseDoWhileStmt() {
         throw ParseException(peekTok().getSourceLocation(), "expected 'do' beginning loop");
     }
 
+    ignoreNewlines();
+
     Stmt *body = parseStmt();
+
+    ignoreNewlines();
 
     if(peekTok().getKind() != tok::kw_while || !ignoreTok()) {
         throw ParseException(peekTok().getSourceLocation(), "expected 'while' following do");
@@ -314,14 +327,18 @@ DoWhileStmt *Parser::parseDoWhileStmt() {
         throw ParseException(peekTok().getSourceLocation(), "expected '(' in while stmt");
     }
 
+    ignoreNewlines();
+
     Expr *cond = parseExpr();
+
+    ignoreNewlines();
 
     if(peekTok().getKind() != tok::rparen || !ignoreTok()) {
         throw ParseException(peekTok().getSourceLocation(), "expected ')' in while stmt");
     }
 
+    ignoreNewlines();
     Stmt *elseBody = NULL;
-
     if(peekTok().getKind() == tok::kw_else) {
         ignoreTok();
         elseBody = parseStmt();
@@ -345,25 +362,31 @@ ForStmt *Parser::parseForStmt() {
         throw ParseException(peekTok().getSourceLocation(), "expected '(' in while stmt");
     }
 
+    ignoreNewlines();
     decl = parseDecl();
 
     if(peekTok().getKind() != tok::semicolon || !ignoreTok()) {
         throw ParseException(peekTok().getSourceLocation(), "expected ';' following decl in for stmt");
     }
 
+    ignoreNewlines();
     cond = parseExpr();
 
     if(peekTok().getKind() != tok::semicolon || !ignoreTok()) {
         throw ParseException(peekTok().getSourceLocation(), "expected ';' following condition in for stmt");
     }
 
+    ignoreNewlines();
     upd = parseStmt();
+    ignoreNewlines();
 
     if(peekTok().getKind() != tok::rparen || !ignoreTok()) {
         throw ParseException(peekTok().getSourceLocation(), "expected ')' following decl in for stmt");
     }
 
+    ignoreNewlines();
     body = parseStmt();
+    ignoreNewlines();
 
     if(peekTok().getKind() == tok::kw_else) {
         ignoreTok();
@@ -410,7 +433,9 @@ Expr *Parser::parsePrimaryExpr() {
             throw ParseException(peekTok().getSourceLocation(), "unimplemented: parse tuple expr");
 
         case tok::lparen:
+            ignoreNewlines();
             expr = parseExpr();
+            ignoreNewlines();
             if(peekTok().getKind() != tok::rparen || !ignoreTok()) {
                 throw ParseException(peekTok().getSourceLocation(), "expected )");
             }
@@ -451,54 +476,67 @@ Expr *Parser::parseBinaryExpr(int precidence) {
         ignoreTok();
         switch(tok.getKind()) {
             case tok::plus:
+                ignoreNewlines();
                 lhs = new AddExpr(lhs, parseBinaryExpr(tok.binaryOperatorPrecidence()));
                 break;
 
             case tok::minus:
+                ignoreNewlines();
                 lhs = new SubExpr(lhs, parseBinaryExpr(tok.binaryOperatorPrecidence()));
                 break;
 
             case tok::star:
+                ignoreNewlines();
                 lhs = new MulExpr(lhs, parseBinaryExpr(tok.binaryOperatorPrecidence()));
                 break;
 
             case tok::starstar:
+                ignoreNewlines();
                 lhs = new PowerExpr(lhs, parseBinaryExpr(tok.binaryOperatorPrecidence()));
                 break;
 
             case tok::slash:
+                ignoreNewlines();
                 lhs = new DivExpr(lhs, parseBinaryExpr(tok.binaryOperatorPrecidence()));
                 break;
 
             case tok::amp:
+                ignoreNewlines();
                 lhs = new BitAndExpr(lhs, parseBinaryExpr(tok.binaryOperatorPrecidence()));
                 break;
 
             case tok::ampamp:
+                ignoreNewlines();
                 lhs = new AndExpr(lhs, parseBinaryExpr(tok.binaryOperatorPrecidence()));
                 break;
 
             case tok::bar:
+                ignoreNewlines();
                 lhs = new BitOrExpr(lhs, parseBinaryExpr(tok.binaryOperatorPrecidence()));
                 break;
 
             case tok::barbar:
+                ignoreNewlines();
                 lhs = new OrExpr(lhs, parseBinaryExpr(tok.binaryOperatorPrecidence()));
                 break;
 
             case tok::caret:
+                ignoreNewlines();
                 lhs = new BitXorExpr(lhs, parseBinaryExpr(tok.binaryOperatorPrecidence()));
                 break;
 
             case tok::percent:
+                ignoreNewlines();
                 lhs = new ModulusExpr(lhs, parseBinaryExpr(tok.binaryOperatorPrecidence()));
                 break;
 
             case tok::lessless:
+                ignoreNewlines();
                 lhs = new LShiftExpr(lhs, parseBinaryExpr(tok.binaryOperatorPrecidence()));
                 break;
 
             case tok::greatergreater:
+                ignoreNewlines();
                 lhs = new RShiftExpr(lhs, parseBinaryExpr(tok.binaryOperatorPrecidence()));
                 break;
         }
@@ -579,17 +617,19 @@ TypeDecl *Parser::parseTypeDecl() {
     }
     ignoreTok();
 
+    ignoreNewlines();
     if(peekTok().getKind() == tok::identifier) {
         tdecl->setName(getTok().getIdentifierName());
     }
 
+    ignoreNewlines();
     if(peekTok().getKind() == tok::colon) {
         if(!tdecl->isClassDecl()) {
             emit_error(peekTok().getSourceLocation(), "base class specifier on non-class type");
         }
 
         ignoreTok();
-
+        ignoreNewlines();
         if(peekTok().getKind() == tok::identifier) {
             //TODO: tdecl->SetBaseClass(getTok().getIdentifierName());
         } else {
@@ -597,10 +637,12 @@ TypeDecl *Parser::parseTypeDecl() {
         }
     }
 
+    ignoreNewlines();
     if(peekTok().getKind() != tok::lbrace) {
         //TODO: error, expected opening brace following type declaration specifier
     }
 
+    ignoreNewlines();
     DynArray<Decl*> members;
     while(peekTok().getKind() != tok::rbrace) {
         members.append(parseDecl());
@@ -608,6 +650,7 @@ TypeDecl *Parser::parseTypeDecl() {
         if(getLexer()->eof()) {
             throw ParseException(peekTok().getSourceLocation(), "encountered EOF while parsing type declaration");
         }
+        ignoreNewlines();
     }
     //TODO: add members to tdecl
 
@@ -625,6 +668,11 @@ DynArray<VarDecl*> Parser::parseParams() {
 
     DynArray<VarDecl*> params;
     do {
+        ignoreNewlines();
+        if(peekTok().getKind() == tok::rparen) {
+            break;
+        }
+
         Type *type = parseType();
         String name;
         Expr *value = NULL;
@@ -638,6 +686,7 @@ DynArray<VarDecl*> Parser::parseParams() {
 
         if(peekTok().getKind() == tok::equal) {
             ignoreTok();
+            ignoreNewlines();
             value = parseExpr(); //TODO: try catch
         }
         params.append(new VarDecl(type, name, value));
@@ -668,7 +717,6 @@ Decl *Parser::parseNonTypeDecl() {
         return new FuncDecl(type, name, params, body);
     } else {
         //TODO: default value?
-        //TODO: expect EOL
         return new VarDecl(type, name, NULL);
     }
 }

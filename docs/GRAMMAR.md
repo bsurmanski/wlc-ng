@@ -90,7 +90,7 @@
     \n
     \r
     \t
-    \  # followed by a space; no character is parsed
+    \  # followed by a space; no character is parsed; to force end a unicode escape sequence
 
 ## escape\_seq
     simple_escape_seq
@@ -117,7 +117,7 @@
 	raw\_string\_literal
 	
 ## string\_literal
-    {string\_literal\_part}
+    {string\_literal\_part $}
 
 ## id
     *nondigit* { *digit* | *nondigit* }
@@ -136,7 +136,7 @@
     ?any character sequence not *end\_block_comment*
 
 ## block\_comment
-    *start\_block\_comment* {*block\_comment\_character*} *end\_block\_comment*
+    *start\_block\_comment* {*block\_comment\_character* $} *end\_block\_comment*
 
 ## comment
     *line\_comment*
@@ -145,7 +145,7 @@
 ----------
 
 ## module
-    {*declaration* .}
+    {*declaration* $}
 
 ----------
 
@@ -162,8 +162,7 @@
 
 ## statement\_terminator
     ;
-    (\n)
-    
+    \n
 
 ## statement
     *statement\_body* *statement\_terminator*+
@@ -183,10 +182,10 @@
     ^=
 
 ## assignment\_stmt
-    *value\_exp* *assignment\_op* *expression*
+    *value\_exp* *assignment\_op* $ *expression*
 
 ## compound\_stmt
-    { {*statement*} }
+    { $ {*statement*} $ }
 
 ## jump\_stmt
     goto *id*
@@ -197,20 +196,23 @@
 ## label\_stmt
     label *id*
 
+## else\_block
+    else $ *statement*
+
 ## if\_stmt
-    if ( *logical\_exp* ) *statement* [else *statement*]
+    if ( $ *logical\_exp* $ ) $ *statement* $ [*else_block*] 
 
 ## switch\_stmt
-    switch ( *logical\_exp* ) *statement*
+    switch ( $ *logical\_exp* $ ) $ *statement*
 
 ## case\_stmt
-    case *expression* {, *expression*}
+    case *expression* {, $ *expression*}
 
 ## loop\_stmt
-    while ( [*value\_exp*] ) *statement* [else *statement*]
-    do *statement* while ( *value\_exp* ) 
-    for ( *declaration* ; *expression* ; *expression* ) *statement* [else *statement*]
-    foreach ( *declaration* in *expression* ) *statement* [else *statement*]
+    while ( $ [*value\_exp*] $ ) $ *statement* $ [*else_block*]
+    do $ *statement* $ while ( $ *value\_exp* $ ) 
+    for ( $ *declaration* ; $ *expression* ;  $ *expression* $ ) $ *statement* $ [*else_block*]
+    foreach ( *declaration* in *expression* ) *statement* [*else_block*]
 
 ## use\_stmt
     use *id*
@@ -279,8 +281,11 @@
 ## user\_type
     *id*
 
+## type\_list
+    *type* {, $ *type*}
+
 ## tuple\_type
-    [ *type* {, *type*} ]
+    [ $ *type\_list* $ ]
 
 ## type\_postfix
     function\_type\_postfix [*type\_postfix*]
@@ -288,7 +293,7 @@
     array\_type\_postfix [*type\_postfix*]
 
 ## function\_type\_postfix
-    func ( [*type* {, *type*}] )
+    func ( $ [*type\_list*] $ )
 
 ## pointer\_type\_postfix
     ^
@@ -298,10 +303,10 @@
     *dynamic\_array\_type\_postfix*
 
 ## static\_array\_type\_postfix
-    [ *expression* ]
+    [ $ *expression* $ ]
 
 ## dynamic\_array\_type\_postfix
-    [ ]
+    [ $ ]
 
 -----------
 
@@ -319,7 +324,7 @@
     weak
 
 ## declaration
-    { *access\_modifier* } *base\_declaration*
+    { *access\_modifier* $ } *base\_declaration*
 
 ## base\_declaration
     *type\_decl*
@@ -338,16 +343,18 @@
     ! *template\_member*
     ! [ *template\_member* {, *template\_member*} ]
 
+## type\_decl\_body
+    { $ {*declaration* $} $ }
+
 ## type\_decl
-    struct [*id*] { {*declaration* .} }
-    union [*id*] { {*declaration* .} }
-    class [*id*] [: *id*] { {*declaration* .} }
-    interface [*id*] { {*declaration* .} }
+    struct [*id*] $ *type\_decl\_body*
+    union [*id*] $ *type\_decl\_body*
+    class [*id*] [: *id*] $ *type\_decl\_body*
+    interface [*id*] $ *type\_decl\_body*
 
 ## nontype\_decl
     *function\_decl*
     *variable\_decl*
-
 
 ## parameter
     *type* *id* [= *expression*]
@@ -357,13 +364,13 @@
     ...
 
 ## function\_decl
-    *type* *id* ( *parameter\_list* ) *statement*
+    *type* *id* ( *parameter\_list* ) $ *statement*
 
 ## variable\_decl
-    *type\_qual* *type* *id* [= *value\_exp*]
+    *type\_qual* *type* *id* [= $ *value\_exp*]
 
 ## alias\_decl
-    let *id* = *expression*
+    let *id* = $ *expression*
 
 -----------
 
@@ -374,7 +381,7 @@
 ## primary\_expression
     *literal\_exp*
     *tuple\_exp*
-    ( *expression* )
+    ( $ *expression* $ )
     this
     super
     *identifier\_exp*
@@ -402,20 +409,20 @@
 ## pack\_exp
     pack *value\_exp*
 
-## argument\_list
-    [*expression* [, *argument\_list*]]
+## expression\_list
+    *expression* {, $ *expression*}
     
 ## call\_exp
-    *primary\_postfix\_exp* ( *argument\_list* )
+    *primary\_postfix\_exp* ( $ [*expression\_list*] $ )
 
 ## mem\_exp
-    new *type* [( *argument\_list* )]
+    new *type* [( $ [*expression\_list*] $ )]
     delete *primary\_postfix\_exp*
     retain *primary\_postfix\_exp*
     release *primary\_postfix\_exp*
 
 ## index\_exp
-    *posfix\_exp* [ *expression* ]
+    *posfix\_exp* [ $ *expression* $ ]
 
 ## arithmetic\_postifx\_exp
     *postfix\_exp* ++
@@ -448,42 +455,42 @@
     *unary\_exp*
 
 ## mulplicative\_exp
-    *mulplicative\_exp* % *value\_exp*
-    *mulplicative\_exp* ** *value\_exp*
-    *mulplicative\_exp* / *value\_exp*
-    *mulplicative\_exp* * *value\_exp*
+    *mulplicative\_exp* % $ *value\_exp*
+    *mulplicative\_exp* ** $ *value\_exp*
+    *mulplicative\_exp* / $ *value\_exp*
+    *mulplicative\_exp* * $ *value\_exp*
     *cast\_exp*
 
 ## shift\_exp
-    *shift\_exp* >> *value\_exp*
-    *shift\_exp* << *value\_exp*
+    *shift\_exp* >> $ *value\_exp*
+    *shift\_exp* << $ *value\_exp*
     *mulplicative\_exp*
 
 ## additive\_exp
-    *additive\_exp* + *shift\_exp*
-    *additive\_exp* - *shift\_exp*
+    *additive\_exp* + $ *shift\_exp*
+    *additive\_exp* - $ *shift\_exp*
     *shift\_exp*
 
 ## bitwise\_exp
-    *bitwise\_exp* ^ *value\_exp*
-    *bitwise\_exp* & *value\_exp*
-    *bitwise\_exp* | *value\_exp*
+    *bitwise\_exp* ^ $ *value\_exp*
+    *bitwise\_exp* & $ *value\_exp*
+    *bitwise\_exp* | $ *value\_exp*
     *additive\_exp*
 
 ## relational\_exp
-    *relational\_exp* < *value\_exp*
-    *relational\_exp* <= *value\_exp*
-    *relational\_exp* > *value\_exp*
-    *relational\_exp* >= *value\_exp*
-    *relational\_exp* != *value\_exp*
-    *relational\_exp* == *value\_exp*
+    *relational\_exp* < $ *value\_exp*
+    *relational\_exp* <= $ *value\_exp*
+    *relational\_exp* > $ *value\_exp*
+    *relational\_exp* >= $ *value\_exp*
+    *relational\_exp* != $ *value\_exp*
+    *relational\_exp* == $ *value\_exp*
     *bitwise\_exp*
 
 ## logical\_exp
-    *logical\_exp* or *value\_exp*
-    *logical\_exp* || *value\_exp*
-    *logical\_exp* and *value\_exp*
-    *logical\_exp* && *value\_exp*
+    *logical\_exp* or $ *value\_exp*
+    *logical\_exp* || $ *value\_exp*
+    *logical\_exp* and $ *value\_exp*
+    *logical\_exp* && $ *value\_exp*
     *relational\_exp*
 
 ## value\_exp
