@@ -62,6 +62,17 @@ class TestParser : public testing::Test {
         delete parser;
     }
 
+    void TestType(String serialized_exp, String type_str) {
+        Parser *parser;
+        Type *type;
+        TRY({
+                parser = newStringParser(type_str);
+                type = parser->parseType();
+                EXPECT_EQ(serialized_exp, type->serialized());
+            });
+        delete parser;
+    }
+
     virtual void OnTestStart(const testing::TestInfo &test_info) {
     }
 
@@ -141,8 +152,22 @@ TEST_F(TestParser, PrimativeType) {
         TEST_STR(PrimativeType::FLOAT32, "float32");
         TEST_STR(PrimativeType::FLOAT64, "float64");
     });
-
 #undef TEST_STR
+
+    TestType("bool", "bool");
+    TestType("void", "void");
+    TestType("int8", "int8");
+    TestType("int16", "int16");
+    TestType("int32", "int32");
+    TestType("int64", "int64");
+
+    TestType("uint8", "uint8");
+    TestType("uint16", "uint16");
+    TestType("uint32", "uint32");
+    TestType("uint64", "uint64");
+    TestType("float32", "float32");
+    TestType("float64", "float64");
+
 }
 
 TEST_F(TestParser, UnaryExpr) {
@@ -184,6 +209,7 @@ TEST_F(TestParser, ComplexExpr) {
 TEST_F(TestParser, VarDecl) {
     TestDecl("(var hello int8)", "int8 hello");
     TestDecl("(var goodbye (ptr float32))", "float^ goodbye");
+    TestDecl("(var myvar int32)", "int myvar");
 }
 
 TEST_F(TestParser, FuncDecl) {

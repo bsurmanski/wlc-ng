@@ -37,11 +37,12 @@ TEST(AST, SerializeStmt) {
 }
 
 TEST(AST, SerializeLiteral) {
-    EXPECT_EQ(String("1.0"), FloatLiteralExpr(1.0).serialized());
+    EXPECT_EQ(String("1.000000"), FloatLiteralExpr(1.0).serialized());
     EXPECT_EQ(String("123"), IntLiteralExpr(123).serialized());
     EXPECT_EQ(String("null"), NullLiteralExpr().serialized());
     EXPECT_EQ(String("true"), BoolLiteralExpr(true).serialized());
     EXPECT_EQ(String("false"), BoolLiteralExpr(false).serialized());
+    EXPECT_EQ(String("\"somestring\""), StringLiteralExpr(String("somestring")).serialized());
 }
 
 TEST(AST, SerializeUnaryExpr) {

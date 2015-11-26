@@ -292,6 +292,7 @@ class FloatLiteralExpr : public NumericLiteralExpr {
     public:
     FloatLiteralExpr(double _value);
     virtual FloatLiteralExpr *asFloatLiteralExpr();
+    virtual void serialize(StringFormatter &sfmt);
 };
 
 class TupleExpr : public Expr {

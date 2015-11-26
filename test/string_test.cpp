@@ -152,3 +152,8 @@ TEST(String, Count) {
     EXPECT_EQ(3, String("a \t string \n with \n escape \n characters").count('\n'));
     EXPECT_EQ(0, String("").count('a'));
 }
+
+TEST(String, Escape) {
+    EXPECT_EQ(String("somestring"), String("somestring").escapedString());
+    EXPECT_EQ(String("some\\0Astring"), String("some\nstring").escapedString());
+}

@@ -79,15 +79,15 @@ long File::getSize() {
 }
 
 int File::seek(long sval) {
-    fseek(fp, sval, SEEK_CUR);
+    return fseek(fp, sval, SEEK_CUR);
 }
 
 int File::set(long sval) {
-    fseek(fp, sval, SEEK_SET);
+    return fseek(fp, sval, SEEK_SET);
 }
 
 int File::rset(long sval) {
-    fseek(fp, sval, SEEK_END);
+    return fseek(fp, sval, SEEK_END);
 }
 
 long File::tell() {

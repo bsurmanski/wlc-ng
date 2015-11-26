@@ -104,7 +104,6 @@ String Lexer::lexUTF8Char() {
     String str;
     long long val = consumeHexSeq();
 
-    char c;
     if(val < 0x80) {
         str.append((char) val);
     } else if(val < 0x800) {

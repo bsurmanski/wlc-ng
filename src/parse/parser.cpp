@@ -140,6 +140,7 @@ Stmt *Parser::parseStmt() {
         if(!peekTok().isTerminator() && !peekTok().is(tok::eof)) {
             throw ParseException(peekTok().getSourceLocation(), String("Expected terminator following statement"));
         }
+        ignoreTok();
     } while(peekTok().isTerminator());
 
     //TODO: stmt terminator
@@ -162,6 +163,7 @@ Stmt *Parser::parseAssignPostfix(Expr *lhs) {
         case tok::barequal:
         case tok::caretequal:
         case tok::percentequal:
+        default:
             //XXX: := ?
             //TODO: augmented assign, eg: +=, -=, *=
             throw new ParseException(peekTok().getSourceLocation(), "unimplemented: augmented assignment");
@@ -236,7 +238,11 @@ ReturnStmt *Parser::parseReturnStmt() {
         throw ParseException(peekTok().getSourceLocation(), "expected 'return' keyword");
     }
 
-    Expr *expr = parseExpr();
+    Expr *expr = NULL;
+    if(!peekTok().isTerminator()) {
+        expr = parseExpr();
+    }
+
     return new ReturnStmt(expr);
 }
 
@@ -539,6 +545,8 @@ Expr *Parser::parseBinaryExpr(int precidence) {
                 ignoreNewlines();
                 lhs = new RShiftExpr(lhs, parseBinaryExpr(tok.binaryOperatorPrecidence()));
                 break;
+            default:
+                break;
         }
 
         tok = peekTok();
@@ -733,6 +741,7 @@ Type *Parser::parseType() {
             break;
 
         case tok::identifier:
+            throw ParseException(peekTok().getSourceLocation(), "identifier type unimplemented");
             break;
 
         case tok::kw_bool:
@@ -759,9 +768,7 @@ Type *Parser::parseType() {
         case tok::kw_float64:
             type = parsePrimativeType();
             break;
-    }
-
-    if(!type) {
+        default:
         throw ParseException(peekTok().getSourceLocation(), "could not parse type");
     }
 

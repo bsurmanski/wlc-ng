@@ -423,7 +423,9 @@ StringLiteralExpr *StringLiteralExpr::asStringLiteralExpr() {
 
 void StringLiteralExpr::serialize(StringFormatter &sfmt) {
     //TODO: escape string
-    throw Exception("unimplemented: string literal serialize");
+    sfmt.write("\"");
+    sfmt.write(value.escapedString());
+    sfmt.write("\"");
 }
 
 NumericLiteralExpr *NumericLiteralExpr::asNumericLiteralExpr() {
@@ -446,6 +448,10 @@ FloatLiteralExpr::FloatLiteralExpr(double _value) : value(_value) {
 
 FloatLiteralExpr *FloatLiteralExpr::asFloatLiteralExpr() {
     return this;
+}
+
+void FloatLiteralExpr::serialize(StringFormatter &sfmt) {
+    sfmt.write(String::fromFloat(value));
 }
 
 IdExpr::IdExpr(String _name) : name(_name) {

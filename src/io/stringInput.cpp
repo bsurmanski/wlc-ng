@@ -43,7 +43,7 @@ int StringInput::peek(int ahead) {
 }
 
 long StringInput::read(void *buf, long sz, long nmemb) {
-	str.copy((char*) buf, sz*nmemb, offset);
+	return str.copy((char*) buf, sz*nmemb, offset);
 }
 
 bool StringInput::eof() {

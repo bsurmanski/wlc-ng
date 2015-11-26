@@ -7,6 +7,7 @@ namespace Char {
     bool isDigit(char c);
     bool isIdChar(char c);
     bool isSign(char c);
+    bool isAsciiPrintable(char c);
     bool isBinDigit(char c);
     bool isOctDigit(char c);
     bool isHexDigit(char c);
@@ -16,6 +17,7 @@ namespace Char {
     int dectoi(char c);
     int bintoi(char c);
     char dectochar(int d);
+    char hextochar(int d);
     bool isWhitespace(char c);
     bool isEndOfLine(char c);
     bool isExponentChar(char c);

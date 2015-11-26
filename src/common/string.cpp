@@ -2,9 +2,10 @@
 #include "string.hpp"
 #include "exception/exception.hpp"
 
-#include <string.h>
-#include <stdlib.h>
 #include <assert.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 
 #define MAX(A, B) ((A) > (B) ? (A) : (B))
@@ -84,6 +85,13 @@ String String::fromUInt(unsigned long long i) {
     } while(i != 0);
 
     return ret;
+}
+
+String String::fromFloat(long double d) {
+    String str;
+    str.resize(32);
+    str.len = snprintf(str.dataPtr(), 32, "%Lf", d);
+    return str;
 }
 
 bool String::isLong() const {
@@ -295,12 +303,18 @@ const char *String::dataPtr() const {
 	}
 }
 
-void String::copy(char *dst, size_t len, size_t pos) const {
+size_t String::copy(char *dst, size_t len, size_t pos) const {
+    size_t n = len;
+    if(length() < pos + len) {
+        n = length() - pos;
+    }
+
 	if(isLong()) {
-		memcpy(dst, &refdata->data[pos], len);
+		memcpy(dst, &refdata->data[pos], n);
 	} else {
-		memcpy(dst, &data[pos], len);
+		memcpy(dst, &data[pos], n);
 	}
+    return n;
 }
 
 String String::substring(int start, int len) const {
@@ -349,6 +363,30 @@ String String::dup() const {
 	copy(o.dataPtr(), length(), 0);
 	o.len = length();
 	return o;
+}
+
+String String::escapedString() const {
+    String ret;
+    bool escaped = false;
+    for(int i = 0; i < length(); i++) {
+        char c = charAt(i);
+        if(Char::isAsciiPrintable(c)) {
+            if(escaped && Char::isHexDigit(c)) ret.append("\\ ");
+
+            if(c == '\\') {
+                ret.append("\\\\");
+            } else {
+                ret.append(c);
+            }
+            escaped = false;
+        } else {
+            if(!escaped) ret.append("\\");
+            ret.append(Char::hextochar((c >> 4) & 0x0f));
+            ret.append(Char::hextochar(c & 0x0f));
+            escaped = true;
+        }
+    }
+    return ret;
 }
 
 std::ostream& operator<<(std::ostream &os, const String &str) {

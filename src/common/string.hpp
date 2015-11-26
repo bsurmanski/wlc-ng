@@ -41,6 +41,7 @@ class String {
 
     static String fromInt(long long i);
     static String fromUInt(unsigned long long i);
+    static String fromFloat(long double d);
 
 	void clear();
 	size_t length() const;
@@ -67,13 +68,15 @@ class String {
 	char *c_str();
 	char *dataPtr();
 	const char *dataPtr() const;
-	void copy(char *dst, size_t len, size_t pos = 0) const;
+	size_t copy(char *dst, size_t len, size_t pos = 0) const;
     String substring(int start, int len = -1) const;
     int indexOf(int c, int startAt = 0) const;
     int lastIndexOf(int c, int startAt = -1) const;
     int count(char ch);
 	bool empty() const;
 	String dup() const;
+
+    String escapedString() const;
 };
 
 std::ostream& operator<<(std::ostream &os, const String &str);

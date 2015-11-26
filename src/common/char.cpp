@@ -25,6 +25,10 @@ bool Char::isSign(char c) {
     return c == '-' || c == '+';
 }
 
+bool Char::isAsciiPrintable(char c) {
+    return c >= 0x20 && c < 0x7f;
+}
+
 bool Char::isBinDigit(char c) {
     return c == '0' || c == '1';
 }
@@ -67,6 +71,14 @@ int Char::bintoi(char c) {
 
 char Char::dectochar(int d) {
     assert(d < 10 && d >= 0);
+    return d + '0';
+}
+
+char Char::hextochar(int d) {
+    assert(d < 16 && d >= 0);
+    if(d >= 10) {
+        return d - 10 + 'A';
+    }
     return d + '0';
 }
 

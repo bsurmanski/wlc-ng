@@ -127,7 +127,7 @@ bool Token::isTypeKeyword() {
 
 bool Token::isLiteral() {
 	switch(kind) {
-#define LITERAL(NM) case ##NM :
+#define LITERAL(NM) case tok:: NM :
 #include "tokenkinds.def"
 		return true;
 	default:
@@ -141,7 +141,7 @@ bool Token::isIdentifier() {
 
 bool Token::isPunct() {
 	switch(kind) {
-#define PUNCT(NM, SYM) case ##NM :
+#define PUNCT(NM, SYM) case tok:: NM :
 #include "tokenkinds.def"
 			return true;
 		default:
@@ -218,9 +218,9 @@ String &Token::getKeyword() {
         }\
         return getStringData();
 #include "tokenkinds.def"
+        default:
+	    throw Exception("Token is not a valid keyword");
     }
-
-	throw Exception("Token is not a valid keyword");
 }
 
 String &Token::getPunctSymbol() {
@@ -232,9 +232,9 @@ String &Token::getPunctSymbol() {
         }\
         return getStringData();
 #include "tokenkinds.def"
+        default:
+	    throw Exception("Token is not a valid keyword");
     }
-
-	throw Exception("Token is not a valid keyword");
 }
 
 String &Token::getStringRepr() {
@@ -264,9 +264,10 @@ String Token::getKindName() {
 #define TOK(NM) case tok:: NM: \
         return #NM;
 #include "tokenkinds.def"
+        default:
+	    throw Exception("Token is not a valid keyword");
     }
 
-	throw Exception("Token is not a valid keyword");
 }
 
 tok::TokenKind Token::getKind() {
