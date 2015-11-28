@@ -307,6 +307,51 @@ String OrExpr::serializeName() {
     return "or";
 }
 
+RelationExpr::RelationExpr(Expr *_lhs, Expr *_rhs) : BinaryExpr(_lhs, _rhs) {
+}
+
+GreaterThanExpr::GreaterThanExpr(Expr *_lhs, Expr *_rhs) : RelationExpr(_lhs, _rhs) {
+}
+
+String GreaterThanExpr::serializeName() {
+    return "gt";
+}
+
+GreaterOrEqualExpr::GreaterOrEqualExpr(Expr *_lhs, Expr *_rhs) : RelationExpr(_lhs, _rhs) {
+}
+
+String GreaterOrEqualExpr::serializeName() {
+    return "ge";
+}
+
+LessThanExpr::LessThanExpr(Expr *_lhs, Expr *_rhs) : RelationExpr(_lhs, _rhs) {
+}
+
+String LessThanExpr::serializeName() {
+    return "lt";
+}
+
+LessOrEqualExpr::LessOrEqualExpr(Expr *_lhs, Expr *_rhs) : RelationExpr(_lhs, _rhs) {
+}
+
+String LessOrEqualExpr::serializeName() {
+    return "le";
+}
+
+NotEqualExpr::NotEqualExpr(Expr *_lhs, Expr *_rhs) : RelationExpr(_lhs, _rhs) {
+}
+
+String NotEqualExpr::serializeName() {
+    return "ne";
+}
+
+EqualExpr::EqualExpr(Expr *_lhs, Expr *_rhs) : RelationExpr(_lhs, _rhs) {
+}
+
+String EqualExpr::serializeName() {
+    return "eq";
+}
+
 /*
  * UnaryExpr
  */

@@ -63,10 +63,13 @@ struct Token {
 	static Token createCommentToken(String str, SourceLocation _loc);
 
     bool isKeyword();
+    bool isModifierKeyword();
     bool isTypeKeyword();
     bool isLiteral();
     bool isIdentifier();
     bool isPunct();
+    bool isIntLiteral();
+    bool isFloatLiteral();
     bool mayBeBinaryOperator();
     bool isTerminator();
     bool is(tok::TokenKind k);
@@ -81,7 +84,7 @@ struct Token {
     String &getIdentifierName();
     String &getKeyword();
     String &getPunctSymbol();
-	String &getStringRepr();
+	String getStringRepr();
 
     String getKindName();
     tok::TokenKind getKind();

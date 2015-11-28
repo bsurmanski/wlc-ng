@@ -79,66 +79,71 @@ Stmt *Parser::parseStmt() {
 
     Stmt *stmt = NULL;
 
-    switch(token.getKind()) {
-        case tok::lbrace:
-            stmt = parseCompoundStmt();
-            break;
+    if(token.isTypeKeyword() || token.isModifierKeyword() ||
+            (token.isIdentifier() && peekTok(1).isIdentifier())) {
+        stmt = parseDecl();
+    } else {
+        switch(token.getKind()) {
+            case tok::lbrace:
+                stmt = parseCompoundStmt();
+                break;
 
-        case tok::kw_label:
-           stmt = parseLabelStmt();
-           break;
+            case tok::kw_label:
+               stmt = parseLabelStmt();
+               break;
 
-        case tok::kw_goto:
-            stmt = parseGotoStmt();
-            break;
+            case tok::kw_goto:
+                stmt = parseGotoStmt();
+                break;
 
-        case tok::kw_break:
-            stmt = parseBreakStmt();
-            break;
+            case tok::kw_break:
+                stmt = parseBreakStmt();
+                break;
 
-        case tok::kw_continue:
-            stmt = parseContinueStmt();
-            break;
+            case tok::kw_continue:
+                stmt = parseContinueStmt();
+                break;
 
-        case tok::kw_return:
-            stmt = parseReturnStmt();
-            break;
+            case tok::kw_return:
+                stmt = parseReturnStmt();
+                break;
 
-        case tok::kw_case:
-            stmt = parseCaseStmt();
-            break;
+            case tok::kw_case:
+                stmt = parseCaseStmt();
+                break;
 
-        case tok::kw_if:
-            stmt = parseIfStmt();
-            break;
+            case tok::kw_if:
+                stmt = parseIfStmt();
+                break;
 
-        case tok::kw_for:
-            stmt = parseForStmt();
-            break;
+            case tok::kw_for:
+                stmt = parseForStmt();
+                break;
 
-        //case tok::kw_foreach:
-        //    stmt = parseForEachStmt();
-        //    break;
+            //case tok::kw_foreach:
+            //    stmt = parseForEachStmt();
+            //    break;
 
-        case tok::kw_while:
-            stmt = parseWhileStmt();
-            break;
+            case tok::kw_while:
+                stmt = parseWhileStmt();
+                break;
 
-        case tok::kw_do:
-            stmt = parseDoWhileStmt();
-            break;
+            case tok::kw_do:
+                stmt = parseDoWhileStmt();
+                break;
 
-        //TODO: use_stmt, import_stmt
+            //TODO: use_stmt, import_stmt
 
-        default:
-            // parse Expr, and get an assignment postfix if appropriate
-            stmt = parseAssignPostfix(parseExpr());
-            break;
+            default:
+                // parse Expr, and get an assignment postfix if appropriate
+                stmt = parseAssignPostfix(parseExpr());
+                break;
+        }
     }
 
     do {
         if(!peekTok().isTerminator() && !peekTok().is(tok::eof)) {
-            throw ParseException(peekTok().getSourceLocation(), String("Expected terminator following statement"));
+            throw ParseException(peekTok().getSourceLocation(), String("Expected terminator following statement. Found: ") + peekTok().getStringRepr());
         }
         ignoreTok();
     } while(peekTok().isTerminator());
@@ -266,7 +271,7 @@ IfStmt *Parser::parseIfStmt() {
     ignoreNewlines();
 
     if(peekTok().getKind() != tok::rparen || !ignoreTok()) {
-        throw ParseException(peekTok().getSourceLocation(), "expected ')' in if stmt");
+        throw ParseException(peekTok().getSourceLocation(), String("expected ')' in if stmt. Found: ") + peekTok().getStringRepr());
     }
 
     Stmt *cond_stmt = parseStmt();
@@ -545,6 +550,30 @@ Expr *Parser::parseBinaryExpr(int precidence) {
                 ignoreNewlines();
                 lhs = new RShiftExpr(lhs, parseBinaryExpr(tok.binaryOperatorPrecidence()));
                 break;
+            case tok::less:
+                ignoreNewlines();
+                lhs = new LessThanExpr(lhs, parseBinaryExpr(tok.binaryOperatorPrecidence()));
+                break;
+            case tok::lessequal:
+                ignoreNewlines();
+                lhs = new LessOrEqualExpr(lhs, parseBinaryExpr(tok.binaryOperatorPrecidence()));
+                break;
+            case tok::greater:
+                ignoreNewlines();
+                lhs = new GreaterThanExpr(lhs, parseBinaryExpr(tok.binaryOperatorPrecidence()));
+                break;
+            case tok::greaterequal:
+                ignoreNewlines();
+                lhs = new GreaterOrEqualExpr(lhs, parseBinaryExpr(tok.binaryOperatorPrecidence()));
+                break;
+            case tok::bangequal:
+                ignoreNewlines();
+                lhs = new NotEqualExpr(lhs, parseBinaryExpr(tok.binaryOperatorPrecidence()));
+                break;
+            case tok::equal:
+                ignoreNewlines();
+                lhs = new EqualExpr(lhs, parseBinaryExpr(tok.binaryOperatorPrecidence()));
+                break;
             default:
                 break;
         }
@@ -724,8 +753,12 @@ Decl *Parser::parseNonTypeDecl() {
         Stmt *body = parseStmt(); //TODO: allow empty stmt
         return new FuncDecl(type, name, params, body);
     } else {
-        //TODO: default value?
-        return new VarDecl(type, name, NULL);
+        Expr *defaultValue = NULL;
+        if(peekTok().getKind() == tok::equal) {
+            ignoreTok();
+            defaultValue = parseExpr();
+        }
+        return new VarDecl(type, name, defaultValue);
     }
 }
 

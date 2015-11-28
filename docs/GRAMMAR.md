@@ -159,6 +159,7 @@
     *use\_stmt*
     *assignment\_stmt*
     *expression*
+    *declaration*
 
 ## statement\_terminator
     ;
@@ -376,12 +377,11 @@
 
 ## expression
     *value\_exp*
-    *declaration*
 
 ## primary\_expression
     *literal\_exp*
     *tuple\_exp*
-    ( $ *expression* $ )
+    *paren\_exp*
     this
     super
     *identifier\_exp*
@@ -394,7 +394,10 @@
     numeric\_literal
 
 ## tuple\_exp
-    [ *expression* {, *expression*} ]
+    [ $ *expression* {, $ *expression*} $ ]
+
+## paren\_exp
+    ( $ *expression* $ )
 
 ## identifier\_exp
     *id*

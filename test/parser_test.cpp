@@ -93,7 +93,7 @@ static Parser *createStringParser(String str) {
 }
 
 TEST(Parser, CompoundStmt) {
-    String in("{\nint i = 0\n if(i < 0) i = 5\n}");
+    String in("{\nint i = 0\nif(i < 0) i = 5\n}");
     Parser *parser = createStringParser(in);
     Stmt *stmt;
     TRY({

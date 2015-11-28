@@ -34,7 +34,7 @@ test/parser_test.cpp \
 test/buffer_test.cpp \
 test/exception_test.cpp
 
-CXXFLAGS=-Isrc -g -O0 -Wall -Wno-sign-compare
+CXXFLAGS=-Isrc -g -O0 -Wall -Wno-sign-compare -Wno-unused-variable -Wno-unused-but-set-variable
 LDFLAGS=
 EXE=wlc
 TESTEXE=test/test

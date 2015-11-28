@@ -115,6 +115,20 @@ bool Token::isKeyword() {
 	}
 }
 
+bool Token::isModifierKeyword() {
+    switch(kind) {
+        case tok::kw_static:
+        case tok::kw_const:
+        case tok::kw_undecorated:
+        case tok::kw_weak:
+        //case tok::kw_decorated:
+        //case tok::kw_explicit:
+            return true;
+        default:
+            return false;
+    }
+}
+
 bool Token::isTypeKeyword() {
     switch(kind) {
 #define TYPE(X) case tok::kw_##X :
@@ -147,6 +161,14 @@ bool Token::isPunct() {
 		default:
 			return false;
 	}
+}
+
+bool Token::isIntLiteral() {
+    return is(tok::intlit);
+}
+
+bool Token::isFloatLiteral() {
+    return is(tok::floatlit);
 }
 
 bool Token::mayBeBinaryOperator() {
@@ -237,7 +259,7 @@ String &Token::getPunctSymbol() {
     }
 }
 
-String &Token::getStringRepr() {
+String Token::getStringRepr() {
     if(isKeyword()) {
         return getKeyword();
     }
@@ -251,9 +273,15 @@ String &Token::getStringRepr() {
     }
 
     if(getKind() == tok::newline) {
-        String tmp( "\\n" );
-        initializeStringData(tmp);
-        return getStringData();
+        return String( "\\n" );
+    }
+
+    if(isIntLiteral()) {
+        return String::fromInt(intdata);
+    }
+
+    if(isFloatLiteral()) {
+        return String::fromFloat(floatdata);
     }
 
     throw Exception(String("unimplemented token stringify for ") + getKindName());

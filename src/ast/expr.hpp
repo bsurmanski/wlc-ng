@@ -176,6 +176,47 @@ class OrExpr : public BinaryExpr {
     OrExpr(Expr *_lhs, Expr *_rhs);
 };
 
+class RelationExpr : public BinaryExpr {
+    public:
+    RelationExpr(Expr *_lhs, Expr *_rhs);
+};
+
+class GreaterThanExpr : public RelationExpr {
+    virtual String serializeName();
+    public:
+    GreaterThanExpr(Expr *_lhs, Expr *_rhs);
+};
+
+class GreaterOrEqualExpr : public RelationExpr {
+    virtual String serializeName();
+    public:
+    GreaterOrEqualExpr(Expr *_lhs, Expr *_rhs);
+};
+
+class LessThanExpr : public RelationExpr {
+    virtual String serializeName();
+    public:
+    LessThanExpr(Expr *_lhs, Expr *_rhs);
+};
+
+class LessOrEqualExpr : public RelationExpr {
+    virtual String serializeName();
+    public:
+    LessOrEqualExpr(Expr *_lhs, Expr *_rhs);
+};
+
+class NotEqualExpr : public RelationExpr {
+    virtual String serializeName();
+    public:
+    NotEqualExpr(Expr *_lhs, Expr *_rhs);
+};
+
+class EqualExpr : public RelationExpr {
+    virtual String serializeName();
+    public:
+    EqualExpr(Expr *_lhs, Expr *_rhs);
+};
+
 class UnaryExpr : public Expr {
     Expr *operand;
 
