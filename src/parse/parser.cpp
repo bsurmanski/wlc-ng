@@ -274,17 +274,15 @@ IfStmt *Parser::parseIfStmt() {
         throw ParseException(peekTok().getSourceLocation(), String("expected ')' in if stmt. Found: ") + peekTok().getStringRepr());
     }
 
-    Stmt *cond_stmt = parseStmt();
-    Stmt *else_stmt = NULL;
-
-    ignoreNewlines();
+    Stmt *body = parseStmt();
+    Stmt *elseBody = NULL;
 
     if(peekTok().getKind() == tok::kw_else) {
         ignoreTok();
-        else_stmt = parseStmt();
+        elseBody = parseStmt();
     }
 
-    return new IfStmt(cond_expr, cond_stmt, else_stmt);
+    return new IfStmt(cond_expr, body, elseBody);
 }
 
 WhileStmt *Parser::parseWhileStmt() {
@@ -308,8 +306,6 @@ WhileStmt *Parser::parseWhileStmt() {
 
     Stmt *body = parseStmt();
     Stmt *elseBody = NULL;
-
-    ignoreNewlines();
 
     if(peekTok().getKind() == tok::kw_else) {
         ignoreTok();
@@ -348,7 +344,6 @@ DoWhileStmt *Parser::parseDoWhileStmt() {
         throw ParseException(peekTok().getSourceLocation(), "expected ')' in while stmt");
     }
 
-    ignoreNewlines();
     Stmt *elseBody = NULL;
     if(peekTok().getKind() == tok::kw_else) {
         ignoreTok();
@@ -397,7 +392,6 @@ ForStmt *Parser::parseForStmt() {
 
     ignoreNewlines();
     body = parseStmt();
-    ignoreNewlines();
 
     if(peekTok().getKind() == tok::kw_else) {
         ignoreTok();

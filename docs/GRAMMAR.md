@@ -201,7 +201,7 @@
     else $ *statement*
 
 ## if\_stmt
-    if ( $ *logical\_exp* $ ) $ *statement* $ [*else_block*] 
+    if ( $ *logical\_exp* $ ) $ *statement* [*else_block*] 
 
 ## switch\_stmt
     switch ( $ *logical\_exp* $ ) $ *statement*
@@ -210,9 +210,9 @@
     case *expression* {, $ *expression*}
 
 ## loop\_stmt
-    while ( $ [*value\_exp*] $ ) $ *statement* $ [*else_block*]
+    while ( $ [*value\_exp*] $ ) $ *statement* [*else_block*]
     do $ *statement* $ while ( $ *value\_exp* $ ) 
-    for ( $ *declaration* ; $ *expression* ;  $ *expression* $ ) $ *statement* $ [*else_block*]
+    for ( $ *declaration* ; $ *expression* ;  $ *expression* $ ) $ *statement* [*else_block*]
     foreach ( *declaration* in *expression* ) *statement* [*else_block*]
 
 ## use\_stmt
