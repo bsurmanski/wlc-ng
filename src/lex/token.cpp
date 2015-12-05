@@ -139,6 +139,18 @@ bool Token::isTypeKeyword() {
     }
 }
 
+bool Token::isIdTypeKeyword() {
+    switch(kind) {
+        case tok::kw_interface:
+        case tok::kw_struct:
+        case tok::kw_class:
+        case tok::kw_union:
+            return true;
+        default:
+            return false;
+    }
+}
+
 bool Token::isLiteral() {
 	switch(kind) {
 #define LITERAL(NM) case tok:: NM :

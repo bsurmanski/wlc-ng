@@ -69,7 +69,7 @@ ArrayType *Type::asArrayType() {
     return NULL;
 }
 
-UserType *Type::asUserType() {
+IdType *Type::asIdType() {
     return NULL;
 }
 
@@ -93,8 +93,8 @@ bool Type::isArrayType() {
     return asArrayType();
 }
 
-bool Type::isUserType() {
-    return asUserType();
+bool Type::isIdType() {
+    return asIdType();
 }
 
 PrimativeType::PrimativeType(Kind _kind) : kind(_kind) {
@@ -218,11 +218,12 @@ void PointerType::serialize(StringFormatter &sfmt) {
     sfmt.write(")");
 }
 
-UserType::UserType(const String &_name) : name(_name) {
+IdType::IdType(const String &_name) : name(_name), decl(NULL) {
 }
 
-void UserType::serialize(StringFormatter &sfmt) {
+void IdType::serialize(StringFormatter &sfmt) {
     sfmt.write("(type ");
     sfmt.write(name);
     sfmt.write(")");
 }
+

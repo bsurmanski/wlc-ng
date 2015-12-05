@@ -243,6 +243,20 @@ class PreDecExpr : public UnaryExpr {
     PreDecExpr(Expr *_operand);
 };
 
+class PostIncExpr : public UnaryExpr {
+    virtual String serializeName();
+
+    public:
+    PostIncExpr(Expr *_operand);
+};
+
+class PostDecExpr : public UnaryExpr {
+    virtual String serializeName();
+
+    public:
+    PostDecExpr(Expr *_operand);
+};
+
 class NegateExpr : public UnaryExpr {
     virtual String serializeName();
 
@@ -347,29 +361,39 @@ class MemExpr : public Expr {
 };
 
 class NewExpr : public MemExpr {
+    Type *type;
+
     public:
+    NewExpr(Type *_type);
     virtual NewExpr *asNewExpr();
+    virtual void serialize(StringFormatter &sfmt);
 };
 
 class DeleteExpr : public MemExpr {
     Expr *operand;
 
     public:
+    DeleteExpr(Expr *_operand);
     virtual DeleteExpr *asDeleteExpr();
+    virtual void serialize(StringFormatter &sfmt);
 };
 
 class RetainExpr : public MemExpr {
     Expr *operand;
 
     public:
+    RetainExpr(Expr *_operand);
     virtual RetainExpr *asRetainExpr();
+    virtual void serialize(StringFormatter &sfmt);
 };
 
 class ReleaseExpr : public MemExpr {
     Expr *operand;
 
     public:
+    ReleaseExpr(Expr *_operand);
     virtual ReleaseExpr *asReleaseExpr();
+    virtual void serialize(StringFormatter &sfmt);
 };
 
 class IdExpr : public Expr {
@@ -385,22 +409,39 @@ class PackExpr : public Expr {
     String filename;
 
     public:
+    PackExpr(const String &_filename);
     virtual PackExpr *asPackExpr();
+    virtual void serialize(StringFormatter &sfmt);
 };
 
 class MemberExpr : public Expr {
+    Expr *base;
+    String memberId;
+
     public:
     virtual MemberExpr *asMemberExpr();
+    MemberExpr(Expr *_base, const String &_memberId);
+    virtual void serialize(StringFormatter &sfmt);
 };
 
 class CallExpr : public Expr {
+    Expr *func;
+    DynArray<Expr*> args;
+
     public:
+    CallExpr(Expr *_func, DynArray<Expr*> _args);
     virtual CallExpr *asCallExpr();
+    virtual void serialize(StringFormatter &sfmt);
 };
 
 class IndexExpr : public Expr {
+    Expr *base;
+    Expr *index;
+
     public:
+    IndexExpr(Expr *_base, Expr *_index);
     virtual IndexExpr *asIndexExpr();
+    virtual void serialize(StringFormatter &sfmt);
 };
 
 class CastExpr : public Expr {

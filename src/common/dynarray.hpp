@@ -84,7 +84,7 @@ class DynArray {
 
     const DynArray<T>& operator=(const DynArray<T> &o) {
         data->release();
-        data = o.data.retain();
+        data = o.data->retain();
         return *this;
     }
 

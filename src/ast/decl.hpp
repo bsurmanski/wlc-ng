@@ -7,39 +7,50 @@
 #include "type.hpp"
 #include "expr.hpp"
 
-class Decl : public Expr {
+class Decl : public Stmt {
 };
 
 class TypeDecl : public Decl {
 };
 
-class UserTypeDecl : public TypeDecl {
+class IdTypeDecl : public TypeDecl {
     String name;
+    String base;
+    DynArray<Decl*> members;
+
+    virtual String serializeName() = 0;
 
     public:
-    void setName(String _name);
+    void setName(const String &_name);
+    void setBase(const String &_base);
+    void addMember(Decl* decl);
     virtual bool isStructDecl();
     virtual bool isUnionDecl();
     virtual bool isClassDecl();
     virtual bool isInterfaceDecl();
+    virtual void serialize(StringFormatter &sfmt);
 };
 
-class StructDecl : public UserTypeDecl {
+class StructDecl : public IdTypeDecl {
+    virtual String serializeName();
     public:
     virtual bool isStructDecl();
 };
 
-class UnionDecl : public UserTypeDecl {
+class UnionDecl : public IdTypeDecl {
+    virtual String serializeName();
     public:
     virtual bool isUnionDecl();
 };
 
-class ClassDecl : public UserTypeDecl {
+class ClassDecl : public IdTypeDecl {
+    virtual String serializeName();
     public:
     virtual bool isClassDecl();
-};
+}; //TODO: class extends
 
-class InterfaceDecl : public UserTypeDecl {
+class InterfaceDecl : public IdTypeDecl {
+    virtual String serializeName();
     public:
     virtual bool isInterfaceDecl();
 };

@@ -233,8 +233,10 @@ void IfStmt::serialize(StringFormatter &sfmt) {
     sfmt.newline();
     sfmt.indent();
     body->serialize(sfmt);
-    sfmt.newline();
-    elseBody->serialize(sfmt);
+    if(elseBody) {
+        sfmt.newline();
+        elseBody->serialize(sfmt);
+    }
     sfmt.write(")");
     sfmt.unindent();
 }

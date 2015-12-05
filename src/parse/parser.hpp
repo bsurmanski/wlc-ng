@@ -28,7 +28,8 @@ class Parser : public Object {
 
     protected:
     Token &peekTok(int i = 0);
-    void ignoreNewlines();
+    int ignoreNewlines();
+    int ignoreStmtTerminators();
     bool ignoreTok();
     Token getTok();
 
@@ -54,6 +55,7 @@ class Parser : public Object {
     ForStmt             *parseForStmt();
     ForEachStmt         *parseForEachStmt();
 
+    Expr                *parsePostfixExpr(Expr *expr);
     Expr                *parsePrimaryExpr();
     Expr                *parseBinaryExpr(int precidence = 0);
     Expr                *parseUnaryExpr();
@@ -70,7 +72,8 @@ class Parser : public Object {
     IdExpr              *parseIdExpr();
     PackExpr            *parsePackExpr();
     MemberExpr          *parseMemberExpr();
-    CallExpr            *parseCallExpr();
+    DynArray<Expr*>     parseExprList();
+    CallExpr            *parseCallExprPostfix(Expr *expr);
     IndexExpr           *parseIndexExpr();
     CastExpr            *parseCastExpr();
 
@@ -79,7 +82,7 @@ class Parser : public Object {
     Decl                *parseNonTypeDecl();
 
     PrimativeType       *parsePrimativeType();
-    UserType            *parseUserType();
+    IdType              *parseIdType();
     TupleType           *parseTupleType();
     FunctionType        *parseFunctionType();
     PointerType         *parsePointerType();

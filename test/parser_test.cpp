@@ -92,15 +92,9 @@ static Parser *createStringParser(String str) {
     return new Parser(prog, lex);
 }
 
-TEST(Parser, CompoundStmt) {
-    String in("{\nint i = 0\nif(i < 0) i = 5\n}");
-    Parser *parser = createStringParser(in);
-    Stmt *stmt;
-    TRY({
-            stmt = parser->parseStmt();
-            delete stmt;
-        });
-    delete parser;
+TEST_F(TestParser, CompoundStmt) {
+    TestStmt("(stmts\n  (var i int32 0)\n  (if (lt (id i) 0)\n    (set (id i) 5)))", "{\nint i = 0\nif(i < 0) i = 5\n}");
+    TestStmt("(stmts\n  (var i int32 0)\n  (if (lt (id i) 0)\n    (set (id i) 5)))", "{int i = 0;if(i < 0) i = 5}");
 }
 
 TEST_F(TestParser, ReturnStmt) {
@@ -171,8 +165,8 @@ TEST_F(TestParser, PrimativeType) {
 }
 
 TEST_F(TestParser, UnaryExpr) {
-    TestExpr("(preinc true)", "++true");
-    TestExpr("(predec false)", "--false");
+    TestExpr("(preinc 1)", "++1");
+    TestExpr("(predec 1)", "--1");
     TestExpr("(not null)", "!null");
     TestExpr("(deref null)", "^null");
     TestExpr("(ref null)", "&null");
@@ -186,9 +180,53 @@ TEST_F(TestParser, BinaryExpr) {
     TestExpr("(sub (add 1 (div 2 3)) 4)", "1 + 2 / 3 - 4");
 }
 
+TEST_F(TestParser, PostfixExpr) {
+    TestExpr("(postinc 1)", "1++");
+    TestExpr("(postdec 1)", "1--");
+}
+
 TEST_F(TestParser, IdExpr) {
     TestExpr("(id myid)", "myid");
     TestExpr("(id myid)", "myid ;");
+}
+
+TEST_F(TestParser, RetainExpr) {
+    TestExpr("(retain (id a))", "retain a");
+}
+
+TEST_F(TestParser, ReleaseExpr) {
+    TestExpr("(release (id a))", "release a");
+}
+
+TEST_F(TestParser, NewExpr) {
+    TestExpr("(new (type mytype))", "new mytype");
+}
+
+TEST_F(TestParser, DeleteExpr) {
+    TestExpr("(delete (id a))", "delete a");
+}
+
+TEST_F(TestParser, CallExpr) {
+    TestExpr("(call (id myfunc))", "myfunc()");
+    TestExpr("(call (id myfunc) 1 2 3 (id a) (id b))", "myfunc(1, 2, 3, a, b)");
+}
+
+TEST_F(TestParser, MemberExpr) {
+    TestExpr("(member (id a) (id b))", "a.b");
+    TestExpr("(member (member (id a) (id b)) (id c))", "a.b.c");
+}
+
+TEST_F(TestParser, IndexExpr) {
+    TestExpr("(index (id a) 0)", "a[0]");
+    TestExpr("(index (id abc) (add 1 2))", "abc[1 + 2]");
+}
+
+TEST_F(TestParser, PackExpr) {
+    TestExpr("(pack \"afile.txt\")", "pack \"afile.txt\"");
+}
+
+TEST_F(TestParser, CastExpr) {
+    TestExpr("(cast (id myexpr) int)", "int: myexpr");
 }
 
 TEST_F(TestParser, Literals) {
@@ -214,4 +252,11 @@ TEST_F(TestParser, VarDecl) {
 
 TEST_F(TestParser, FuncDecl) {
     TestDecl("(func hello void (vars (var a int8))\n  (break))", "void hello(int8 a) break");
+    TestDecl("(func hello void (vars (var a int8))\n  (stmts\n    (call (id printf) \"helloworld\")))", "void hello(int8 a) {\nprintf(\"helloworld\")\n}");
+}
+
+TEST_F(TestParser, TypeDecl) {
+    TestDecl("(struct mystruct (decls\n  (var i int32)\n  (var j int32)\n  (var k (type mytype))))", "struct mystruct{\nint i\nint j\nmytype k\n}");
+    TestDecl("(struct mystruct (decls))", "struct mystruct{}");
+    TestDecl("(class myclass (id base) (decls))", "class myclass : base {}");
 }

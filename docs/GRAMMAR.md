@@ -150,7 +150,7 @@
 ----------
 
 ## statement\_body
-    *compound_stmt*
+    *compound\_stmt*
     *jump\_stmt*
     *label_stmt*
     *case\_stmt*
@@ -186,7 +186,7 @@
     *value\_exp* *assignment\_op* $ *expression*
 
 ## compound\_stmt
-    { $ {*statement*} $ }
+    { $ [*statement* {. *statement*}] $ }
 
 ## jump\_stmt
     goto *id*
@@ -345,7 +345,7 @@
     ! [ *template\_member* {, *template\_member*} ]
 
 ## type\_decl\_body
-    { $ {*declaration* $} $ }
+    { $ [*declaration* {. *declaration*}] $ }
 
 ## type\_decl
     struct [*id*] $ *type\_decl\_body*
@@ -365,7 +365,7 @@
     ...
 
 ## function\_decl
-    *type* *id* ( *parameter\_list* ) $ *statement*
+    *type* *id* ( *parameter\_list* ) $ *statement* .
 
 ## variable\_decl
     *type\_qual* *type* *id* [= $ *value\_exp*]
@@ -435,6 +435,7 @@
     *member\_exp*
     *index\_exp*
     *primary\_exp*
+    *call\_exp*
 
 ## postfix\_exp
     *arithmetic\_postifx\_exp*

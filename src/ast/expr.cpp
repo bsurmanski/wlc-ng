@@ -393,6 +393,20 @@ String PreDecExpr::serializeName() {
     return "predec";
 }
 
+PostIncExpr::PostIncExpr(Expr *_operand) : UnaryExpr(_operand) {
+}
+
+String PostIncExpr::serializeName() {
+    return "postinc";
+}
+
+PostDecExpr::PostDecExpr(Expr *_operand) : UnaryExpr(_operand) {
+}
+
+String PostDecExpr::serializeName() {
+    return "postdec";
+}
+
 NegateExpr::NegateExpr(Expr *_operand) : UnaryExpr(_operand) {
 }
 
@@ -499,6 +513,62 @@ void FloatLiteralExpr::serialize(StringFormatter &sfmt) {
     sfmt.write(String::fromFloat(value));
 }
 
+MemExpr *MemExpr::asMemExpr() {
+    return this;
+}
+
+NewExpr::NewExpr(Type *_type) : type(_type) {
+}
+
+NewExpr *NewExpr::asNewExpr() {
+    return this;
+}
+
+void NewExpr::serialize(StringFormatter &sfmt) {
+    sfmt.write("(new ");
+    type->serialize(sfmt);
+    sfmt.write(")");
+}
+
+DeleteExpr::DeleteExpr(Expr *_operand) : operand(_operand) {
+}
+
+DeleteExpr *DeleteExpr::asDeleteExpr() {
+    return this;
+}
+
+void DeleteExpr::serialize(StringFormatter &sfmt) {
+    sfmt.write("(delete ");
+    operand->serialize(sfmt);
+    sfmt.write(")");
+}
+
+RetainExpr::RetainExpr(Expr *_operand) : operand(_operand) {
+}
+
+RetainExpr *RetainExpr::asRetainExpr() {
+    return this;
+}
+
+void RetainExpr::serialize(StringFormatter &sfmt) {
+    sfmt.write("(retain ");
+    operand->serialize(sfmt);
+    sfmt.write(")");
+}
+
+ReleaseExpr::ReleaseExpr(Expr *_operand) : operand(_operand) {
+}
+
+ReleaseExpr *ReleaseExpr::asReleaseExpr() {
+    return this;
+}
+
+void ReleaseExpr::serialize(StringFormatter &sfmt) {
+    sfmt.write("(release ");
+    operand->serialize(sfmt);
+    sfmt.write(")");
+}
+
 IdExpr::IdExpr(String _name) : name(_name) {
 }
 
@@ -509,5 +579,65 @@ IdExpr *IdExpr::asIdExpr() {
 void IdExpr::serialize(StringFormatter &sfmt) {
     sfmt.write("(id ");
     sfmt.write(name);
+    sfmt.write(")");
+}
+
+PackExpr::PackExpr(const String &_filename) : filename(_filename) {
+}
+
+PackExpr *PackExpr::asPackExpr() {
+    return this;
+}
+
+void PackExpr::serialize(StringFormatter &sfmt) {
+    sfmt.write("(pack \"");
+    sfmt.write(filename.escapedString());
+    sfmt.write("\")");
+}
+
+MemberExpr *MemberExpr::asMemberExpr() {
+    return this;
+}
+
+MemberExpr::MemberExpr(Expr *_base, const String &_memberId) : base(_base), memberId(_memberId) {
+}
+
+void MemberExpr::serialize(StringFormatter &sfmt) {
+    sfmt.write("(member ");
+    base->serialize(sfmt);
+    sfmt.write(" (id ");
+    sfmt.write(memberId);
+    sfmt.write("))");
+}
+
+CallExpr::CallExpr(Expr *_func, DynArray<Expr*> _args) : func(_func), args(_args) {
+}
+
+CallExpr *CallExpr::asCallExpr() {
+    return this;
+}
+
+void CallExpr::serialize(StringFormatter &sfmt) {
+    sfmt.write("(call ");
+    func->serialize(sfmt);
+    for(int i = 0; i < args.size(); i++) {
+        sfmt.write(" ");
+        args[i]->serialize(sfmt);
+    }
+    sfmt.write(")");
+}
+
+IndexExpr::IndexExpr(Expr *_base, Expr *_index) : base(_base), index(_index) {
+}
+
+IndexExpr *IndexExpr::asIndexExpr() {
+    return this;
+}
+
+void IndexExpr::serialize(StringFormatter &sfmt) {
+    sfmt.write("(index ");
+    base->serialize(sfmt);
+    sfmt.write(" ");
+    index->serialize(sfmt);
     sfmt.write(")");
 }

@@ -65,6 +65,7 @@ struct Token {
     bool isKeyword();
     bool isModifierKeyword();
     bool isTypeKeyword();
+    bool isIdTypeKeyword();
     bool isLiteral();
     bool isIdentifier();
     bool isPunct();

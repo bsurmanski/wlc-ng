@@ -1,40 +1,84 @@
 #include "decl.hpp"
 
-void UserTypeDecl::setName(String _name) {
+void IdTypeDecl::setName(const String &_name) {
     name = _name;
 }
+void IdTypeDecl::setBase(const String &_base) {
+    base= _base;
+}
 
-bool UserTypeDecl::isStructDecl() {
+void IdTypeDecl::addMember(Decl* decl) {
+    members.append(decl);
+}
+
+bool IdTypeDecl::isStructDecl() {
     return false;
 }
 
-bool UserTypeDecl::isUnionDecl() {
+bool IdTypeDecl::isUnionDecl() {
     return false;
 }
 
-bool UserTypeDecl::isClassDecl() {
+bool IdTypeDecl::isClassDecl() {
     return false;
 }
 
-bool UserTypeDecl::isInterfaceDecl() {
+bool IdTypeDecl::isInterfaceDecl() {
     return false;
 }
 
+void IdTypeDecl::serialize(StringFormatter &sfmt) {
+    sfmt.write("(");
+    sfmt.write(serializeName());
+    sfmt.write(" ");
+    sfmt.write(name);
+    if(!base.empty()) {
+        sfmt.write(" ");
+        sfmt.write("(id ");
+        sfmt.write(base);
+        sfmt.write(")");
+    }
+    sfmt.indent();
+    sfmt.write(" (decls");
+    for(int i = 0; i < members.size(); i++) {
+        sfmt.newline();
+        members[i]->serialize(sfmt);
+    }
+    sfmt.unindent();
+    sfmt.write(")");
+    sfmt.write(")");
+}
 
 bool StructDecl::isStructDecl() {
     return true;
+}
+
+String StructDecl::serializeName() {
+    return "struct";
 }
 
 bool UnionDecl::isUnionDecl() {
     return true;
 }
 
+String UnionDecl::serializeName() {
+    return "union";
+}
+
 bool ClassDecl::isClassDecl() {
     return true;
 }
 
+String ClassDecl::serializeName() {
+    return "class";
+}
+
 bool InterfaceDecl::isInterfaceDecl() {
     return true;
+}
+
+String InterfaceDecl::serializeName() {
+    return "class";
 }
 
 
@@ -51,6 +95,10 @@ void VarDecl::serialize(StringFormatter &sfmt) {
     sfmt.write(name);
     sfmt.write(" ");
     type->serialize(sfmt);
+    if(defaultValue) {
+        sfmt.write(" ");
+        defaultValue->serialize(sfmt);
+    }
     sfmt.write(")");
 }
 

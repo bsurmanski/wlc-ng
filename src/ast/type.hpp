@@ -6,12 +6,14 @@
 #include "common/string.hpp"
 #include "common/stringFormatter.hpp"
 
+class Decl;
+
 class PrimativeType;
 class TupleType;
 class FunctionType;
 class PointerType;
 class ArrayType;
-class UserType;
+class IdType;
 
 class Type : public Object {
     PointerType *ptrTy;
@@ -30,14 +32,14 @@ class Type : public Object {
     virtual FunctionType    *asFunctionType();
     virtual PointerType     *asPointerType();
     virtual ArrayType       *asArrayType();
-    virtual UserType        *asUserType();
+    virtual IdType          *asIdType();
 
     virtual bool isPrimativeType();
     virtual bool isTupleType();
     virtual bool isFunctionType();
     virtual bool isPointerType();
     virtual bool isArrayType();
-    virtual bool isUserType();
+    virtual bool isIdType();
 };
 
 class PrimativeType : public Type {
@@ -107,10 +109,11 @@ class StaticArrayType : public ArrayType {
 class DynamicArrayType : public ArrayType {
 };
 
-class UserType : public Type {
+class IdType : public Type {
     String name;
+    Decl *decl;
     public:
-    UserType(const String &_name);
+    IdType(const String &_name);
     virtual void serialize(StringFormatter &sfmt);
 };
 
